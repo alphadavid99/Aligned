@@ -19,6 +19,7 @@ export default function AuthScreen() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [ok, setOk] = useState("");
+  const [agreed, setAgreed] = useState(false);
 
   const isSignup = mode === "signup";
 
@@ -39,6 +40,10 @@ export default function AuthScreen() {
       setErr("Enter your email and a password.");
       return;
     }
+    if (isSignup && !agreed) {
+      setErr("Please agree to the Privacy Policy to create an account.");
+      return;
+    }
     setBusy(true);
     try {
       if (isSignup) {
@@ -54,6 +59,10 @@ export default function AuthScreen() {
 
   const google = async () => {
     clear();
+    if (isSignup && !agreed) {
+      setErr("Please agree to the Privacy Policy to create an account.");
+      return;
+    }
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (e2) {
@@ -118,6 +127,24 @@ export default function AuthScreen() {
 
         {err && <div className="err">{err}</div>}
         {ok && <div className="ok">{ok}</div>}
+
+        {isSignup && (
+          <label className="consent">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+            />
+            <span>
+              I agree to the{" "}
+              <a className="link" href="/privacy.html" target="_blank" rel="noreferrer">
+                Privacy Policy
+              </a>
+              . Aligned collects sensitive answers (faith, values, intimacy) to
+              show the two of you where you align.
+            </span>
+          </label>
+        )}
 
         <button className="btn" type="submit" disabled={busy}>
           {busy

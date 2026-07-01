@@ -4,6 +4,7 @@ import { auth } from "../firebase";
 import { useProfile } from "../hooks/useProfile";
 import { fileToAvatarDataUrl } from "../lib/device/photo";
 import { prettyError } from "../lib/errors";
+import { exportMyData, deleteMyAccount } from "../lib/functions";
 import type { Profile } from "../types";
 
 export default function ProfileScreen({
@@ -34,9 +35,47 @@ export default function ProfileScreen({
     }
   }, [loading, hydrated, profile, user.displayName]);
 
+  const [dataBusy, setDataBusy] = useState(false);
+  const [dataMsg, setDataMsg] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   const clear = () => {
     setErr("");
     setOk("");
+  };
+
+  const doExport = async () => {
+    setDataBusy(true);
+    setDataMsg("");
+    try {
+      const res = await exportMyData();
+      const blob = new Blob([JSON.stringify(res.data, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "aligned-my-data.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      setDataMsg("Your data has been downloaded.");
+    } catch (e) {
+      setDataMsg(prettyError(e));
+    } finally {
+      setDataBusy(false);
+    }
+  };
+
+  const doDelete = async () => {
+    setDataBusy(true);
+    setDataMsg("");
+    try {
+      await deleteMyAccount();
+      await signOut(auth); // App swaps to the sign-in screen
+    } catch (e) {
+      setDataMsg(prettyError(e));
+      setDataBusy(false);
+    }
   };
 
   const onPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,6 +206,61 @@ export default function ProfileScreen({
       <button className="btn out" type="button" onClick={() => signOut(auth)}>
         Sign out
       </button>
+
+      <div className="card" style={{ marginTop: 20 }}>
+        <div className="eyebrow">Your data</div>
+        <p className="muted" style={{ fontSize: 13, margin: "8px 0 14px" }}>
+          Aligned holds sensitive answers. You can take them with you or erase
+          everything, at any time.
+        </p>
+        <button className="btn out" type="button" onClick={doExport} disabled={dataBusy}>
+          {dataBusy ? "Working…" : "Export my data"}
+        </button>
+
+        {!confirmDelete ? (
+          <button
+            className="btn ghost"
+            type="button"
+            style={{ color: "var(--danger)" }}
+            onClick={() => setConfirmDelete(true)}
+            disabled={dataBusy}
+          >
+            Delete my account
+          </button>
+        ) : (
+          <>
+            <p className="err">
+              This permanently erases your profile and removes you from every
+              session. It can’t be undone.
+            </p>
+            <button
+              className="btn"
+              type="button"
+              style={{ background: "var(--danger)", boxShadow: "none" }}
+              onClick={doDelete}
+              disabled={dataBusy}
+            >
+              {dataBusy ? "Deleting…" : "Yes, delete everything"}
+            </button>
+            <button
+              className="btn ghost"
+              type="button"
+              onClick={() => setConfirmDelete(false)}
+              disabled={dataBusy}
+            >
+              Cancel
+            </button>
+          </>
+        )}
+        {dataMsg && <div className="ok">{dataMsg}</div>}
+        <p className="muted" style={{ fontSize: 12, marginTop: 12 }}>
+          See our{" "}
+          <a className="link" href="/privacy.html" target="_blank" rel="noreferrer">
+            Privacy Policy
+          </a>
+          .
+        </p>
+      </div>
 
       <div className="foot">
         Signed in as {user.email || "(google account)"} · uid {user.uid}

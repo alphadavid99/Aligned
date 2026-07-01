@@ -590,3 +590,22 @@ textarea.input {
 .bnav-item.on {
   color: var(--berry);
 }
+
+.consent {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 20px 2px 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--sub);
+  line-height: 1.5;
+  cursor: pointer;
+}
+.consent input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  accent-color: var(--berry);
+}
