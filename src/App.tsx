@@ -1,35 +1,26 @@
-import { app } from "./firebase";
-import "./App.css";
+import { useAuth } from "./hooks/useAuth";
+import AuthScreen from "./screens/AuthScreen";
+import ProfileScreen from "./screens/ProfileScreen";
 
-// Phase 0 smoke test. No features — this only proves the pipeline:
-// React + Vite renders, and the Firebase web config loaded from env
-// (we read the live projectId straight off the initialized app).
 export default function App() {
-  const projectId = app.options.projectId ?? "(missing config)";
+  const { user, loading } = useAuth();
 
   return (
-    <main className="smoke">
-      <svg
-        className="mark"
-        viewBox="-60 -60 120 120"
-        role="img"
-        aria-label="Aligned"
-      >
-        <path
-          d="M-46,40 L0,-46 L46,40 L20,40 L0,2.6 L-20,40 Z"
-          fill="var(--berry)"
-        />
-      </svg>
+    <div className="phone">
+      <div className="wordmark">aligned &#10022;</div>
 
-      <h1>Aligned</h1>
-      <p className="tagline">surface, don&rsquo;t settle</p>
-
-      <div className="status">
-        <span className="dot" />
-        Firebase connected &mdash; project <code>{projectId}</code>
-      </div>
-
-      <p className="phase">Phase&nbsp;0 &middot; toolchain smoke test</p>
-    </main>
+      {loading ? (
+        <>
+          <div className="spin" />
+          <p className="muted center" style={{ fontSize: 14 }}>
+            Checking your account…
+          </p>
+        </>
+      ) : user ? (
+        <ProfileScreen user={user} />
+      ) : (
+        <AuthScreen />
+      )}
+    </div>
   );
 }

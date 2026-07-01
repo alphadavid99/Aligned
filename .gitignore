@@ -16,6 +16,9 @@ dist-ssr
 .env.local
 .env.*.local
 
+# Claude Code — local machine settings (launch.json is committed, this isn't)
+.claude/settings.local.json
+
 # Firebase
 .firebase/
 firebase-debug.log
