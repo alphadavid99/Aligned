@@ -271,3 +271,322 @@ textarea.input {
     transform: rotate(360deg);
   }
 }
+
+/* ---- session / play / reveal ---- */
+.link {
+  cursor: pointer;
+}
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--berry);
+  background: var(--optbg);
+  border: none;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-family: inherit;
+}
+.badge.honey {
+  color: var(--amber);
+  background: var(--honbg);
+}
+.badge.tap {
+  cursor: pointer;
+  font-size: 15px;
+}
+.eyebrow {
+  display: block;
+}
+
+.qcard {
+  background: #fff;
+  border: 1px solid var(--cardb);
+  border-radius: var(--r-md);
+  box-shadow: var(--e1);
+  padding: 22px;
+}
+.qrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.qtext {
+  font-family: var(--font-display);
+  font-size: 21px;
+  line-height: 1.35;
+  margin-top: 14px;
+  color: var(--ink);
+}
+.qprog {
+  height: 6px;
+  background: var(--track);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 18px 0 0;
+}
+.qprog i {
+  display: block;
+  height: 100%;
+  background: var(--honey);
+  border-radius: 999px;
+  transition: width 0.25s;
+}
+.hint {
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 11px;
+  color: var(--mut);
+  margin-top: 16px;
+}
+
+.slabels {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--sub);
+}
+.scale {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+}
+.orb {
+  flex: 1;
+  aspect-ratio: 1;
+  max-width: 56px;
+  border-radius: 50%;
+  border: 2px solid #e0b9c2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--mut);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.orb.sel {
+  background: var(--honey);
+  border-color: var(--honey);
+  color: #fff;
+}
+
+.opt {
+  position: relative;
+  padding: 16px 44px 16px 18px;
+  border: 1.5px solid var(--cardb);
+  border-radius: var(--r-sm);
+  margin-top: 10px;
+  cursor: pointer;
+  transition: all 0.12s;
+  line-height: 1.4;
+}
+.opt .dot {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #e0b9c2;
+}
+.opt.sel {
+  border-color: var(--berry);
+  background: rgba(104, 45, 92, 0.05);
+}
+.opt.sel .dot {
+  border-color: var(--berry);
+  background: var(--berry);
+  box-shadow: inset 0 0 0 3px #fff;
+}
+.opt.guess.sel {
+  border-color: var(--honeyD);
+  background: rgba(217, 150, 58, 0.08);
+}
+.opt.guess.sel .dot {
+  border-color: var(--honeyD);
+  background: var(--honeyD);
+}
+.rankopt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+}
+.rankno {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  background: #fff;
+  border: 2px solid #e0b9c2;
+  color: var(--mut);
+}
+.rankopt.sel .rankno {
+  background: var(--honey);
+  border-color: var(--honey);
+  color: #fff;
+}
+.ta {
+  width: 100%;
+  min-height: 120px;
+  margin-top: 18px;
+  padding: 16px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--ink);
+  border: 1.5px solid var(--cardb);
+  border-radius: var(--r-sm);
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+}
+.ta:focus {
+  border-color: var(--berry);
+}
+
+.yousaid {
+  background: var(--optbg);
+  border-radius: var(--r-md);
+  padding: 16px 20px;
+  margin-top: 18px;
+}
+.yousaid-val {
+  font-weight: 600;
+  color: var(--berry);
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+.btn.honey {
+  background: linear-gradient(135deg, var(--honey), var(--honeyD));
+  color: #3a2410;
+  box-shadow: 0 12px 26px rgba(217, 150, 58, 0.3);
+}
+
+.banner {
+  background: var(--honbg);
+  border: 1px solid #ead3b2;
+  border-radius: var(--r-sm);
+  padding: 16px 18px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6b4a16;
+}
+.codechip {
+  font-family: ui-monospace, Menlo, monospace;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--berry);
+  background: #fff;
+  border: 1.5px solid var(--honeyD);
+  border-radius: 10px;
+  padding: 4px 12px;
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.catico {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--cardb);
+  cursor: pointer;
+}
+.stagelabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 22px 4px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--berry);
+}
+
+.verrow {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--cardb);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.verq {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.veranswers {
+  display: flex;
+  gap: 18px;
+  font-size: 13px;
+  color: var(--sub);
+}
+.verbadge {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1.5px solid;
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+.resrow {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--cardb);
+}
+
+/* ---- bottom nav ---- */
+.tabwrap {
+  padding-bottom: 78px;
+}
+.bnav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  background: #fff;
+  border-top: 1px solid var(--cardb);
+  padding: 8px 8px calc(env(safe-area-inset-bottom, 0px) + 8px);
+  z-index: 10;
+}
+.bnav-item {
+  flex: 1;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mut);
+  padding: 10px 4px;
+  cursor: pointer;
+}
+.bnav-item.on {
+  color: var(--berry);
+}

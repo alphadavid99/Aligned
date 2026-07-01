@@ -6,7 +6,13 @@ import { fileToAvatarDataUrl } from "../lib/device/photo";
 import { prettyError } from "../lib/errors";
 import type { Profile } from "../types";
 
-export default function ProfileScreen({ user }: { user: User }) {
+export default function ProfileScreen({
+  user,
+  onLeave,
+}: {
+  user: User;
+  onLeave?: () => void;
+}) {
   const { profile, loading, saveProfile } = useProfile(user.uid);
 
   const [name, setName] = useState("");
@@ -153,6 +159,11 @@ export default function ProfileScreen({ user }: { user: User }) {
         </button>
       </div>
 
+      {onLeave && (
+        <button className="btn out" type="button" onClick={onLeave}>
+          Leave this session
+        </button>
+      )}
       <button className="btn out" type="button" onClick={() => signOut(auth)}>
         Sign out
       </button>
