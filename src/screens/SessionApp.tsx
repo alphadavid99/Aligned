@@ -127,6 +127,7 @@ export default function SessionApp({
         level={0}
         role={role}
         deck={deck}
+        partnerName={partnerName}
         questions={DECKS[slug].questions}
         review
         onDone={exitFlow}
@@ -145,6 +146,7 @@ export default function SessionApp({
           level={level}
           role={role}
           deck={deck}
+          partnerName={partnerName}
           onDone={exitFlow}
         />
       );

@@ -49,6 +49,7 @@ export default function RevealScreen({
   role,
   deck,
   onDone,
+  partnerName,
   questions,
   review = false,
 }: {
@@ -57,6 +58,7 @@ export default function RevealScreen({
   role: Role;
   deck: DeckData | undefined;
   onDone: () => void;
+  partnerName: string;
   // Review mode passes the whole deck's questions so a finished deck can be
   // reopened to see the full per-question breakdown (what each of you answered).
   questions?: Question[];
@@ -103,12 +105,20 @@ export default function RevealScreen({
         )}
       </p>
       {know.pct != null && (
-        <p className="muted center" style={{ fontSize: 14 }}>
-          {t(
-            `You guessed each other right ${know.pct}% of the time (${know.right}/${know.made}).`,
-            `Vous vous êtes devinés justes ${know.pct}% du temps (${know.right}/${know.made}).`,
-          )}
-        </p>
+        <div className="knowcard">
+          <div className="knowpct">{know.pct}%</div>
+          <div>
+            <div className="knowtitle">
+              {t("How well you know each other", "À quel point vous vous connaissez")}
+            </div>
+            <div className="knowsub">
+              {t(
+                `You guessed right ${know.right} of ${know.made} times`,
+                `Vous avez deviné juste ${know.right} fois sur ${know.made}`,
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="card" style={{ marginTop: 20, padding: 0, overflow: "hidden" }}>
@@ -132,6 +142,24 @@ export default function RevealScreen({
               >
                 {t(r.verdict, VERDICT_FR[r.verdict])}
               </span>
+              {(r.guessed || r.theyGuessed) && (
+                <div className="guessrow">
+                  {r.guessed && (
+                    <span className={`gtag ${r.guessRight ? "gok" : "gno"}`}>
+                      {r.guessRight ? "✓" : "✗"}{" "}
+                      {t("You guessed they'd pick", "Ton pari pour l’autre")}:{" "}
+                      <b>{optLabel(lq, r.guess)}</b>
+                    </span>
+                  )}
+                  {r.theyGuessed && (
+                    <span className={`gtag ${r.theyGuessRight ? "gok" : "gno"}`}>
+                      {r.theyGuessRight ? "✓" : "✗"} {partnerName}{" "}
+                      {t("guessed you'd pick", "avait parié sur toi")}:{" "}
+                      <b>{optLabel(lq, r.theirGuess)}</b>
+                    </span>
+                  )}
+                </div>
+              )}
               {r.verdict === "Differed" && (
                 <div className="verline">
                   {t("Worth a conversation.", "Un sujet à aborder ensemble.")}

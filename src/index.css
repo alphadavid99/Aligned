@@ -802,6 +802,59 @@ textarea.input {
   font-style: italic;
 }
 
+/* ---- reveal: "how well you know each other" callout ---- */
+.knowcard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--optbg);
+  border-radius: var(--r-md);
+  padding: 14px 18px;
+  margin: 16px 2px 0;
+}
+.knowpct {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 1;
+  color: var(--berry);
+  font-variant-numeric: tabular-nums;
+  flex: 0 0 auto;
+}
+.knowtitle {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+}
+.knowsub {
+  font-size: 12.5px;
+  color: var(--sub);
+  margin-top: 2px;
+}
+
+/* ---- reveal: per-question guess reveal (predict-your-partner payoff) ---- */
+.guessrow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+.gtag {
+  font-size: 12.5px;
+  color: var(--mut);
+  line-height: 1.4;
+}
+.gtag b {
+  color: var(--ink);
+  font-weight: 600;
+}
+.gtag.gok {
+  color: #2fa96b;
+}
+.gtag.gok b {
+  color: #2fa96b;
+}
+
 /* ---- play: live scale label under the selected orb ---- */
 .orblabels {
   display: flex;
