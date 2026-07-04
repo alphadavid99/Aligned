@@ -42,6 +42,16 @@ function optLabel(q: Question, v: AnswerValue | undefined): string {
   return q.opts?.[Number(v)] ?? String(v);
 }
 
+// Tiered copy for the guess-accuracy capsule. Always encouraging (no guilt
+// mechanics): only a genuinely high score claims "you know each other well";
+// lower scores frame the gap as discovery still ahead, never as failure.
+function knowLine(pct: number, t: (en: string, fr: string) => string): string {
+  if (pct >= 70) return t("You know each other well", "Vous vous connaissez bien");
+  if (pct >= 40)
+    return t("Still discovering each other", "Vous continuez à vous découvrir");
+  return t("So much still to discover", "Encore tant à découvrir");
+}
+
 // Level reveal: the shared alignment score plus a per-question breakdown.
 // Both partners see the same number (it only unlocks once both have finished).
 export default function RevealScreen({
@@ -101,26 +111,24 @@ export default function RevealScreen({
           {t("What you each said", "Ce que chacun a dit")}
         </h1>
       )}
+      {know.pct != null && (
+        <div className="knowcaps reveal-rise">
+          <span className="knowpill">
+            <b>{know.pct}%</b>
+            <span>
+              {knowLine(know.pct, t)}
+              {" · "}
+              {t(`${know.right} of ${know.made} right`, `${know.right} sur ${know.made}`)}
+            </span>
+          </span>
+        </div>
+      )}
       <p className="sub serif center reveal-rise" style={{ fontStyle: "italic", margin: "0 24px 6px" }}>
         {t(
           "Not a verdict — a place to start talking.",
           "Pas un verdict — un point de départ pour discuter.",
         )}
       </p>
-      {know.pct != null && (
-        <div className="knowblock reveal-rise">
-          <div className="eyebrow" style={{ color: "var(--amber)", marginBottom: 8 }}>
-            {t("How well you know each other", "À quel point vous vous connaissez")}
-          </div>
-          <PctRing pct={know.pct} size={124} color="var(--honeyD)" label="" />
-          <div className="knowsub">
-            {t(
-              `${know.right} of ${know.made} guesses right`,
-              `${know.right} bons paris sur ${know.made}`,
-            )}
-          </div>
-        </div>
-      )}
 
       <div className="qbreak" style={{ marginTop: 20 }}>
         {joint.map((q, i) => {

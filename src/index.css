@@ -831,19 +831,36 @@ textarea.input {
   font-style: italic;
 }
 
-/* ---- reveal: "how well you know each other" — a secondary (smaller, warmer)
-   ring that gives couples a positive counterweight to a low alignment score ---- */
-.knowblock {
+/* ---- reveal: guess-accuracy capsule — a warm honey "medal" under the hero
+   ring. A positive counterweight to a low alignment score without a second
+   gauge competing for attention. Copy is tiered to the score (knowLine). ---- */
+.knowcaps {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  margin: 22px 0 4px;
+  justify-content: center;
+  margin: 14px 0 4px;
 }
-.knowsub {
+.knowpill {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  background: var(--honbg);
+  border: 1px solid #ead3b2;
+  border-radius: 999px;
+  padding: 10px 19px;
+}
+.knowpill b {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--amber);
+  font-variant-numeric: tabular-nums;
+}
+.knowpill span {
   font-size: 13px;
-  color: var(--sub);
-  margin-top: 4px;
+  font-weight: 600;
+  color: #6b4a16;
+  line-height: 1.35;
 }
 
 /* ---- reveal entrance motion (respects prefers-reduced-motion) ---- */
