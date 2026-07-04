@@ -142,10 +142,37 @@ textarea.input {
   box-shadow: var(--e-btn);
   cursor: pointer;
   margin-top: 22px;
-  transition: transform 0.1s, opacity 0.15s;
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s,
+    box-shadow 0.12s;
 }
 .btn:active {
-  transform: translateY(1px);
+  transform: scale(0.965) translateY(1px);
+  box-shadow: 0 4px 12px rgba(104, 45, 92, 0.26);
+}
+/* Busy: a soft shimmer says "working" — applied alongside the busy label. */
+.btn.busy {
+  position: relative;
+  overflow: hidden;
+}
+.btn.busy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 70%
+  );
+  animation: shimmer 1.1s linear infinite;
+}
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 .btn[disabled] {
   opacity: 0.55;
@@ -328,11 +355,32 @@ textarea.input {
   margin: 18px 0 0;
 }
 .qprog i {
+  position: relative;
   display: block;
   height: 100%;
   background: var(--honey);
   border-radius: 999px;
-  transition: width 0.25s;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* keyed per question so the leading edge pulses once on each advance */
+.qtick {
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--honey);
+  transform: translateY(-50%);
+  animation: tickGlow 0.6s ease both;
+}
+@keyframes tickGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(229, 169, 60, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(229, 169, 60, 0);
+  }
 }
 .hint {
   text-align: center;
@@ -369,12 +417,36 @@ textarea.input {
   font-weight: 700;
   color: var(--mut);
   cursor: pointer;
-  transition: all 0.12s;
+  transition: border-color 0.15s, color 0.15s;
 }
 .orb.sel {
   background: var(--honey);
   border-color: var(--honey);
   color: #fff;
+  animation: orbSpring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+    orbGlow 0.7s ease;
+}
+@keyframes orbSpring {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.18);
+  }
+  65% {
+    transform: scale(0.96);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes orbGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(229, 169, 60, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgba(229, 169, 60, 0);
+  }
 }
 
 .opt {
@@ -400,11 +472,24 @@ textarea.input {
 .opt.sel {
   border-color: var(--berry);
   background: rgba(104, 45, 92, 0.05);
+  animation: optSettle 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 .opt.sel .dot {
   border-color: var(--berry);
   background: var(--berry);
   box-shadow: inset 0 0 0 3px #fff;
+  animation: orbSpring 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes optSettle {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.012);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 .opt.guess.sel {
   border-color: var(--honeyD);
@@ -438,6 +523,7 @@ textarea.input {
   background: var(--honey);
   border-color: var(--honey);
   color: #fff;
+  animation: orbSpring 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .ta {
   width: 100%;
@@ -513,6 +599,10 @@ textarea.input {
   padding: 14px 4px;
   border-bottom: 1px solid var(--cardb);
   cursor: pointer;
+  transition: transform 0.13s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.row:active {
+  transform: scale(0.985);
 }
 .stagelabel {
   display: flex;
@@ -1226,4 +1316,268 @@ textarea.input {
 .stept b {
   color: var(--ink);
   font-weight: 600;
+}
+
+/* ============================================================
+   Motion pass (approved spec 1–10): question glide, tab crossfade,
+   entrances, waiting breath, milestone bloom, partner-join, presses.
+   Everything here is decorative — all disabled under reduced motion.
+   ============================================================ */
+
+/* 2. question glide — new question card slides in from the right */
+.glide-in {
+  animation: qIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes qIn {
+  from {
+    opacity: 0;
+    transform: translateX(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 7. tab crossfade — pane rises in on tab change (keyed per tab) */
+.pane-in {
+  animation: paneIn 0.22s ease both;
+}
+@keyframes paneIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 8. first impression — caret rises, wordmark settles, fields stagger */
+.brand-enter .logo svg {
+  animation: caretIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.brand-enter .logo-word {
+  animation: riseIn 0.55s ease 0.25s both;
+}
+@keyframes caretIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.screen-enter > * {
+  animation: riseIn 0.45s ease both;
+}
+.screen-enter > *:nth-child(1) { animation-delay: 0.05s; }
+.screen-enter > *:nth-child(2) { animation-delay: 0.11s; }
+.screen-enter > *:nth-child(3) { animation-delay: 0.17s; }
+.screen-enter > *:nth-child(4) { animation-delay: 0.23s; }
+.screen-enter > *:nth-child(5) { animation-delay: 0.29s; }
+.screen-enter > *:nth-child(6) { animation-delay: 0.35s; }
+.screen-enter > *:nth-child(7) { animation-delay: 0.41s; }
+.screen-enter > *:nth-child(8) { animation-delay: 0.47s; }
+
+/* 5. waiting breath — caret breathes, soft rings ripple outward */
+.bwrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 34px auto 12px;
+  display: grid;
+  place-items: center;
+}
+.bring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(229, 169, 60, 0.55);
+  animation: rippleOut 3.2s ease-out infinite;
+}
+.bring.b2 {
+  animation-delay: 1.6s;
+}
+@keyframes rippleOut {
+  0% {
+    transform: scale(0.62);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+.bwrap .logo svg {
+  animation: caretBreath 3.2s ease-in-out infinite;
+}
+@keyframes caretBreath {
+  0%,
+  100% {
+    transform: scale(0.96);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+/* 6. milestone bloom — on the reveal's hero ring, after it draws */
+.bloomwrap {
+  position: relative;
+  display: inline-block;
+  animation: ringPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.85s both;
+}
+.bloomwrap::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 2px solid rgba(229, 169, 60, 0.55);
+  animation: haloOut 1s ease-out 0.95s both;
+  pointer-events: none;
+}
+@keyframes ringPop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.99);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes haloOut {
+  from {
+    transform: scale(0.9);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+.bloomwrap .glint {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ffe9bd;
+  box-shadow: 0 0 10px 3px rgba(229, 169, 60, 0.8);
+  opacity: 0;
+  animation: glintFade 1.1s ease-out both;
+  pointer-events: none;
+  z-index: 2;
+}
+.bloomwrap .glint.g1 {
+  top: 10px;
+  right: 20px;
+  animation-delay: 1.05s;
+}
+.bloomwrap .glint.g2 {
+  bottom: 16px;
+  left: 12px;
+  animation-delay: 1.3s;
+}
+@keyframes glintFade {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+/* 9. partner arrives — their avatar slides in and settles against yours */
+.joinpop {
+  display: inline-flex;
+}
+.joinnow .joinpop {
+  animation: slideJoin 0.6s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+@keyframes slideJoin {
+  from {
+    opacity: 0;
+    transform: translateX(26px) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.joinnote {
+  font-size: 12.5px;
+  color: var(--sage);
+  font-weight: 700;
+  animation: riseIn 0.4s ease 0.5s both;
+}
+
+/* 10. remaining press states */
+.badge.tap,
+.codechip,
+.langopt,
+.iconbtn,
+.photobtn {
+  transition: transform 0.13s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.badge.tap:active,
+.codechip:active,
+.photobtn:active {
+  transform: scale(0.95);
+}
+.langopt:active {
+  transform: scale(0.97);
+}
+.iconbtn:active {
+  transform: scale(0.88);
+}
+
+/* one guard for the whole motion pass */
+@media (prefers-reduced-motion: reduce) {
+  .glide-in,
+  .pane-in,
+  .screen-enter > *,
+  .brand-enter .logo svg,
+  .brand-enter .logo-word,
+  .orb.sel,
+  .opt.sel,
+  .opt.sel .dot,
+  .rankopt.sel .rankno,
+  .qtick,
+  .bring,
+  .bwrap .logo svg,
+  .bloomwrap,
+  .bloomwrap::before,
+  .bloomwrap .glint,
+  .joinnow .joinpop,
+  .joinnote,
+  .btn.busy::after {
+    animation: none !important;
+  }
 }

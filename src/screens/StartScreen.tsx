@@ -62,7 +62,7 @@ export default function StartScreen({
   };
 
   return (
-    <section>
+    <section className="screen-enter">
       <div className="eyebrow center" style={{ marginTop: 30 }}>
         {t("The two of you", "Vous deux")}
       </div>
@@ -107,7 +107,7 @@ export default function StartScreen({
 
       {mode === "choose" ? (
         <>
-          <button className="btn" type="button" onClick={create} disabled={busy}>
+          <button className={busy ? "btn busy" : "btn"} type="button" onClick={create} disabled={busy}>
             {busy
               ? t("One moment…", "Un instant…")
               : t("Create a session →", "Créer une session →")}
@@ -138,7 +138,7 @@ export default function StartScreen({
             onChange={(e) => setCode(e.target.value)}
           />
           {err && <div className="err">{err}</div>}
-          <button className="btn" type="button" onClick={join} disabled={busy}>
+          <button className={busy ? "btn busy" : "btn"} type="button" onClick={join} disabled={busy}>
             {busy ? t("Joining…", "Connexion…") : t("Join →", "Rejoindre →")}
           </button>
           <button

@@ -121,7 +121,11 @@ export default function PlayScreen({
     return (
       <section>
         <TopBar onExit={onExit} />
-        <div className="qcard" style={{ marginTop: 20, borderColor: "#F3E6CF" }}>
+        <div
+          key={`${q.id}-guess`}
+          className="qcard glide-in"
+          style={{ marginTop: 20, borderColor: "#F3E6CF" }}
+        >
           <div className="qrow">
             <div className="eyebrow">{deckName(slug, lang).toUpperCase()}</div>
             <span className="badge honey">&#10022; {t("GUESS", "DEVINEZ")}</span>
@@ -169,9 +173,12 @@ export default function PlayScreen({
     <section>
       <TopBar onExit={onExit} />
       <div className="qprog">
-        <i style={{ width: `${Math.round(((idx + 1) / qs.length) * 100)}%` }} />
+        <i style={{ width: `${Math.round(((idx + 1) / qs.length) * 100)}%` }}>
+          {/* keyed per question so the leading edge pulses once per advance */}
+          <span key={idx} className="qtick" />
+        </i>
       </div>
-      <div className="qcard" style={{ marginTop: 18 }}>
+      <div key={q.id} className="qcard glide-in" style={{ marginTop: 18 }}>
         <div className="qrow">
           <div className="eyebrow">{eyebrow}</div>
           <span className="badge">{t(`TIER ${q.tier}`, `NIVEAU ${q.tier}`)}</span>

@@ -206,7 +206,7 @@ export default function ProfileScreen({
         {err && <div className="err">{err}</div>}
         {ok && <div className="ok">{ok}</div>}
 
-        <button className="btn" type="button" onClick={save} disabled={busy}>
+        <button className={busy ? "btn busy" : "btn"} type="button" onClick={save} disabled={busy}>
           {busy ? t("Saving…", "Enregistrement…") : t("Save profile", "Enregistrer le profil")}
         </button>
       </div>

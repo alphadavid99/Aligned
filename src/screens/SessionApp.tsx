@@ -158,7 +158,12 @@ export default function SessionApp({
     return (
       <section>
         <TopBar onExit={exitFlow} />
-        <div className="spin" />
+        {/* Waiting on the partner: a breathing caret, not an error-ish spinner. */}
+        <div className="bwrap">
+          <span className="bring" />
+          <span className="bring b2" />
+          <Logo size={42} word={false} />
+        </div>
         <h2 className="h1 center" style={{ fontSize: 24 }}>
           {t("All yours are in.", "Les vôtres sont enregistrées.")}
         </h2>
@@ -193,23 +198,26 @@ export default function SessionApp({
           {/* Full wordmark on Home + Profile; caret only on Decks + Results. */}
           <Logo size={30} word={tab === "home" || tab === "profile"} />
         </div>
-        {tab === "home" && (
-          <HomeScreen
-            code={code}
-            session={session}
-            role={role}
-            slug={slug}
-            onPlay={openDeck}
-            onBrowse={() => setTab("decks")}
-          />
-        )}
-        {tab === "decks" && (
-          <DecksScreen session={session} role={role} onPlay={openDeck} />
-        )}
-        {tab === "results" && (
-          <ResultsScreen session={session} role={role} onOpen={openDeck} />
-        )}
-        {tab === "profile" && <ProfileScreen user={user} onLeave={onLeave} />}
+        {/* keyed per tab so each pane rises in on switch */}
+        <div key={tab} className="pane-in">
+          {tab === "home" && (
+            <HomeScreen
+              code={code}
+              session={session}
+              role={role}
+              slug={slug}
+              onPlay={openDeck}
+              onBrowse={() => setTab("decks")}
+            />
+          )}
+          {tab === "decks" && (
+            <DecksScreen session={session} role={role} onPlay={openDeck} />
+          )}
+          {tab === "results" && (
+            <ResultsScreen session={session} role={role} onOpen={openDeck} />
+          )}
+          {tab === "profile" && <ProfileScreen user={user} onLeave={onLeave} />}
+        </div>
       </div>
 
       <nav className="bnav">

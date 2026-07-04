@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { nLevels, lvlQs } from "../lib/leveling";
 import { curLevel, doneInLevel, catComplete } from "../lib/progress";
 import { other, type DeckData, type Role } from "../lib/scoring";
@@ -32,6 +32,15 @@ export default function HomeScreen({
   const partner = session.members?.[other(role)];
   const partnerName = partner?.name ?? t("your partner", "votre partenaire");
   const joined = !!partner;
+
+  // Celebrate the moment the partner arrives while we're watching — their
+  // avatar slides in and a short note settles. No replay on later visits.
+  const prevJoined = useRef(joined);
+  const [justJoined, setJustJoined] = useState(false);
+  useEffect(() => {
+    if (joined && !prevJoined.current) setJustJoined(true);
+    prevJoined.current = joined;
+  }, [joined]);
 
   const h = new Date().getHours();
   const greeting =
@@ -128,10 +137,12 @@ export default function HomeScreen({
       )}
 
       <div className="qcard" style={{ textAlign: "center", padding: "32px 26px 36px", marginTop: 16 }}>
-        <div className="avstack">
+        <div className={`avstack${justJoined ? " joinnow" : ""}`}>
           <Avatar name={myName} tone="berry" />
           {joined ? (
-            <Avatar name={partnerName} tone="honey" />
+            <span className="joinpop">
+              <Avatar name={partnerName} tone="honey" />
+            </span>
           ) : (
             <div className="avatar-disc avatar-wait" style={{ width: 46, height: 46 }}>
               ?
@@ -140,6 +151,11 @@ export default function HomeScreen({
         </div>
         <div style={{ fontSize: 15, fontWeight: 600, margin: "8px 0 14px" }}>
           {myName} &amp; {joined ? partnerName : "…"}
+          {justJoined && (
+            <div className="joinnote">
+              {partnerName} {t("joined ✓", "vous a rejoint ✓")}
+            </div>
+          )}
         </div>
         <button className="badge tap" type="button" onClick={onBrowse}>
           {deckName(slug, lang)} &#9662;

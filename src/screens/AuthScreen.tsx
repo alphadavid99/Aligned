@@ -111,7 +111,7 @@ export default function AuthScreen() {
   };
 
   return (
-    <section>
+    <section className="screen-enter">
       <div className="eyebrow center" style={{ marginTop: 34 }}>
         {t("Your account", "Votre compte")}
       </div>
@@ -215,7 +215,7 @@ export default function AuthScreen() {
         {err && <div className="err">{err}</div>}
         {ok && <div className="ok">{ok}</div>}
 
-        <button className="btn" type="submit" disabled={busy}>
+        <button className={busy ? "btn busy" : "btn"} type="submit" disabled={busy}>
           {busy
             ? t("One moment…", "Un instant…")
             : isSignup

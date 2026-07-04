@@ -14,7 +14,7 @@ import { IconSettings, IconBack } from "./components/icons";
 import { useT } from "./lib/i18n";
 
 const Wordmark = () => (
-  <div className="brandhead">
+  <div className="brandhead brand-enter">
     <Logo size={40} />
   </div>
 );
@@ -47,7 +47,7 @@ function NoSession({
   const showProfile = view === "profile";
   return (
     <>
-      <div className="landinghead">
+      <div className="landinghead brand-enter">
         <Logo size={30} />
         <button
           className="iconbtn landinghead-action"

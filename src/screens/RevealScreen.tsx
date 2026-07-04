@@ -104,7 +104,12 @@ export default function RevealScreen({
       </div>
       {hasScore ? (
         <div className="center" style={{ margin: "18px 0 6px" }}>
-          <PctRing pct={pct} size={180} label={t("aligned", "alignés")} />
+          {/* Bloom fires after the ring finishes drawing — the milestone moment. */}
+          <span className="bloomwrap">
+            <span className="glint g1" />
+            <span className="glint g2" />
+            <PctRing pct={pct} size={180} label={t("aligned", "alignés")} />
+          </span>
         </div>
       ) : (
         <h1 className="h1 center" style={{ margin: "16px 0 6px" }}>
