@@ -78,6 +78,7 @@ export default function SessionApp({
   }
 
   const deck = session.decks?.[slug];
+  const myName = session.members?.[role]?.name ?? t("You", "Vous");
   const partnerName =
     session.members?.[other(role)]?.name ?? t("your partner", "votre partenaire");
 
@@ -127,6 +128,7 @@ export default function SessionApp({
         level={0}
         role={role}
         deck={deck}
+        myName={myName}
         partnerName={partnerName}
         questions={DECKS[slug].questions}
         review
@@ -146,6 +148,7 @@ export default function SessionApp({
           level={level}
           role={role}
           deck={deck}
+          myName={myName}
           partnerName={partnerName}
           onDone={exitFlow}
         />

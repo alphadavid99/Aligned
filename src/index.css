@@ -870,6 +870,254 @@ textarea.input {
   }
 }
 
+/* ---- reveal: airy question cards with per-type bodies ---- */
+.qbreak {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.qc {
+  background: #fff;
+  border: 1px solid var(--cardb);
+  border-left: 4px solid var(--sub);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(104, 45, 92, 0.05);
+  padding: 15px 16px;
+}
+.qc-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.qc-q {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.qc-badge {
+  flex: 0 0 auto;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1.5px solid;
+  border-radius: 999px;
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+.qc-note {
+  font-size: 12.5px;
+  color: var(--sub);
+  font-style: italic;
+  margin-top: 10px;
+}
+.qc-note.ok {
+  color: var(--sage);
+  font-style: normal;
+  font-weight: 600;
+}
+.qc-note.comp {
+  color: #8250b8;
+}
+
+/* scale → 1–5 alignment bar */
+.sbar {
+  margin-top: 4px;
+}
+.sbar-track {
+  position: relative;
+  height: 6px;
+  background: var(--track);
+  border-radius: 999px;
+  margin: 26px 13px 10px;
+}
+.sbar-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(217, 150, 58, 0.3);
+  border-radius: 999px;
+}
+.sbar-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(104, 45, 92, 0.22);
+  animation: dotPop 0.4s ease both;
+}
+.sbar-dot.s {
+  background: var(--berry);
+}
+.sbar-dot.j {
+  background: var(--honeyD);
+}
+.sbar-dot.both {
+  background: linear-gradient(135deg, var(--berry), var(--honeyD));
+  font-size: 12px;
+}
+.sbar-ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--sub);
+}
+@keyframes dotPop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sbar-dot {
+    animation: none;
+  }
+}
+
+/* mc → matched line or two colour-coded chips */
+.mcboth {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--ink);
+}
+.mcboth b {
+  color: var(--berry);
+}
+.mccheck {
+  color: var(--sage);
+  font-weight: 700;
+}
+.mctwo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.mcchip {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 7px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+.mcchip i {
+  font-style: normal;
+  font-size: 9.5px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  opacity: 0.85;
+}
+.mcchip.s {
+  background: rgba(104, 45, 92, 0.07);
+  color: var(--berry);
+}
+.mcchip.j {
+  background: rgba(217, 150, 58, 0.13);
+  color: var(--amber);
+}
+.mcchip b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* rank → paired ordered lists, matching positions highlighted */
+.rank2 {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+.rank2-col {
+  flex: 1;
+  min-width: 0;
+}
+.rank2-h {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.rank2-h.s {
+  color: var(--berry);
+}
+.rank2-h.j {
+  color: var(--amber);
+}
+.rank2 ol {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12.5px;
+  color: var(--ink);
+  line-height: 1.55;
+}
+.rank2 ol li.rmatch {
+  color: var(--sage);
+  font-weight: 600;
+}
+
+/* open → quoted blocks with avatars */
+.openq {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+.oq {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.oav {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+}
+.oav.s {
+  background: var(--berry);
+}
+.oav.j {
+  background: var(--honeyD);
+}
+.oq-who {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--sub);
+}
+.oq-text {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+
 /* ---- reveal: per-question guess reveal (predict-your-partner payoff) ---- */
 .guessrow {
   display: flex;
