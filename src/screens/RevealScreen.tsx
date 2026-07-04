@@ -8,6 +8,7 @@ import {
   type Role,
   type Verdict,
   type AnswerValue,
+  type ScoreResult,
 } from "../lib/scoring";
 import { type Question } from "../lib/questions";
 import { deckName, localizeQuestion } from "../lib/questions.fr";
@@ -49,6 +50,7 @@ export default function RevealScreen({
   role,
   deck,
   onDone,
+  myName,
   partnerName,
   questions,
   review = false,
@@ -58,6 +60,7 @@ export default function RevealScreen({
   role: Role;
   deck: DeckData | undefined;
   onDone: () => void;
+  myName: string;
   partnerName: string;
   // Review mode passes the whole deck's questions so a finished deck can be
   // reopened to see the full per-question breakdown (what each of you answered).
@@ -119,81 +122,25 @@ export default function RevealScreen({
         </div>
       )}
 
-      <div className="card" style={{ marginTop: 20, padding: 0, overflow: "hidden" }}>
+      <div className="qbreak" style={{ marginTop: 20 }}>
         {joint.map((q, i) => {
           const r = scoreQ(q, data, role);
           const lq = localizeQuestion(q, lang);
           return (
-            <div
+            <QCard
               key={q.id}
-              className="verrow row-rise"
-              style={{ animationDelay: `${Math.min(i * 45, 500)}ms` }}
-            >
-              <div className="verq">{lq.q}</div>
-              {lq.type === "rank" && r.A && r.B ? (
-                <div className="rankcmp">
-                  <div className="rankcol">
-                    <div className="rankcol-h">{t("You", "Vous")}</div>
-                    <ol className="ranklist">
-                      {r.A.map((idx, k) => (
-                        <li key={k}>{lq.opts?.[idx] ?? idx}</li>
-                      ))}
-                    </ol>
-                  </div>
-                  <div className="rankcol">
-                    <div className="rankcol-h">{t("Them", "L’autre")}</div>
-                    <ol className="ranklist">
-                      {r.B.map((idx, k) => (
-                        <li key={k}>{lq.opts?.[idx] ?? idx}</li>
-                      ))}
-                    </ol>
-                  </div>
-                </div>
-              ) : (
-                <div className="veranswers">
-                  <span>
-                    {t("You:", "Vous :")} <b>{optLabel(lq, r.me)}</b>
-                  </span>
-                  <span>
-                    {t("Them:", "L’autre :")} <b>{optLabel(lq, r.th)}</b>
-                  </span>
-                </div>
-              )}
-              <span
-                className="verbadge"
-                style={{ color: VERDICT_COLOR[r.verdict], borderColor: VERDICT_COLOR[r.verdict] }}
-              >
-                {t(r.verdict, VERDICT_FR[r.verdict])}
-              </span>
-              {(r.guessed || r.theyGuessed) && (
-                <div className="guessrow">
-                  {r.guessed && (
-                    <span className={`gtag ${r.guessRight ? "gok" : "gno"}`}>
-                      {r.guessRight ? "✓" : "✗"}{" "}
-                      {t("You guessed they'd pick", "Ton pari pour l’autre")}:{" "}
-                      <b>{optLabel(lq, r.guess)}</b>
-                    </span>
-                  )}
-                  {r.theyGuessed && (
-                    <span className={`gtag ${r.theyGuessRight ? "gok" : "gno"}`}>
-                      {r.theyGuessRight ? "✓" : "✗"} {partnerName}{" "}
-                      {t("guessed you'd pick", "avait parié sur toi")}:{" "}
-                      <b>{optLabel(lq, r.theirGuess)}</b>
-                    </span>
-                  )}
-                </div>
-              )}
-              {r.verdict === "Differed" && (
-                <div className="verline">
-                  {t("Worth a conversation.", "Un sujet à aborder ensemble.")}
-                </div>
-              )}
-            </div>
+              q={lq}
+              r={r}
+              t={t}
+              myName={myName}
+              partnerName={partnerName}
+              delay={Math.min(i * 50, 500)}
+            />
           );
         })}
         {joint.length === 0 && (
-          <div className="verrow">
-            <div className="muted">
+          <div className="qc" style={{ borderLeftColor: "var(--sub)" }}>
+            <div className="muted" style={{ fontSize: 13 }}>
               {t(
                 "Open reflections here — compare them together.",
                 "Des réflexions libres ici — comparez-les ensemble.",
@@ -207,5 +154,231 @@ export default function RevealScreen({
         {t("Done", "Terminé")}
       </button>
     </section>
+  );
+}
+
+const initialOf = (n: string) => (n || "?").trim().charAt(0).toUpperCase() || "?";
+
+// One airy card per question, with a body tailored to the question type:
+// scale → a 1–5 alignment bar; mc → matched/split chips; rank → paired ordered
+// lists with matching positions highlighted; open → quoted blocks with avatars.
+function QCard({
+  q,
+  r,
+  t,
+  myName,
+  partnerName,
+  delay,
+}: {
+  q: Question;
+  r: ScoreResult;
+  t: (en: string, fr: string) => string;
+  myName: string;
+  partnerName: string;
+  delay: number;
+}) {
+  const vcol = VERDICT_COLOR[r.verdict];
+  return (
+    <div
+      className="qc row-rise"
+      style={{ borderLeftColor: vcol, animationDelay: `${delay}ms` }}
+    >
+      <div className="qc-head">
+        <div className="qc-q">{q.q}</div>
+        {q.type !== "open" && (
+          <span className="qc-badge" style={{ color: vcol, borderColor: vcol }}>
+            {t(r.verdict, VERDICT_FR[r.verdict])}
+          </span>
+        )}
+      </div>
+
+      {q.type === "scale" && <ScaleBar q={q} r={r} myName={myName} partnerName={partnerName} />}
+
+      {q.type === "mc" && <McBody q={q} r={r} t={t} myName={myName} partnerName={partnerName} />}
+
+      {q.type === "rank" && r.A && r.B && (
+        <RankBody q={q} r={r} t={t} myName={myName} partnerName={partnerName} />
+      )}
+
+      {q.type === "open" && (
+        <div className="openq">
+          <Quote name={myName} tone="s" text={String(r.me ?? "—")} />
+          <Quote name={partnerName} tone="j" text={String(r.th ?? "—")} />
+        </div>
+      )}
+
+      {r.verdict === "Complementary" && (
+        <div className="qc-note comp">
+          {t(
+            "Different — and that works well together.",
+            "Différent — et cela se complète bien.",
+          )}
+        </div>
+      )}
+      {r.verdict === "Differed" && (
+        <div className="qc-note">
+          {t("Worth a conversation.", "Un sujet à aborder ensemble.")}
+        </div>
+      )}
+
+      {(r.guessed || r.theyGuessed) && (
+        <div className="guessrow">
+          {r.guessed && (
+            <span className={`gtag ${r.guessRight ? "gok" : "gno"}`}>
+              {r.guessRight ? "✓" : "✗"}{" "}
+              {t("You guessed they'd pick", "Ton pari pour l’autre")}:{" "}
+              <b>{optLabel(q, r.guess)}</b>
+            </span>
+          )}
+          {r.theyGuessed && (
+            <span className={`gtag ${r.theyGuessRight ? "gok" : "gno"}`}>
+              {r.theyGuessRight ? "✓" : "✗"} {partnerName}{" "}
+              {t("guessed you'd pick", "avait parié sur toi")}:{" "}
+              <b>{optLabel(q, r.theirGuess)}</b>
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ScaleBar({
+  q,
+  r,
+  myName,
+  partnerName,
+}: {
+  q: Question;
+  r: ScoreResult;
+  myName: string;
+  partnerName: string;
+}) {
+  const mv = Number(r.me);
+  const tv = Number(r.th);
+  const posMe = ((mv - 1) / 4) * 100;
+  const posTh = ((tv - 1) / 4) * 100;
+  const same = mv === tv;
+  const lo = Math.min(posMe, posTh);
+  const hi = Math.max(posMe, posTh);
+  return (
+    <div className="sbar">
+      <div className="sbar-track">
+        {!same && <span className="sbar-fill" style={{ left: `${lo}%`, width: `${hi - lo}%` }} />}
+        {same ? (
+          <span className="sbar-dot both" style={{ left: `${posMe}%` }}>
+            ♥
+          </span>
+        ) : (
+          <>
+            <span className="sbar-dot s" style={{ left: `${posMe}%` }}>
+              {initialOf(myName)}
+            </span>
+            <span className="sbar-dot j" style={{ left: `${posTh}%` }}>
+              {initialOf(partnerName)}
+            </span>
+          </>
+        )}
+      </div>
+      <div className="sbar-ends">
+        <span>{q.lo}</span>
+        <span>{q.hi}</span>
+      </div>
+    </div>
+  );
+}
+
+function McBody({
+  q,
+  r,
+  t,
+  myName,
+  partnerName,
+}: {
+  q: Question;
+  r: ScoreResult;
+  t: (en: string, fr: string) => string;
+  myName: string;
+  partnerName: string;
+}) {
+  if (r.me === r.th) {
+    return (
+      <div className="mcboth">
+        <span className="mccheck">✓</span> {t("You both said", "Vous avez tous deux dit")}{" "}
+        <b>{optLabel(q, r.me)}</b>
+      </div>
+    );
+  }
+  return (
+    <div className="mctwo">
+      <span className="mcchip s">
+        <i>{myName}</i>
+        <b>{optLabel(q, r.me)}</b>
+      </span>
+      <span className="mcchip j">
+        <i>{partnerName}</i>
+        <b>{optLabel(q, r.th)}</b>
+      </span>
+    </div>
+  );
+}
+
+function RankBody({
+  q,
+  r,
+  t,
+  myName,
+  partnerName,
+}: {
+  q: Question;
+  r: ScoreResult;
+  t: (en: string, fr: string) => string;
+  myName: string;
+  partnerName: string;
+}) {
+  const A = r.A ?? [];
+  const B = r.B ?? [];
+  return (
+    <>
+      <div className="rank2">
+        <div className="rank2-col">
+          <div className="rank2-h s">{myName}</div>
+          <ol>
+            {A.map((idx, k) => (
+              <li key={k} className={B[k] === idx ? "rmatch" : ""}>
+                {q.opts?.[idx] ?? idx}
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div className="rank2-col">
+          <div className="rank2-h j">{partnerName}</div>
+          <ol>
+            {B.map((idx, k) => (
+              <li key={k} className={A[k] === idx ? "rmatch" : ""}>
+                {q.opts?.[idx] ?? idx}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+      {A[0] != null && A[0] === B[0] && (
+        <div className="qc-note ok">
+          ✓ {t("You agree on your top priority", "Vous êtes d’accord sur votre priorité n°1")}
+        </div>
+      )}
+    </>
+  );
+}
+
+function Quote({ name, tone, text }: { name: string; tone: "s" | "j"; text: string }) {
+  return (
+    <div className="oq">
+      <span className={`oav ${tone}`}>{initialOf(name)}</span>
+      <div>
+        <span className="oq-who">{name}</span>
+        <div className="oq-text">{text}</div>
+      </div>
+    </div>
   );
 }
