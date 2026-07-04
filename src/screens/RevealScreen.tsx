@@ -257,27 +257,81 @@ function Celebration({ doves }: { doves: boolean }) {
         />
       ))}
       {doves &&
-        [12, 32, 52, 70, 85].map((left, i) => (
+        FLOCK.map((d, i) => (
           <span
-            key={left}
-            className="dove"
-            style={{
-              left: `${left}%`,
-              animationDelay: `${0.2 + i * 0.38}s`,
-              animationDuration: `${2.8 + (i % 3) * 0.3}s`,
-            }}
+            key={i}
+            className="dove2"
+            style={
+              {
+                left: `${d.left}%`,
+                animationDelay: `${d.delay}s`,
+                animationDuration: `${d.dur}s`,
+                "--dx": `${d.dx}px`,
+                "--rot": `${d.rot}deg`,
+                "--mx": d.mx,
+                "--fs": `${d.fs}s`,
+              } as React.CSSProperties
+            }
           >
-            <svg width={i % 2 ? 52 : 64} viewBox="0 0 64 64" fill="#fff">
-              <ellipse cx="33" cy="34" rx="11" ry="6.5" />
-              <circle cx="43" cy="27.5" r="4.2" />
-              <path d="M47 27 L52 28.5 L47 30 Z" />
-              <path d="M23 33 L9 40 L24 38.5 Z" />
-              <path className="wingL" d="M30 32 Q18 16 5 20 Q19 27 28 36 Z" />
-              <path className="wingR" d="M36 32 Q48 16 61 20 Q47 27 38 36 Z" />
-            </svg>
+            <span className="dovebody">
+              <DoveSvg width={d.w} />
+            </span>
           </span>
         ))}
     </div>
+  );
+}
+
+// The spooked flock: staggered take-offs, mixed sizes/depths, all upward.
+// One large foreground bird (w 240) sweeps across most of the screen.
+const FLOCK = [
+  { left: 26, w: 96, dx: 70, delay: 0.0, dur: 2.7, rot: -22, mx: 1, fs: 0.27 },
+  { left: 8, w: 64, dx: 60, delay: 0.15, dur: 3.0, rot: -18, mx: 1, fs: 0.3 },
+  { left: 52, w: 52, dx: -50, delay: 0.3, dur: 3.2, rot: 21, mx: -1, fs: 0.33 },
+  { left: 66, w: 118, dx: 36, delay: 0.5, dur: 2.8, rot: -20, mx: 1, fs: 0.26 },
+  { left: -6, w: 258, dx: 270, delay: 0.55, dur: 2.5, rot: -26, mx: 1, fs: 0.24 },
+  { left: 82, w: 58, dx: -34, delay: 0.85, dur: 3.1, rot: 20, mx: -1, fs: 0.31 },
+  { left: 16, w: 84, dx: 44, delay: 1.0, dur: 2.9, rot: -21, mx: 1, fs: 0.28 },
+  { left: 40, w: 72, dx: 58, delay: 1.15, dur: 3.0, rot: -19, mx: 1, fs: 0.29 },
+  { left: 72, w: 44, dx: -60, delay: 1.4, dur: 3.3, rot: 19, mx: -1, fs: 0.34 },
+];
+
+// Two-frame dove (wings up / wings down) toggled by the flap animation.
+// Far wing is tinted for depth; the silhouettes were tuned in a visual pass.
+function DoveSvg({ width }: { width: number }) {
+  return (
+    <svg width={width} viewBox="0 0 200 150" aria-hidden="true">
+      <g className="fA">
+        <path
+          fill="#e9dfe8"
+          d="M128,56 C126,40 118,26 102,16 C108,30 112,42 114,52 C118,55 123,56 128,56 Z"
+        />
+        <path
+          fill="#fff"
+          d="M163,57 L154,53 C158,49 150,44 144,47 C138,50 134,54 130,57 C114,60 98,64 82,69 L54,68 L60,75 L46,80 L58,85 L80,80 C100,84 116,86 128,83 C140,80 148,72 152,64 Z"
+        />
+        <path
+          fill="#fff"
+          d="M118,58 C112,40 100,24 78,12 L88,28 L78,28 L92,40 L84,42 C96,52 108,57 118,58 Z"
+        />
+        <circle cx="147" cy="54" r="1.8" fill="rgba(46,34,48,.5)" />
+      </g>
+      <g className="fB">
+        <path
+          fill="#e9dfe8"
+          d="M132,62 C130,74 125,84 116,92 C119,82 121,74 122,68 C125,65 129,63 132,62 Z"
+        />
+        <path
+          fill="#fff"
+          d="M163,57 L154,53 C158,49 150,44 144,47 C138,50 134,54 130,57 C114,60 98,64 82,69 L54,68 L60,75 L46,80 L58,85 L80,80 C100,84 116,86 128,83 C140,80 148,72 152,64 Z"
+        />
+        <path
+          fill="#fff"
+          d="M124,64 C122,82 114,98 96,112 L102,96 L94,96 L106,84 L100,82 C110,74 118,68 124,64 Z"
+        />
+        <circle cx="147" cy="54" r="1.8" fill="rgba(46,34,48,.5)" />
+      </g>
+    </svg>
   );
 }
 

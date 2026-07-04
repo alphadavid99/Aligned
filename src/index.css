@@ -1720,66 +1720,61 @@ textarea.input {
   }
 }
 
-/* doves (>90%) — white doves rising, soft berry shadow for contrast */
-.dove {
+/* doves (>90%) — a spooked flock bursting upward: mixed sizes and depths,
+   two-frame wingbeats, one large foreground bird sweeping across the screen */
+.dove2 {
   position: absolute;
-  bottom: -12vh;
-  animation: doveUp ease-out both;
-  filter: drop-shadow(0 4px 9px rgba(104, 45, 92, 0.45));
+  bottom: -16vh;
+  animation: doveRise cubic-bezier(0.3, 0.6, 0.45, 1) both;
+  filter: drop-shadow(0 5px 10px rgba(104, 45, 92, 0.35));
+  will-change: transform;
 }
-@keyframes doveUp {
+@keyframes doveRise {
   0% {
-    transform: translate3d(0, 0, 0);
+    transform: translate(0, 6vh);
     opacity: 0;
   }
-  12% {
+  7% {
     opacity: 1;
   }
-  40% {
-    transform: translate3d(16px, -42vh, 0);
-  }
-  75% {
-    transform: translate3d(-10px, -78vh, 0);
-    opacity: 1;
+  55% {
+    transform: translate(calc(var(--dx) * 0.5), -58vh);
   }
   100% {
-    transform: translate3d(6px, -112vh, 0);
+    transform: translate(var(--dx), -125vh);
+    opacity: 1;
+  }
+}
+.dovebody {
+  display: block;
+  transform: rotate(var(--rot, -16deg)) scaleX(var(--mx, 1));
+}
+.dove2 svg {
+  overflow: visible;
+  display: block;
+}
+.dove2 .fA {
+  animation: flapA var(--fs, 0.3s) steps(1) infinite;
+}
+.dove2 .fB {
+  animation: flapB var(--fs, 0.3s) steps(1) infinite;
+}
+@keyframes flapA {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
     opacity: 0;
   }
 }
-.dove svg {
-  animation: doveFlutter 0.5s ease-in-out infinite alternate;
-}
-@keyframes doveFlutter {
-  from {
-    transform: rotate(-6deg);
+@keyframes flapB {
+  0%,
+  100% {
+    opacity: 0;
   }
-  to {
-    transform: rotate(6deg);
-  }
-}
-.dove .wingL {
-  transform-origin: 30px 32px;
-  animation: flapL 0.5s ease-in-out infinite alternate;
-}
-.dove .wingR {
-  transform-origin: 34px 32px;
-  animation: flapR 0.5s ease-in-out infinite alternate;
-}
-@keyframes flapL {
-  from {
-    transform: rotate(14deg);
-  }
-  to {
-    transform: rotate(-18deg);
-  }
-}
-@keyframes flapR {
-  from {
-    transform: rotate(-14deg);
-  }
-  to {
-    transform: rotate(18deg);
+  50% {
+    opacity: 1;
   }
 }
 
@@ -1790,10 +1785,9 @@ textarea.input {
   .herostage .bloomwrap,
   .celebrate .wash,
   .petal,
-  .dove,
-  .dove svg,
-  .dove .wingL,
-  .dove .wingR {
+  .dove2,
+  .dove2 .fA,
+  .dove2 .fB {
     animation: none !important;
     transition: none !important;
   }
