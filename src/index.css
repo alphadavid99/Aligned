@@ -1581,3 +1581,220 @@ textarea.input {
     animation: none !important;
   }
 }
+
+/* ============================================================
+   The Gift Reveal (approved spec): meet → full-screen score
+   (+ petals >75, doves >90) → score docks up → afterglow.
+   Ceremony runs on fresh reveals only; tap skips; reduced-motion
+   users get the flat render (ceremony flag is off entirely).
+   ============================================================ */
+
+/* stage 1 — the two of you meet */
+.meetstage {
+  min-height: 46vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.meetpair {
+  display: flex;
+  align-items: center;
+}
+.meetpair > :first-child {
+  animation: meetL 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  z-index: 1;
+}
+.meetpair > :last-child {
+  animation: meetR 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes meetL {
+  from {
+    transform: translateX(-46px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(8px);
+    opacity: 1;
+  }
+}
+@keyframes meetR {
+  from {
+    transform: translateX(46px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-8px);
+    opacity: 1;
+  }
+}
+.meetline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--sub);
+  animation: riseIn 0.5s ease 0.55s both;
+}
+
+/* stage 2 — the score owns the screen; stage 3 — it docks upward */
+.herostage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 0;
+  transition: min-height 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.herostage.hero {
+  min-height: 56vh;
+}
+.herostage .bloomwrap {
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.herostage.hero .bloomwrap {
+  transform: scale(1.16);
+}
+
+/* celebration overlay — constrained to the app column, taps pass through */
+.celebrate {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100vw, 440px);
+  pointer-events: none;
+  z-index: 60;
+  overflow: hidden;
+}
+.celebrate .wash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at 18% 8%,
+      rgba(248, 233, 236, 0.8),
+      transparent 34%
+    ),
+    radial-gradient(circle at 85% 14%, rgba(251, 235, 220, 0.7), transparent 30%);
+  animation: washInOut 4.6s ease both;
+}
+@keyframes washInOut {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  20%,
+  70% {
+    opacity: 0.9;
+  }
+}
+
+/* petals (>75%) — soft brand-coloured petals drifting down */
+.petal {
+  position: absolute;
+  top: -6vh;
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+  opacity: 0;
+  animation: petalFall linear both;
+}
+@keyframes petalFall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.9;
+  }
+  30% {
+    transform: translate3d(14px, 30vh, 0) rotate(120deg);
+  }
+  60% {
+    transform: translate3d(-12px, 62vh, 0) rotate(230deg);
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(10px, 108vh, 0) rotate(340deg);
+    opacity: 0;
+  }
+}
+
+/* doves (>90%) — white doves rising, soft berry shadow for contrast */
+.dove {
+  position: absolute;
+  bottom: -12vh;
+  animation: doveUp ease-out both;
+  filter: drop-shadow(0 4px 9px rgba(104, 45, 92, 0.45));
+}
+@keyframes doveUp {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  40% {
+    transform: translate3d(16px, -42vh, 0);
+  }
+  75% {
+    transform: translate3d(-10px, -78vh, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(6px, -112vh, 0);
+    opacity: 0;
+  }
+}
+.dove svg {
+  animation: doveFlutter 0.5s ease-in-out infinite alternate;
+}
+@keyframes doveFlutter {
+  from {
+    transform: rotate(-6deg);
+  }
+  to {
+    transform: rotate(6deg);
+  }
+}
+.dove .wingL {
+  transform-origin: 30px 32px;
+  animation: flapL 0.5s ease-in-out infinite alternate;
+}
+.dove .wingR {
+  transform-origin: 34px 32px;
+  animation: flapR 0.5s ease-in-out infinite alternate;
+}
+@keyframes flapL {
+  from {
+    transform: rotate(14deg);
+  }
+  to {
+    transform: rotate(-18deg);
+  }
+}
+@keyframes flapR {
+  from {
+    transform: rotate(-14deg);
+  }
+  to {
+    transform: rotate(18deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meetpair > *,
+  .meetline,
+  .herostage,
+  .herostage .bloomwrap,
+  .celebrate .wash,
+  .petal,
+  .dove,
+  .dove svg,
+  .dove .wingL,
+  .dove .wingR {
+    animation: none !important;
+    transition: none !important;
+  }
+}

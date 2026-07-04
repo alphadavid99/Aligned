@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { lvlQs, nLevels } from "../lib/leveling";
 import {
   overall,
@@ -14,6 +15,7 @@ import { type Question } from "../lib/questions";
 import { deckName, localizeQuestion } from "../lib/questions.fr";
 import { PctRing } from "../components/Ring";
 import { TopBar } from "../components/TopBar";
+import { Avatar } from "../components/Avatar";
 import { useT, useLang } from "../lib/i18n";
 
 // Display labels for each verdict when the language is French.
@@ -88,9 +90,42 @@ export default function RevealScreen({
   // Reflection-only decks have nothing to score — show the answers, not a 0% ring.
   const hasScore = joint.some((q) => q.type !== "open");
 
+  // ---- The Gift Reveal ceremony (fresh reveals only) ----
+  // Stage 1: the two avatars meet. Stage 2: the score owns the screen (with
+  // petals >75% / doves >90%). Stage 3: the score docks up and the breakdown
+  // flows in. Reopened decks and reduced-motion users get the flat render.
+  const reduced =
+    typeof window !== "undefined" &&
+    !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const ceremony = !review && hasScore && !reduced;
+  const [stage, setStage] = useState(ceremony ? 1 : 3);
+  const [party, setParty] = useState(false);
+  const skipped = useRef(false);
+
+  useEffect(() => {
+    if (!ceremony) return;
+    const ts = [
+      setTimeout(() => setStage((s) => Math.max(s, 2)), 1150),
+      setTimeout(() => {
+        if (!skipped.current && pct > 75) setParty(true);
+      }, 2150),
+      setTimeout(() => setStage((s) => Math.max(s, 3)), 3600),
+      setTimeout(() => setParty(false), 7400),
+    ];
+    return () => ts.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ceremony]);
+
+  const skip = () => {
+    skipped.current = true;
+    setParty(false);
+    setStage(3);
+  };
+
   return (
-    <section>
+    <section onClick={stage < 3 ? skip : undefined}>
       <TopBar onExit={onDone} />
+      {party && <Celebration doves={pct > 90} />}
       <div className="eyebrow center" style={{ marginTop: 10 }}>
         {deckName(slug, lang).toUpperCase()}
         {review
@@ -102,20 +137,47 @@ export default function RevealScreen({
               )
             : ""}
       </div>
-      {hasScore ? (
-        <div className="center" style={{ margin: "18px 0 6px" }}>
-          {/* Bloom fires after the ring finishes drawing — the milestone moment. */}
-          <span className="bloomwrap">
-            <span className="glint g1" />
-            <span className="glint g2" />
-            <PctRing pct={pct} size={180} label={t("aligned", "alignés")} />
-          </span>
+
+      {stage === 1 && (
+        <div className="meetstage">
+          <div className="meetpair">
+            <Avatar name={myName} tone="berry" size={58} />
+            <Avatar name={partnerName} tone="honey" size={58} />
+          </div>
+          <div className="meetline">
+            {t("You've both answered.", "Vous avez tous les deux répondu.")}
+          </div>
         </div>
-      ) : (
+      )}
+
+      {stage >= 2 && hasScore && (
+        <div className={`herostage${stage === 2 ? " hero" : ""}`}>
+          <div className="center" style={{ margin: "18px 0 6px" }}>
+            {/* Bloom fires after the ring finishes drawing — the milestone moment. */}
+            <span className="bloomwrap">
+              <span className="glint g1" />
+              <span className="glint g2" />
+              <PctRing pct={pct} size={180} label={t("aligned", "alignés")} />
+            </span>
+          </div>
+        </div>
+      )}
+      {stage >= 3 && !hasScore && (
         <h1 className="h1 center" style={{ margin: "16px 0 6px" }}>
           {t("What you each said", "Ce que chacun a dit")}
         </h1>
       )}
+
+      {/* Called as a plain function (not <RevealBody/>) so re-renders while the
+          overlay unmounts don't remount the body and replay its animations. */}
+      {stage >= 3 && RevealBody()}
+    </section>
+  );
+
+  // Afterglow content — extracted so the stages above stay readable.
+  function RevealBody() {
+    return (
+      <>
       {know.pct != null && (
         <div className="knowcaps reveal-rise">
           <span className="knowpill">
@@ -166,7 +228,56 @@ export default function RevealScreen({
       <button className="btn" type="button" onClick={onDone}>
         {t("Done", "Terminé")}
       </button>
-    </section>
+      </>
+    );
+  }
+}
+
+// Full-screen celebration overlay, constrained to the app column.
+// Petals (>75%) drift down in brand colours; doves (>90%) rise with them.
+// Pointer-events pass through; the parent unmounts it after ~5s.
+function Celebration({ doves }: { doves: boolean }) {
+  const petals = Array.from({ length: 26 }, (_, i) => i);
+  const colors = ["#7C3C69", "#E5A93C", "#D9963A", "#F1C8D2", "#9C4A6E"];
+  return (
+    <div className="celebrate" aria-hidden="true">
+      <span className="wash" />
+      {petals.map((i) => (
+        <span
+          key={i}
+          className="petal"
+          style={{
+            left: `${(i * 37 + 11) % 100}%`,
+            width: 8 + (i % 4) * 2,
+            height: 11 + (i % 3) * 3,
+            background: colors[i % colors.length],
+            animationDelay: `${(i % 13) * 0.17}s`,
+            animationDuration: `${2.7 + (i % 5) * 0.3}s`,
+          }}
+        />
+      ))}
+      {doves &&
+        [12, 32, 52, 70, 85].map((left, i) => (
+          <span
+            key={left}
+            className="dove"
+            style={{
+              left: `${left}%`,
+              animationDelay: `${0.2 + i * 0.38}s`,
+              animationDuration: `${2.8 + (i % 3) * 0.3}s`,
+            }}
+          >
+            <svg width={i % 2 ? 52 : 64} viewBox="0 0 64 64" fill="#fff">
+              <ellipse cx="33" cy="34" rx="11" ry="6.5" />
+              <circle cx="43" cy="27.5" r="4.2" />
+              <path d="M47 27 L52 28.5 L47 30 Z" />
+              <path d="M23 33 L9 40 L24 38.5 Z" />
+              <path className="wingL" d="M30 32 Q18 16 5 20 Q19 27 28 36 Z" />
+              <path className="wingR" d="M36 32 Q48 16 61 20 Q47 27 38 36 Z" />
+            </svg>
+          </span>
+        ))}
+    </div>
   );
 }
 
