@@ -1,12 +1,15 @@
-import { DECKS, ORDER } from "../lib/questions";
-import { catComplete } from "../lib/progress";
+import { ORDER } from "../lib/questions";
+import { completedLevels, revealedQs } from "../lib/progress";
 import { overall, jointQuestions, type DeckData, type Role } from "../lib/scoring";
+import { nLevels } from "../lib/leveling";
 import type { Session } from "../types";
 import { PctRing } from "../components/Ring";
 import { deckName } from "../lib/questions.fr";
 import { useT, useLang } from "../lib/i18n";
 
-// Overall alignment across every deck both partners have fully finished.
+// Overall alignment across every mutually-revealed level — a deck counts as
+// soon as the two of you have finished any level of it, not only when the
+// whole deck is done. Partial decks show which levels are in.
 export default function ResultsScreen({
   session,
   role,
@@ -18,22 +21,21 @@ export default function ResultsScreen({
 }) {
   const t = useT();
   const lang = useLang();
-  const completed = ORDER.filter((slug) =>
-    catComplete(slug, session.decks?.[slug], role),
-  );
 
-  // Overall = average of all scoreable joint answers across completed decks.
+  // Overall = average of all scoreable joint answers across revealed levels.
   let sum = 0;
   let n = 0;
-  const rows: { slug: string; pct: number }[] = [];
-  for (const slug of completed) {
+  const rows: { slug: string; pct: number; lvls: number; of: number }[] = [];
+  for (const slug of ORDER) {
     const deck: DeckData | undefined = session.decks?.[slug];
-    const qs = DECKS[slug].questions;
+    const lvls = completedLevels(slug, deck, role);
+    if (!lvls.length) continue;
+    const qs = revealedQs(slug, deck, role);
     const joint = jointQuestions(qs, deck ?? {}).filter((q) => q.type !== "open");
     if (!joint.length) continue;
-    rows.push({ slug, pct: overall(qs, deck ?? {}, role) });
-    // fold into overall
-    sum += overall(qs, deck ?? {}, role) * joint.length;
+    const pct = overall(qs, deck ?? {}, role);
+    rows.push({ slug, pct, lvls: lvls.length, of: nLevels(slug) });
+    sum += pct * joint.length;
     n += joint.length;
   }
   const overallPct = n ? Math.round(sum / n) : null;
@@ -58,8 +60,8 @@ export default function ResultsScreen({
       {overallPct == null ? (
         <p className="sub serif center" style={{ fontStyle: "italic", margin: "20px 24px" }}>
           {t(
-            "Finish a deck together and your shared alignment appears here — not to judge, but to open the conversation.",
-            "Terminez un thème ensemble et votre alignement commun apparaît ici — non pour juger, mais pour ouvrir la conversation.",
+            "Finish a level together and your shared alignment appears here — not to judge, but to open the conversation.",
+            "Terminez un niveau ensemble et votre alignement commun apparaît ici — non pour juger, mais pour ouvrir la conversation.",
           )}
         </p>
       ) : (
@@ -69,8 +71,8 @@ export default function ResultsScreen({
           </div>
           <p className="sub serif center" style={{ fontStyle: "italic", margin: "0 24px 20px" }}>
             {t(
-              `Across ${rows.length} completed ${rows.length === 1 ? "deck" : "decks"}.`,
-              `Sur ${rows.length} thème${rows.length === 1 ? "" : "s"} terminé${rows.length === 1 ? "" : "s"}.`,
+              `Across ${rows.length} ${rows.length === 1 ? "deck" : "decks"} so far.`,
+              `Sur ${rows.length} thème${rows.length === 1 ? "" : "s"} jusqu’ici.`,
             )}
           </p>
 
@@ -96,14 +98,26 @@ export default function ResultsScreen({
           )}
 
           <div className="card" style={{ padding: 0, overflow: "hidden", marginTop: 14 }}>
-            {ranked.map(({ slug, pct }) => (
+            {ranked.map(({ slug, pct, lvls, of }) => (
               <div
                 key={slug}
                 className={`resrow${showSynth && slug === lowest.slug ? " hot" : ""}`}
                 onClick={() => onOpen?.(slug)}
                 style={onOpen ? { cursor: "pointer" } : undefined}
               >
-                <span style={{ flex: 1, fontWeight: 600 }}>{deckName(slug, lang)}</span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ fontWeight: 600, display: "block" }}>
+                    {deckName(slug, lang)}
+                  </span>
+                  <span className="muted" style={{ fontSize: 12 }}>
+                    {lvls === of
+                      ? t("Complete", "Terminé")
+                      : t(
+                          `${lvls} of ${of} levels revealed`,
+                          `${lvls} niveau${lvls === 1 ? "" : "x"} sur ${of} révélé${lvls === 1 ? "" : "s"}`,
+                        )}
+                  </span>
+                </span>
                 <span style={{ color: "var(--berry)", fontWeight: 700 }}>{pct}%</span>
                 {onOpen && (
                   <span style={{ color: "var(--mut)", marginLeft: 10 }}>&#8250;</span>

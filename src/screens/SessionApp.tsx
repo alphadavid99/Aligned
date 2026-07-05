@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { User } from "firebase/auth";
-import { ORDER, DECKS } from "../lib/questions";
+import { ORDER } from "../lib/questions";
 import { lvlQs } from "../lib/leveling";
-import { curLevel, levelDone, levelComplete, catComplete, doneInLevel } from "../lib/progress";
+import { curLevel, levelDone, levelComplete, catComplete, doneInLevel, revealedQs } from "../lib/progress";
 import { jointQuestions, other } from "../lib/scoring";
 import { useSession } from "../hooks/useSession";
 import HomeScreen from "./HomeScreen";
@@ -103,6 +103,18 @@ export default function SessionApp({
     setFlow(levelDone(d, lvl, role) ? "review" : "play");
   };
 
+  // From Results: always open the deck's revealed levels as a review, even if
+  // the deck isn't finished yet (a row only exists once a level is revealed).
+  const openReview = (s: string) => {
+    if (!revealedQs(s, session.decks?.[s], role).length) {
+      openDeck(s);
+      return;
+    }
+    setFlowReturn(tab);
+    setSlug(s);
+    setFlow("reviewDeck");
+  };
+
   // ---- In-flow screens (bottom nav hidden) ----
   if (flow === "play") {
     return (
@@ -119,8 +131,8 @@ export default function SessionApp({
     );
   }
 
-  // Reopen a finished deck's full breakdown — the whole deck, every question,
-  // showing what each of you answered.
+  // Reopen a deck's breakdown — every question from the levels the two of you
+  // have both finished (the whole deck once it's complete).
   if (flow === "reviewDeck") {
     return (
       <RevealScreen
@@ -130,7 +142,7 @@ export default function SessionApp({
         deck={deck}
         myName={myName}
         partnerName={partnerName}
-        questions={DECKS[slug].questions}
+        questions={revealedQs(slug, deck, role)}
         review
         onDone={exitFlow}
       />
@@ -214,7 +226,7 @@ export default function SessionApp({
             <DecksScreen session={session} role={role} onPlay={openDeck} />
           )}
           {tab === "results" && (
-            <ResultsScreen session={session} role={role} onOpen={openDeck} />
+            <ResultsScreen session={session} role={role} onOpen={openReview} />
           )}
           {tab === "profile" && <ProfileScreen user={user} onLeave={onLeave} />}
         </div>

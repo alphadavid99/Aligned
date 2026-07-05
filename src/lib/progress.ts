@@ -43,6 +43,30 @@ export function curLevel(
   return L - 1;
 }
 
+// Levels both partners have finished — the mutually "revealed" ground.
+export function completedLevels(
+  slug: string,
+  deck: DeckData | undefined,
+  role: Role,
+): number[] {
+  const out: number[] = [];
+  for (let l = 0; l < nLevels(slug); l++) {
+    if (levelComplete(deck, l, role)) out.push(l);
+  }
+  return out;
+}
+
+// The questions of those revealed levels: what Results may score and review.
+// Levels either partner hasn't finished stay out, so the per-level reveal
+// gate is never leaked around.
+export function revealedQs(
+  slug: string,
+  deck: DeckData | undefined,
+  role: Role,
+) {
+  return completedLevels(slug, deck, role).flatMap((l) => lvlQs(slug, l));
+}
+
 // Count of a level's questions answered by `who`.
 export function doneInLevel(
   slug: string,
