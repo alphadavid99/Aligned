@@ -206,10 +206,13 @@ export default function SessionApp({
   return (
     <>
       <div className="tabwrap">
-        <div className="brandhead" style={{ padding: "2px 0 10px" }}>
-          {/* Full wordmark on Home + Profile; caret only on Decks + Results. */}
-          <Logo size={30} word={tab === "home" || tab === "profile"} />
-        </div>
+        {/* Home wears its own header (avatar chip + settings); other tabs keep
+            the brand mark up top. */}
+        {tab !== "home" && (
+          <div className="brandhead" style={{ padding: "2px 0 10px" }}>
+            <Logo size={30} word={tab === "profile"} />
+          </div>
+        )}
         {/* keyed per tab so each pane rises in on switch */}
         <div key={tab} className="pane-in">
           {tab === "home" && (
@@ -220,6 +223,8 @@ export default function SessionApp({
               slug={slug}
               onPlay={openDeck}
               onBrowse={() => setTab("decks")}
+              onReview={openReview}
+              onProfile={() => setTab("profile")}
             />
           )}
           {tab === "decks" && (
@@ -232,20 +237,23 @@ export default function SessionApp({
         </div>
       </div>
 
+      {/* Floating pill nav — the active tab is a honey pill wearing its label;
+          the rest stay quiet icon circles. */}
       <nav className="bnav">
         {TABS.map(({ key, en, fr, Icon }) => {
           const label = t(en, fr);
+          const on = tab === key;
           return (
             <button
               key={key}
               type="button"
-              className={`bnav-item ${tab === key ? "on" : ""}`}
+              className={`bnav-item ${on ? "on" : ""}`}
               onClick={() => setTab(key)}
               aria-label={label}
-              aria-current={tab === key ? "page" : undefined}
+              aria-current={on ? "page" : undefined}
             >
-              <Icon size={23} />
-              <span>{label}</span>
+              <Icon size={on ? 17 : 21} />
+              {on && <span>{label}</span>}
             </button>
           );
         })}

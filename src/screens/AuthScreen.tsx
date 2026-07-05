@@ -215,7 +215,7 @@ export default function AuthScreen() {
         {err && <div className="err">{err}</div>}
         {ok && <div className="ok">{ok}</div>}
 
-        <button className={busy ? "btn busy" : "btn"} type="submit" disabled={busy}>
+        <button className={busy ? "btn pill busy" : "btn pill"} type="submit" disabled={busy}>
           {busy
             ? t("One moment…", "Un instant…")
             : isSignup

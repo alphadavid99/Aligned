@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from "react";
+import { ORDER } from "../lib/questions";
 import { nLevels, lvlQs } from "../lib/leveling";
 import { curLevel, doneInLevel, catComplete } from "../lib/progress";
+import { revealedRows } from "../lib/results";
 import { other, type DeckData, type Role } from "../lib/scoring";
 import { createInvite } from "../lib/functions";
 import { prettyError } from "../lib/errors";
 import type { Session } from "../types";
-import { ProgressRing } from "../components/Ring";
 import { Avatar } from "../components/Avatar";
+import { IconDecks, IconSettings } from "../components/icons";
 import { deckName } from "../lib/questions.fr";
-import { useT, useLang } from "../lib/i18n";
+import { useT, useLang, type Lang } from "../lib/i18n";
 
 export default function HomeScreen({
   code,
@@ -17,6 +19,8 @@ export default function HomeScreen({
   slug,
   onPlay,
   onBrowse,
+  onReview,
+  onProfile,
 }: {
   code: string;
   session: Session;
@@ -24,6 +28,8 @@ export default function HomeScreen({
   slug: string;
   onPlay: (slug: string) => void;
   onBrowse: () => void;
+  onReview: (slug: string) => void;
+  onProfile: () => void;
 }) {
   const t = useT();
   const lang = useLang();
@@ -45,10 +51,10 @@ export default function HomeScreen({
   const h = new Date().getHours();
   const greeting =
     h < 12
-      ? t("Good morning.", "Bonjour.")
+      ? t("Good morning,", "Bonjour,")
       : h < 18
-        ? t("Good afternoon.", "Bon après-midi.")
-        : t("Good evening.", "Bonsoir.");
+        ? t("Good afternoon,", "Bon après-midi,")
+        : t("Good evening,", "Bonsoir,");
 
   const L = nLevels(slug);
   const lvl = curLevel(slug, deck, role);
@@ -66,6 +72,15 @@ export default function HomeScreen({
       : mine > 0
         ? t("Continue →", "Continuer →")
         : t("Start answering →", "Commencer à répondre →");
+
+  // Stat tiles + recent reveals share the Results maths, so the numbers agree.
+  const decksComplete = ORDER.filter((s) =>
+    catComplete(s, session.decks?.[s], role),
+  ).length;
+  const { rows, overallPct } = revealedRows(session.decks, role);
+  const ranked = [...rows].sort((a, b) => a.pct - b.pct);
+  const lowest = ranked[0];
+  const closest = ranked[ranked.length - 1];
 
   const [inviteMsg, setInviteMsg] = useState("");
   const [inviteBusy, setInviteBusy] = useState(false);
@@ -106,9 +121,53 @@ export default function HomeScreen({
 
   return (
     <section>
-      <p className="muted center" style={{ marginTop: 20, fontSize: 14 }}>
+      {/* Avatar-pair chip + settings — the couple lives in the header now. */}
+      <div className="homehdr">
+        <span className={`avchip${justJoined ? " joinnow" : ""}`}>
+          <span className="avchip-stack">
+            <Avatar name={myName} tone="berry" size={30} />
+            {joined ? (
+              <span className="joinpop">
+                <Avatar name={partnerName} tone="honey" size={30} />
+              </span>
+            ) : (
+              <span
+                className="avatar-disc avatar-wait"
+                style={{ width: 30, height: 30, fontSize: 13 }}
+              >
+                ?
+              </span>
+            )}
+          </span>
+          <i>
+            {myName} &amp; {joined ? partnerName : "…"}
+          </i>
+        </span>
+        <button
+          className="roundbtn"
+          type="button"
+          onClick={onProfile}
+          aria-label={t("Profile & settings", "Profil et réglages")}
+        >
+          <IconSettings size={18} />
+        </button>
+      </div>
+
+      <h1 className="greet serif">
         {greeting}
-      </p>
+        <br />
+        {myName}
+        <small>
+          {joined
+            ? t("Where you left off, together.", "Là où vous en étiez, ensemble.")
+            : t("It starts when your partner joins.", "Tout commence quand votre partenaire arrive.")}
+        </small>
+      </h1>
+      {justJoined && (
+        <div className="joinnote" style={{ margin: "6px 2px 0" }}>
+          {partnerName} {t("joined ✓", "vous a rejoint ✓")}
+        </div>
+      )}
 
       {!joined && (
         <div className="banner" style={{ marginTop: 16 }}>
@@ -136,60 +195,151 @@ export default function HomeScreen({
         </div>
       )}
 
-      <div className="qcard" style={{ textAlign: "center", padding: "32px 26px 36px", marginTop: 16 }}>
-        <div className={`avstack${justJoined ? " joinnow" : ""}`}>
-          <Avatar name={myName} tone="berry" />
-          {joined ? (
-            <span className="joinpop">
-              <Avatar name={partnerName} tone="honey" />
+      <div className="tiles">
+        <div className="tile">
+          <span className="tile-ic">
+            <IconDecks size={15} />
+          </span>
+          <span className="tile-lb">
+            {t("Decks", "Thèmes")}
+            <br />
+            {t("complete", "terminés")}
+          </span>
+          <div>
+            <b className="serif">{decksComplete}</b>
+            <span className="tile-u">
+              {t(`of ${ORDER.length}`, `sur ${ORDER.length}`)}
             </span>
-          ) : (
-            <div className="avatar-disc avatar-wait" style={{ width: 46, height: 46 }}>
-              ?
-            </div>
-          )}
-        </div>
-        <div style={{ fontSize: 15, fontWeight: 600, margin: "8px 0 14px" }}>
-          {myName} &amp; {joined ? partnerName : "…"}
-          {justJoined && (
-            <div className="joinnote">
-              {partnerName} {t("joined ✓", "vous a rejoint ✓")}
-            </div>
-          )}
-        </div>
-        <button className="badge tap" type="button" onClick={onBrowse}>
-          {deckName(slug, lang)} &#9662;
-        </button>
-        {L > 1 && (
-          <div className="muted" style={{ fontSize: 13, marginTop: 8, letterSpacing: 1 }}>
-            {t(`LEVEL ${lvl + 1} OF ${L}`, `NIVEAU ${lvl + 1} SUR ${L}`)}
           </div>
-        )}
-        <div style={{ marginTop: 18 }}>
-          <ProgressRing done={mine} total={lvlTotal} size={116} />
         </div>
-        <div style={{ margin: "16px 0 22px", fontSize: 15, color: "var(--sub)" }}>
-          {joined ? (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-              <Avatar name={partnerName} tone="honey" size={26} ring={false} />
-              <span>
-                <b style={{ color: "var(--ink)" }}>{partnerName}</b> {theirs}/{lvlTotal}
-                {L > 1 ? t(" this level", " ce niveau") : ""}
-              </span>
-            </span>
-          ) : (
-            <span className="muted">
-              {t("Waiting for your partner to join…", "En attente de votre partenaire…")}
-            </span>
-          )}
-        </div>
-        <button className="btn" type="button" onClick={() => onPlay(slug)}>
-          {cta}
-        </button>
-        <div className="link" style={{ marginTop: 18, fontSize: 14 }} onClick={onBrowse}>
-          {t("Browse all decks", "Parcourir tous les thèmes")}
+        <div className="tile">
+          <span className="tile-ic">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </span>
+          <span className="tile-lb">
+            {t("Aligned", "Alignés")}
+            <br />
+            {t("so far", "jusqu’ici")}
+          </span>
+          <div>
+            <b className="serif">{overallPct ?? "—"}</b>
+            {overallPct != null && <span className="tile-u">%</span>}
+          </div>
         </div>
       </div>
+
+      {/* Featured deck: the orb meter — one orb per question this level. */}
+      <div className="feat">
+        <div className="featrow">
+          <button className="featleft" type="button" onClick={onBrowse}>
+            <span className="fchip">
+              <IconDecks size={16} />
+            </span>
+            <span>
+              <span className="featnm">{deckName(slug, lang)} &#9662;</span>
+              <span className="featmt">
+                {allDone
+                  ? t("All levels revealed", "Tous les niveaux révélés")
+                  : L > 1
+                    ? t(`Level ${lvl + 1} of ${L}`, `Niveau ${lvl + 1} sur ${L}`) +
+                      (joined ? t(` · with ${partnerName}`, ` · avec ${partnerName}`) : "")
+                    : t(`${lvlTotal} questions`, `${lvlTotal} questions`)}
+              </span>
+            </span>
+          </button>
+        </div>
+        <div className="morbs" aria-hidden="true">
+          {Array.from({ length: lvlTotal }, (_, i) => (
+            <span
+              key={i}
+              className={`morb${i < mine ? " on" : i === mine && !allDone ? " cur" : ""}`}
+            />
+          ))}
+        </div>
+        <div className="capline">
+          {allDone ? (
+            t("Finished together", "Terminé ensemble")
+          ) : (
+            <>
+              <b>
+                {t(`${mine} of ${lvlTotal}`, `${mine} sur ${lvlTotal}`)}
+              </b>{" "}
+              {t("answered", "répondues")}
+              {joined && (
+                <>
+                  {" · "}
+                  {partnerName} {t(`is at ${theirs}`, `en est à ${theirs}`)}
+                </>
+              )}
+            </>
+          )}
+        </div>
+        <button className="btn pill" type="button" onClick={() => onPlay(slug)}>
+          {cta}
+        </button>
+      </div>
+
+      {rows.length > 0 && (
+        <>
+          <div className="shead">{t("Recent reveals", "Dernières révélations")}</div>
+          {rows.length >= 2 && lowest.slug !== closest.slug ? (
+            <>
+              <HomeRow
+                slug={closest.slug}
+                pct={closest.pct}
+                sub={t("Closest alignment", "Alignement le plus fort")}
+                onOpen={onReview}
+                lang={lang}
+              />
+              <HomeRow
+                slug={lowest.slug}
+                pct={lowest.pct}
+                sub={t("Most worth a conversation", "À aborder en priorité")}
+                onOpen={onReview}
+                lang={lang}
+              />
+            </>
+          ) : (
+            <HomeRow
+              slug={ranked[0].slug}
+              pct={ranked[0].pct}
+              sub={t("Revealed together", "Révélé ensemble")}
+              onOpen={onReview}
+              lang={lang}
+            />
+          )}
+        </>
+      )}
+
+      <div className="link center" style={{ display: "block", marginTop: 18, fontSize: 14 }} onClick={onBrowse}>
+        {t("Browse all decks", "Parcourir tous les thèmes")}
+      </div>
     </section>
+  );
+}
+
+function HomeRow({
+  slug,
+  pct,
+  sub,
+  onOpen,
+  lang,
+}: {
+  slug: string;
+  pct: number;
+  sub: string;
+  onOpen: (slug: string) => void;
+  lang: Lang;
+}) {
+  return (
+    <button className="arow" type="button" onClick={() => onOpen(slug)}>
+      <span className="arow-t">
+        <b>{deckName(slug, lang)}</b>
+        <span>{sub}</span>
+      </span>
+      <span className="pctpill">{pct}%</span>
+    </button>
   );
 }

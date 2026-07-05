@@ -1,6 +1,7 @@
 import { DECKS, ORDER } from "../lib/questions";
 import { stageOf, STAGES, nLevels } from "../lib/leveling";
 import { curLevel, catComplete } from "../lib/progress";
+import { revealedRows } from "../lib/results";
 import { type DeckData, type Role } from "../lib/scoring";
 import type { Session } from "../types";
 import { ProgressRing } from "../components/Ring";
@@ -32,14 +33,24 @@ export default function DecksScreen({
   const answered = (slug: string, deck: DeckData | undefined) =>
     DECKS[slug].questions.filter((q) => deck?.answers?.[q.id]?.[role] != null).length;
 
+  // Completed decks wear their alignment score right in the list.
+  const { rows, overallPct } = revealedRows(session.decks, role);
+  const pctOf = (slug: string) => rows.find((r) => r.slug === slug)?.pct;
+  const done = ORDER.filter((s) => catComplete(s, session.decks?.[s], role)).length;
+
   return (
     <section>
       <div className="eyebrow center" style={{ marginTop: 24 }}>
         {t("The decks", "Les thèmes")}
       </div>
-      <h1 className="h1 center" style={{ margin: "8px 0 20px" }}>
+      <h1 className="h1 center" style={{ margin: "8px 0 4px" }}>
         {t("Where to go next", "Où aller ensuite")}
       </h1>
+      <p className="muted center" style={{ fontSize: 13, margin: "0 0 14px" }}>
+        {t(`${done} of ${ORDER.length} complete`, `${done} sur ${ORDER.length} terminés`)}
+        {overallPct != null &&
+          t(` · ${overallPct}% aligned so far`, ` · ${overallPct}% alignés jusqu’ici`)}
+      </p>
 
       {buckets.map((bucket, i) =>
         bucket.length ? (
@@ -72,35 +83,29 @@ export default function DecksScreen({
                         `${mine} sur ${total} répondues`,
                       )
                     : t(`${total} questions`, `${total} questions`);
+              const pct = catComplete(slug, deck, role) ? pctOf(slug) : undefined;
               return (
                 <div key={slug} className="row" onClick={() => onPlay(slug)}>
                   <div className="catico" style={{ background: `${d.color}1A`, color: d.color }}>
                     <DeckIcon icon={d.icon} size={22} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 17, fontWeight: 600 }}>{deckName(slug, lang)}</div>
-                    <div className="muted" style={{ fontSize: 13 }}>
+                    <div style={{ fontSize: 16, fontWeight: 600 }}>{deckName(slug, lang)}</div>
+                    <div className="muted" style={{ fontSize: 12.5 }}>
                       {sub}
                     </div>
                   </div>
-                  <ProgressRing done={mine} total={total} size={46} />
+                  {pct != null ? (
+                    <span className="pctpill">{pct}%</span>
+                  ) : (
+                    <ProgressRing done={mine} total={total} size={44} />
+                  )}
                 </div>
               );
             })}
           </div>
         ) : null,
       )}
-      <p className="muted center" style={{ fontSize: 12, marginTop: 18 }}>
-        {(() => {
-          const done = ORDER.filter((s) =>
-            catComplete(s, session.decks?.[s], role),
-          ).length;
-          return t(
-            `${done} of ${ORDER.length} decks complete`,
-            `${done} thèmes terminés sur ${ORDER.length}`,
-          );
-        })()}
-      </p>
     </section>
   );
 }

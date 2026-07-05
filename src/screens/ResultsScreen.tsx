@@ -1,7 +1,5 @@
-import { ORDER } from "../lib/questions";
-import { completedLevels, revealedQs } from "../lib/progress";
-import { overall, jointQuestions, type DeckData, type Role } from "../lib/scoring";
-import { nLevels } from "../lib/leveling";
+import { revealedRows } from "../lib/results";
+import type { Role } from "../lib/scoring";
 import type { Session } from "../types";
 import { PctRing } from "../components/Ring";
 import { deckName } from "../lib/questions.fr";
@@ -23,22 +21,7 @@ export default function ResultsScreen({
   const lang = useLang();
 
   // Overall = average of all scoreable joint answers across revealed levels.
-  let sum = 0;
-  let n = 0;
-  const rows: { slug: string; pct: number; lvls: number; of: number }[] = [];
-  for (const slug of ORDER) {
-    const deck: DeckData | undefined = session.decks?.[slug];
-    const lvls = completedLevels(slug, deck, role);
-    if (!lvls.length) continue;
-    const qs = revealedQs(slug, deck, role);
-    const joint = jointQuestions(qs, deck ?? {}).filter((q) => q.type !== "open");
-    if (!joint.length) continue;
-    const pct = overall(qs, deck ?? {}, role);
-    rows.push({ slug, pct, lvls: lvls.length, of: nLevels(slug) });
-    sum += pct * joint.length;
-    n += joint.length;
-  }
-  const overallPct = n ? Math.round(sum / n) : null;
+  const { rows, overallPct } = revealedRows(session.decks, role);
 
   // Surface the signal, don't bury it: the lowest deck IS the product — the
   // topic most worth a conversation. Rank ascending so the eye lands on it

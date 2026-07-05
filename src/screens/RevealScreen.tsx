@@ -90,87 +90,146 @@ export default function RevealScreen({
   // Reflection-only decks have nothing to score — show the answers, not a 0% ring.
   const hasScore = joint.some((q) => q.type !== "open");
 
-  // ---- The Gift Reveal ceremony (fresh reveals only) ----
-  // Stage 1: the two avatars meet. Stage 2: the score owns the screen (with
-  // petals >75% / doves >90%). Stage 3: the score docks up and the breakdown
-  // flows in. Reopened decks and reduced-motion users get the flat render.
+  // ---- The Level-Up moment (fresh reveals only) ----
+  // The reveal and the review are now distinct screens. A fresh reveal is a
+  // full-screen ceremony: the avatars meet, then the score owns the whole
+  // screen (confetti >75%, denser >90%) with the know-each-other capsule —
+  // and only a deliberate "See your answers" step opens the breakdown.
+  // Reopening from Results/Decks goes straight to the breakdown.
   const reduced =
     typeof window !== "undefined" &&
     !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-  const ceremony = !review && hasScore && !reduced;
-  const [stage, setStage] = useState(ceremony ? 1 : 3);
+  const ceremony = !review && hasScore;
+  const [phase, setPhase] = useState<"ceremony" | "answers">(
+    ceremony ? "ceremony" : "answers",
+  );
+  // Within the ceremony: 1 = the two of you meet, 2 = the score takes over.
+  // Reduced-motion users get stage 2 immediately, statically.
+  const [stage, setStage] = useState(reduced ? 2 : 1);
   const [party, setParty] = useState(false);
   const skipped = useRef(false);
 
   useEffect(() => {
-    if (!ceremony) return;
+    if (phase !== "ceremony" || reduced) return;
     const ts = [
       setTimeout(() => setStage((s) => Math.max(s, 2)), 1150),
       setTimeout(() => {
         if (!skipped.current && pct > 75) setParty(true);
       }, 2150),
-      setTimeout(() => setStage((s) => Math.max(s, 3)), 3600),
       setTimeout(() => setParty(false), 7400),
     ];
     return () => ts.forEach(clearTimeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ceremony]);
+  }, [phase]);
 
-  const skip = () => {
+  const skipMeet = () => {
     skipped.current = true;
-    setParty(false);
-    setStage(3);
+    setStage(2);
   };
 
+  const eyebrow = (
+    <div className="eyebrow center" style={{ marginTop: 10 }}>
+      {deckName(slug, lang).toUpperCase()}
+      {review
+        ? t(" · REVIEW", " · RÉCAP")
+        : multi
+          ? t(
+              ` · LEVEL ${level + 1} OF ${nLevels(slug)}`,
+              ` · NIVEAU ${level + 1} SUR ${nLevels(slug)}`,
+            )
+          : ""}
+    </div>
+  );
+
+  if (phase === "ceremony") {
+    return (
+      <section onClick={stage < 2 ? skipMeet : undefined}>
+        <TopBar onExit={onDone} />
+        {party && <Celebration big={pct > 90} />}
+        {eyebrow}
+
+        {stage === 1 && (
+          <div className="meetstage tall">
+            <div className="meetpair">
+              <Avatar name={myName} tone="berry" size={58} />
+              <Avatar name={partnerName} tone="honey" size={58} />
+            </div>
+            <div className="meetline">
+              {t("You've both answered.", "Vous avez tous les deux répondu.")}
+            </div>
+          </div>
+        )}
+
+        {stage >= 2 && (
+          <div className="levelup">
+            <div className="center">
+              {/* Bloom fires after the ring finishes drawing — the milestone moment. */}
+              <span className="bloomwrap">
+                <span className="glint g1" />
+                <span className="glint g2" />
+                <PctRing pct={pct} size={210} label={t("aligned", "alignés")} />
+              </span>
+            </div>
+            {know.pct != null && (
+              <div className="knowcaps lvlup-rise r1">
+                <span className="knowpill">
+                  <b>{know.pct}%</b>
+                  <span>
+                    {knowLine(know.pct, t)}
+                    {" · "}
+                    {t(
+                      `${know.right} of ${know.made} right`,
+                      `${know.right} sur ${know.made}`,
+                    )}
+                  </span>
+                </span>
+              </div>
+            )}
+            <p
+              className="sub serif center lvlup-rise r2"
+              style={{ fontStyle: "italic", margin: "4px 24px 0" }}
+            >
+              {t(
+                "Not a verdict — a place to start talking.",
+                "Pas un verdict — un point de départ pour discuter.",
+              )}
+            </p>
+            <div className="lvlup-cta lvlup-rise r3">
+              <button
+                className="btn pill"
+                type="button"
+                onClick={() => setPhase("answers")}
+              >
+                {t("See your answers →", "Voir vos réponses →")}
+              </button>
+              <button className="btn ghost" type="button" onClick={onDone}>
+                {t("Done for now", "Terminé pour l’instant")}
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+    );
+  }
+
   return (
-    <section onClick={stage < 3 ? skip : undefined}>
+    <section>
       <TopBar onExit={onDone} />
-      {party && <Celebration big={pct > 90} />}
-      <div className="eyebrow center" style={{ marginTop: 10 }}>
-        {deckName(slug, lang).toUpperCase()}
-        {review
-          ? t(" · REVIEW", " · RÉCAP")
-          : multi
-            ? t(
-                ` · LEVEL ${level + 1} OF ${nLevels(slug)}`,
-                ` · NIVEAU ${level + 1} SUR ${nLevels(slug)}`,
-              )
-            : ""}
-      </div>
+      {eyebrow}
 
-      {stage === 1 && (
-        <div className="meetstage">
-          <div className="meetpair">
-            <Avatar name={myName} tone="berry" size={58} />
-            <Avatar name={partnerName} tone="honey" size={58} />
-          </div>
-          <div className="meetline">
-            {t("You've both answered.", "Vous avez tous les deux répondu.")}
-          </div>
+      {hasScore ? (
+        <div className="center" style={{ margin: "16px 0 6px" }}>
+          <PctRing pct={pct} size={132} label={t("aligned", "alignés")} />
         </div>
-      )}
-
-      {stage >= 2 && hasScore && (
-        <div className={`herostage${stage === 2 ? " hero" : ""}`}>
-          <div className="center" style={{ margin: "18px 0 6px" }}>
-            {/* Bloom fires after the ring finishes drawing — the milestone moment. */}
-            <span className="bloomwrap">
-              <span className="glint g1" />
-              <span className="glint g2" />
-              <PctRing pct={pct} size={180} label={t("aligned", "alignés")} />
-            </span>
-          </div>
-        </div>
-      )}
-      {stage >= 3 && !hasScore && (
+      ) : (
         <h1 className="h1 center" style={{ margin: "16px 0 6px" }}>
           {t("What you each said", "Ce que chacun a dit")}
         </h1>
       )}
 
-      {/* Called as a plain function (not <RevealBody/>) so re-renders while the
-          overlay unmounts don't remount the body and replay its animations. */}
-      {stage >= 3 && RevealBody()}
+      {/* Called as a plain function (not <RevealBody/>) so re-renders don't
+          remount the body and replay its animations. */}
+      {RevealBody()}
     </section>
   );
 
@@ -225,7 +284,7 @@ export default function RevealScreen({
         )}
       </div>
 
-      <button className="btn" type="button" onClick={onDone}>
+      <button className="btn pill" type="button" onClick={onDone}>
         {t("Done", "Terminé")}
       </button>
       </>
