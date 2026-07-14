@@ -148,8 +148,8 @@ export default function AuthScreen() {
               {t("Privacy Policy", "politique de confidentialité")}
             </a>
             {t(
-              ". Aligned collects sensitive answers (faith, values, intimacy) to show the two of you where you align.",
-              ". Aligned recueille des réponses sensibles (foi, valeurs, intimité) pour vous montrer, à tous les deux, où vous vous rejoignez.",
+              ". TwoAgree collects sensitive answers (faith, values, intimacy) to show the two of you where you align.",
+              ". TwoAgree recueille des réponses sensibles (foi, valeurs, intimité) pour vous montrer, à tous les deux, où vous vous rejoignez.",
             )}
           </span>
         </label>

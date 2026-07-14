@@ -88,14 +88,22 @@ export default function HomeScreen({
 
   const [inviteMsg, setInviteMsg] = useState("");
   const [inviteBusy, setInviteBusy] = useState(false);
+  // Copy feedback: the chip itself confirms the copy (micro-interaction —
+  // feedback the static chip can't give). Share-sheet devices skip it.
+  const [copied, setCopied] = useState(false);
 
   const share = () => {
     const txt = t(
-      `Join me on aligned — our code is ${code}`,
-      `Rejoignez-moi sur aligned — notre code est ${code}`,
+      `Join me on TwoAgree — our code is ${code}`,
+      `Rejoignez-moi sur TwoAgree — notre code est ${code}`,
     );
     if (navigator.share) navigator.share({ text: txt }).catch(() => {});
-    else if (navigator.clipboard) navigator.clipboard.writeText(code);
+    else if (navigator.clipboard) {
+      navigator.clipboard.writeText(code).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1600);
+      });
+    }
   };
 
   const sendInviteLink = async () => {
@@ -105,8 +113,8 @@ export default function HomeScreen({
       const res = await createInvite({ code });
       const link = `${window.location.origin}/?t=${res.data.token}`;
       const txt = t(
-        `Join me on aligned — ${link}`,
-        `Rejoignez-moi sur aligned — ${link}`,
+        `Join me on TwoAgree — ${link}`,
+        `Rejoignez-moi sur TwoAgree — ${link}`,
       );
       if (navigator.share) await navigator.share({ text: txt }).catch(() => {});
       else if (navigator.clipboard) await navigator.clipboard.writeText(link);
@@ -179,8 +187,12 @@ export default function HomeScreen({
             "Share your code so your partner can join:",
             "Partagez votre code pour que votre partenaire vous rejoigne :",
           )}{" "}
-          <button className="codechip" type="button" onClick={share}>
-            {code}
+          <button
+            className={`codechip${copied ? " copied" : ""}`}
+            type="button"
+            onClick={share}
+          >
+            {copied ? t("Copied ✓", "Copié ✓") : code}
           </button>
           <button
             className="btn out"

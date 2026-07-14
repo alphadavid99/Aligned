@@ -327,8 +327,8 @@ function Celebration({ big }: { big: boolean }) {
   const count = big ? 96 : 26;
   const petals = Array.from({ length: count }, (_, i) => i);
   const colors = big
-    ? ["#7C3C69", "#E5A93C", "#D9963A", "#F1C8D2", "#9C4A6E", "#F6C46B"]
-    : ["#7C3C69", "#E5A93C", "#D9963A", "#F1C8D2", "#9C4A6E"];
+    ? ["#5C2E46", "#E5A93C", "#D9963A", "#F1C8D2", "#9C4A6E", "#F6C46B"]
+    : ["#5C2E46", "#E5A93C", "#D9963A", "#F1C8D2", "#9C4A6E"];
   return (
     <div className="celebrate" aria-hidden="true">
       <span className="wash" />

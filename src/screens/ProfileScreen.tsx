@@ -58,7 +58,7 @@ export default function ProfileScreen({
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "aligned-my-data.json";
+      a.download = "twoagree-my-data.json";
       a.click();
       URL.revokeObjectURL(url);
       setDataMsg(t("Your data has been downloaded.", "Vos données ont été téléchargées."));
@@ -247,8 +247,8 @@ export default function ProfileScreen({
         <div className="eyebrow">{t("Your data", "Vos données")}</div>
         <p className="muted" style={{ fontSize: 13, margin: "8px 0 14px" }}>
           {t(
-            "Aligned holds sensitive answers. You can take them with you or erase everything, at any time.",
-            "Aligned conserve des réponses sensibles. Vous pouvez les emporter ou tout effacer, à tout moment.",
+            "TwoAgree holds sensitive answers. You can take them with you or erase everything, at any time.",
+            "TwoAgree conserve des réponses sensibles. Vous pouvez les emporter ou tout effacer, à tout moment.",
           )}
         </p>
         <button className="btn out" type="button" onClick={doExport} disabled={dataBusy}>

@@ -1,8 +1,10 @@
 :root {
   /* Aligned brand tokens (ported from index.html / aligned-accounts.html).
      Surfaces: soft-blush ground, pure-white cards floating on it — never cream. */
-  --berry: #682d5c;
-  --berry2: #7c3c69;
+  /* Identity purple = TwoAgree claret (one purple across mark and app).
+     --berry2 is its lifted companion for gradients. */
+  --berry: #3e1a2e;
+  --berry2: #5c2e46;
   --ink: #2e2230;
   --rose: #9c4a6e;
   --honey: #e5a93c;
@@ -22,9 +24,9 @@
   --r-md: 22px;
   --r-lg: 30px;
 
-  --e1: 0 2px 10px rgba(104, 45, 92, 0.06);
-  --e2: 0 10px 24px rgba(104, 45, 92, 0.1);
-  --e-btn: 0 12px 26px rgba(104, 45, 92, 0.3);
+  --e1: 0 2px 10px rgba(62, 26, 46, 0.06);
+  --e2: 0 10px 24px rgba(62, 26, 46, 0.1);
+  --e-btn: 0 12px 26px rgba(62, 26, 46, 0.3);
 
   /* Fraunces/Hanken are the intent; Lora/Poppins are the render fallbacks. */
   --font-display: "Fraunces", "Lora", Georgia, serif;
@@ -176,7 +178,7 @@ label {
 }
 .input:focus {
   border-color: var(--berry);
-  box-shadow: 0 0 0 3px rgba(104, 45, 92, 0.1);
+  box-shadow: 0 0 0 3px rgba(62, 26, 46, 0.1);
 }
 textarea.input {
   resize: none;
@@ -202,7 +204,7 @@ textarea.input {
 }
 .btn:active {
   transform: scale(0.965) translateY(1px);
-  box-shadow: 0 4px 12px rgba(104, 45, 92, 0.26);
+  box-shadow: 0 4px 12px rgba(62, 26, 46, 0.26);
 }
 /* Busy: a soft shimmer says "working" — applied alongside the busy label. */
 .btn.busy {
@@ -246,7 +248,7 @@ textarea.input {
   color: var(--berry);
   border: none;
   border-radius: 999px;
-  box-shadow: 0 4px 14px rgba(104, 45, 92, 0.08);
+  box-shadow: 0 4px 14px rgba(62, 26, 46, 0.08);
   margin-top: 12px;
 }
 .btn.ghost {
@@ -539,7 +541,7 @@ textarea.input {
 }
 .opt.sel {
   border-color: var(--berry);
-  background: rgba(104, 45, 92, 0.05);
+  background: rgba(62, 26, 46, 0.05);
   animation: optSettle 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 .opt.sel .dot {
@@ -669,7 +671,7 @@ textarea.input {
   margin-top: 10px;
   background: #fff;
   border-radius: 18px;
-  box-shadow: 0 4px 14px rgba(104, 45, 92, 0.06);
+  box-shadow: 0 4px 14px rgba(62, 26, 46, 0.06);
   cursor: pointer;
   transition: transform 0.13s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -738,7 +740,7 @@ textarea.input {
   background: #fff;
   border-radius: 999px;
   padding: 7px;
-  box-shadow: 0 12px 30px rgba(104, 45, 92, 0.16);
+  box-shadow: 0 12px 30px rgba(62, 26, 46, 0.16);
   z-index: 10;
 }
 .bnav-item {
@@ -933,7 +935,7 @@ textarea.input {
   border-radius: var(--r-md);
   padding: 14px 16px;
   background: #fff;
-  box-shadow: 0 4px 14px rgba(104, 45, 92, 0.06);
+  box-shadow: 0 4px 14px rgba(62, 26, 46, 0.06);
 }
 .scall.warm {
   background: var(--honbg);
@@ -1063,7 +1065,7 @@ textarea.input {
   background: #fff;
   border: none;
   border-radius: 16px;
-  box-shadow: 0 4px 14px rgba(104, 45, 92, 0.07);
+  box-shadow: 0 4px 14px rgba(62, 26, 46, 0.07);
   padding: 15px 16px;
 }
 .qc-head {
@@ -1145,7 +1147,7 @@ textarea.input {
   font-weight: 700;
   color: #fff;
   border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(104, 45, 92, 0.22);
+  box-shadow: 0 2px 6px rgba(62, 26, 46, 0.22);
   animation: dotPop 0.4s ease both;
 }
 .sbar-dot.s {
@@ -1217,7 +1219,7 @@ textarea.input {
   opacity: 0.85;
 }
 .mcchip.s {
-  background: rgba(104, 45, 92, 0.07);
+  background: rgba(62, 26, 46, 0.07);
   color: var(--berry);
 }
 .mcchip.j {
@@ -1879,7 +1881,7 @@ textarea.input {
   background: #fff;
   border-radius: 999px;
   padding: 5px 14px 5px 6px;
-  box-shadow: 0 3px 10px rgba(104, 45, 92, 0.08);
+  box-shadow: 0 3px 10px rgba(62, 26, 46, 0.08);
 }
 .avchip-stack {
   display: flex;
@@ -1902,7 +1904,7 @@ textarea.input {
   color: var(--berry);
   display: grid;
   place-items: center;
-  box-shadow: 0 3px 10px rgba(104, 45, 92, 0.08);
+  box-shadow: 0 3px 10px rgba(62, 26, 46, 0.08);
   cursor: pointer;
   transition: transform 0.13s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -1938,7 +1940,7 @@ textarea.input {
   padding: 14px 15px;
   border-radius: 20px;
   background: #fff;
-  box-shadow: 0 6px 18px rgba(104, 45, 92, 0.07);
+  box-shadow: 0 6px 18px rgba(62, 26, 46, 0.07);
 }
 .tile-ic {
   width: 30px;
@@ -2044,7 +2046,7 @@ textarea.input {
   border-radius: 18px;
   background: #fff;
   border: none;
-  box-shadow: 0 4px 14px rgba(104, 45, 92, 0.06);
+  box-shadow: 0 4px 14px rgba(62, 26, 46, 0.06);
   cursor: pointer;
   font-family: inherit;
   text-align: left;
@@ -2076,4 +2078,113 @@ textarea.input {
   color: var(--amber);
   font-variant-numeric: tabular-nums;
   flex: 0 0 auto;
+}
+
+/* ============================================================
+   Micro-interaction pass (Dave's guidelines): feedback, status,
+   interactivity affordance — CSS transitions for simple states,
+   one keyframe where a step is needed. All hover motion lives
+   behind (hover)+(pointer:fine) so touch devices never pay for
+   it, and everything respects prefers-reduced-motion.
+   ============================================================ */
+
+/* feedback — the code chip confirms the copy itself */
+.codechip.copied {
+  color: var(--sage);
+  border-color: var(--sage);
+  animation: copyPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes copyPop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* interactivity affordance — desktop pointers get a hover layer */
+@media (hover: hover) and (pointer: fine) {
+  .btn:not([disabled]):hover {
+    transform: translateY(-1px);
+  }
+  .btn.pill:not([disabled]):hover {
+    box-shadow: 0 13px 26px rgba(217, 150, 58, 0.38);
+  }
+  .btn.out:hover {
+    box-shadow: 0 8px 20px rgba(62, 26, 46, 0.14);
+  }
+  .row,
+  .arow,
+  .scall,
+  .resrow {
+    transition: transform 0.15s ease, box-shadow 0.15s ease,
+      background-color 0.15s ease;
+  }
+  .row:hover,
+  .arow:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(62, 26, 46, 0.11);
+  }
+  .resrow:hover {
+    background: #fdf7f9;
+  }
+  .opt:hover:not(.sel) {
+    border-color: #dcc0cb;
+  }
+  .orb:hover:not(.sel) {
+    border-color: var(--honeyD);
+    color: var(--amber);
+  }
+  .rankopt:hover:not(.sel) .rankno {
+    border-color: var(--honeyD);
+  }
+  .langopt:hover:not(.on) {
+    color: var(--berry);
+  }
+  .bnav-item:hover:not(.on) {
+    color: var(--berry);
+  }
+  .roundbtn:hover,
+  .icobtn:hover {
+    transform: translateY(-1px);
+  }
+  .link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .codechip:hover,
+  .photobtn:hover,
+  .badge.tap:hover {
+    filter: brightness(0.97);
+  }
+}
+
+/* keyboard users see where they are — same ink as the identity */
+:focus-visible {
+  outline: 2px solid var(--berry);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.btn:focus-visible,
+.codechip:focus-visible,
+.langopt:focus-visible,
+.bnav-item:focus-visible {
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .codechip.copied {
+    animation: none !important;
+  }
+  .btn:not([disabled]):hover,
+  .row:hover,
+  .arow:hover,
+  .roundbtn:hover,
+  .icobtn:hover {
+    transform: none !important;
+  }
 }

@@ -1,6 +1,8 @@
-# CLAUDE.md — Aligned
+# CLAUDE.md — TwoAgree (formerly Aligned)
 
 Project brief and working agreement for Claude Code. Read this fully before touching code.
+
+> **Rebrand (Jul 2026):** the product is now **TwoAgree**. The mark, icons and wordmark are governed by `TWOAGREE-MARK.md` (v5.1) — measured, locked, do not redesign; `BRAND-REPORT.md` records its application. User-facing copy says TwoAgree; internal identifiers (Firebase project `aligned-9f843`, localStorage keys, repo name) still say aligned and that is deliberate — the hosting URL swap is pending Dave. "Aligned" below refers to this same product pre-rename.
 
 ---
 
@@ -144,9 +146,9 @@ Dave is not a lawyer; flag legal specifics for him to confirm, don't invent them
 
 ## 10. Brand system
 
-- Colours: Deep Berry `#682D5C` (`--berry2 #7C3C69`), Warm Honey `#E5A93C` (`--honeyD #D9963A`, text-safe amber `#8F5A12`), Soft Blush `#F8E9EC`, ink `#2E2230`. **Surfaces (Dave-approved revamp, Jul 2026): soft-blush ground (`#FBF2F5→#F8E9EC` gradient) with pure-white cards floating on it — never cream.** Honey is the action colour (pill CTAs, active nav pill); berry stays identity/ink. Exception: the play screen keeps its original berry button + progress bar by Dave's explicit preference.
-- Typography intent: **Fraunces** (display) + **Hanken Grotesk** (UI). These render in Dave's browser; the render pipeline falls back to **Lora / Poppins** — the shipped `index.html` currently loads Lora + Poppins. Disclose the fallback whenever presenting a render.
-- Logo: the **C3 caret** mark — path `M-46,40 L0,-46 L46,40 L20,40 L0,2.6 L-20,40 Z`, viewBox `-60 -60 120 120`.
+- Colours: identity purple is now **TwoAgree Claret `#3E1A2E`** (`--berry`, lifted companion `--berry2 #5C2E46`) — one purple across mark and app. Warm Honey `#E5A93C` (`--honeyD #D9963A`, text-safe amber `#8F5A12`) stays the app's action colour and is deliberately distinct from the mark's gold `#C6913C` (RULE 3: mark gold marks the bar only). Soft Blush `#F8E9EC`, ink `#2E2230`. **Surfaces (Dave-approved revamp, Jul 2026): soft-blush ground (`#FBF2F5→#F8E9EC` gradient) with pure-white cards floating on it — never cream.** Honey is the action colour (pill CTAs, active nav pill). Exception: the play screen keeps its original identity-purple button + progress bar by Dave's explicit preference.
+- Typography intent: **Fraunces** (display) + **Hanken Grotesk** (UI); **Questrial 400** carries the wordmark ONLY (self-hosted, `font-synthesis: none`). Fraunces/Hanken render in Dave's browser; the render pipeline falls back to **Lora / Poppins**. Disclose the fallback whenever presenting a render.
+- Logo: the **TwoAgree mark** — two leaning strokes + floating gold bar, per `TWOAGREE-MARK.md` (display cut standalone, text cut inlined as the A of the live-type wordmark). The mark never animates. The old C3 caret is retired.
 - Full token block, spacing (4/8 scale), radius scale, and berry-tinted elevation live in the `:root` of `index.html` — reuse verbatim, don't re-derive.
 - Placeholder names in mockups: **Sarah** (user) / **Judah** (partner).
 
