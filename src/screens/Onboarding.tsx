@@ -11,6 +11,7 @@ import type { Stage } from "../types";
 import { Logo } from "../components/Logo";
 import { TopBar } from "../components/TopBar";
 import StartMenu from "./StartMenu";
+import AuthScreen from "./AuthScreen";
 import { useT } from "../lib/i18n";
 
 // The first live question (§A5): a depth-1 Fun question, full mechanic, no
@@ -50,16 +51,44 @@ export default function Onboarding({
 
   const [stepA, setStepA] = useState<FlowAStep>("welcome");
   const [stepB, setStepB] = useState<FlowBStep>("arrive");
+  // Safety net (deploy-safe): if anonymous auth is unavailable — e.g. not yet
+  // enabled in the Firebase console — we fall back to the real account screen
+  // rather than stranding the user mid-flow. The "no account" path lights up
+  // automatically once anonymous auth is on.
+  const [fallback, setFallback] = useState(false);
 
   const partner = partnerName.trim() || t("your partner", "votre partenaire");
+
+  // Sign in anonymously; on failure, degrade to the account flow instead of a
+  // dead end. Only the sign-in step triggers the fallback — later errors are
+  // shown inline.
+  const ensureUser = async () => {
+    try {
+      // Race against a timeout so a hung sign-in (not just a rejection —
+      // e.g. anonymous auth disabled, or an unreachable endpoint) still
+      // degrades to the account flow rather than spinning forever.
+      const cred = await Promise.race([
+        signInAnonymously(auth),
+        new Promise<never>((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000)),
+      ]);
+      return cred.user;
+    } catch {
+      setFallback(true);
+      return null;
+    }
+  };
 
   // ---- Flow A: create the session after consent ---------------------------
   const startFlowA = async () => {
     if (!agreed || busy) return;
     setBusy(true);
     setErr("");
+    const user = await ensureUser();
+    if (!user) {
+      setBusy(false);
+      return;
+    }
     try {
-      const { user } = await signInAnonymously(auth);
       await recordConsent(user.uid, myName.trim());
       const c = await createSession(user.uid, myName.trim(), (stage ?? undefined) as Stage);
       setCode(c);
@@ -76,8 +105,12 @@ export default function Onboarding({
     if (!agreed || busy || !inviteToken) return;
     setBusy(true);
     setErr("");
+    const user = await ensureUser();
+    if (!user) {
+      setBusy(false);
+      return;
+    }
     try {
-      const { user } = await signInAnonymously(auth);
       await recordConsent(user.uid, myName.trim());
       const res = await redeemInvite({ token: inviteToken });
       const c = res.data.code;
@@ -111,6 +144,24 @@ export default function Onboarding({
       {err && <div className="err">{err}</div>}
     </section>
   );
+
+  // Anonymous auth unavailable → the real account screen, so no one is stranded.
+  if (fallback) {
+    return (
+      <section className="screen-enter">
+        <div className="brandhead brand-enter">
+          <Logo size={40} />
+        </div>
+        <p className="sub center" style={{ margin: "14px 24px 0" }}>
+          {t(
+            "Let's set up a quick account to save your answers.",
+            "Créons un compte rapide pour enregistrer vos réponses.",
+          )}
+        </p>
+        <AuthScreen />
+      </section>
+    );
+  }
 
   // =========================================================================
   // FLOW B — the joiner (3 screens: arrive, name, consent) → reveal
