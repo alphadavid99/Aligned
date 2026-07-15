@@ -87,7 +87,7 @@ export function PctRing({
   pct,
   size = 160,
   color = "var(--honey)",
-  label = "aligned",
+  label = "agreed",
 }: {
   pct: number;
   size?: number;

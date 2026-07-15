@@ -32,45 +32,45 @@ const deck = (
 ): DeckData => ({ answers, guesses });
 
 describe("scoreQ — scale", () => {
-  it("matched when equal", () => {
+  it("agreed when equal", () => {
     const r = scoreQ(scale(), deck({ S: { host: 3, guest: 3 } }), "host");
     expect(r.score).toBe(1);
-    expect(r.verdict).toBe("Matched");
+    expect(r.verdict).toBe("Agreed");
   });
   it("close when one apart", () => {
     const r = scoreQ(scale(), deck({ S: { host: 3, guest: 4 } }), "host");
     expect(r.score).toBeCloseTo(0.75);
     expect(r.verdict).toBe("Close");
   });
-  it("differed at the extremes", () => {
+  it("worth a chat at the extremes", () => {
     const r = scoreQ(scale(), deck({ S: { host: 1, guest: 5 } }), "host");
     expect(r.score).toBe(0);
-    expect(r.verdict).toBe("Differed");
+    expect(r.verdict).toBe("Worth a chat");
   });
 });
 
 describe("scoreQ — mc", () => {
-  it("matched / differed", () => {
+  it("agreed / worth a chat", () => {
     expect(scoreQ(mc(), deck({ M: { host: 0, guest: 0 } }), "host").score).toBe(1);
     expect(scoreQ(mc(), deck({ M: { host: 0, guest: 1 } }), "host").score).toBe(0);
   });
 });
 
 describe("scoreQ — rank", () => {
-  it("identical order matches", () => {
+  it("identical order agrees", () => {
     const r = scoreQ(rank(), deck({ R: { host: "0,1,2,3", guest: "0,1,2,3" } }), "host");
     expect(r.score).toBe(1);
-    expect(r.verdict).toBe("Matched");
+    expect(r.verdict).toBe("Agreed");
   });
   it("one swap is close (0.75)", () => {
     const r = scoreQ(rank(), deck({ R: { host: "0,1,2,3", guest: "1,0,2,3" } }), "host");
     expect(r.score).toBeCloseTo(0.75);
     expect(r.verdict).toBe("Close");
   });
-  it("full reversal is 0 / differed", () => {
+  it("full reversal is 0 / worth a chat", () => {
     const r = scoreQ(rank(), deck({ R: { host: "0,1,2,3", guest: "3,2,1,0" } }), "host");
     expect(r.score).toBe(0);
-    expect(r.verdict).toBe("Differed");
+    expect(r.verdict).toBe("Worth a chat");
   });
 });
 
@@ -91,9 +91,9 @@ describe("complementary (PAR-004)", () => {
     expect(r.score).toBe(1);
     expect(r.verdict).toBe("Complementary");
   });
-  it("equal answers are simply Matched", () => {
+  it("equal answers are simply Agreed", () => {
     const r = scoreQ(par, deck({ "PAR-004": { host: 3, guest: 3 } }), "host");
-    expect(r.verdict).toBe("Matched");
+    expect(r.verdict).toBe("Agreed");
   });
 });
 

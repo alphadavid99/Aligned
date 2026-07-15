@@ -41,15 +41,15 @@ export default function DecksScreen({
   return (
     <section>
       <div className="eyebrow center" style={{ marginTop: 24 }}>
-        {t("The decks", "Les thèmes")}
+        {t("Conversations", "Les conversations")}
       </div>
       <h1 className="h1 center" style={{ margin: "8px 0 4px" }}>
         {t("Where to go next", "Où aller ensuite")}
       </h1>
       <p className="muted center" style={{ fontSize: 13, margin: "0 0 14px" }}>
-        {t(`${done} of ${ORDER.length} complete`, `${done} sur ${ORDER.length} terminés`)}
+        {t(`${done} of ${ORDER.length} complete`, `${done} sur ${ORDER.length} terminées`)}
         {overallPct != null &&
-          t(` · ${overallPct}% aligned so far`, ` · ${overallPct}% alignés jusqu’ici`)}
+          t(` · ${overallPct}% agreed so far`, ` · ${overallPct}% d’accord jusqu’ici`)}
       </p>
 
       {buckets.map((bucket, i) =>
@@ -70,12 +70,12 @@ export default function DecksScreen({
                 L > 1
                   ? catComplete(slug, deck, role)
                     ? t(
-                        `All ${L} levels done · ${total} questions`,
-                        `Les ${L} niveaux terminés · ${total} questions`,
+                        `All ${L} parts done · ${total} questions`,
+                        `Les ${L} parties terminées · ${total} questions`,
                       )
                     : t(
-                        `Level ${lvl + 1} of ${L} · ${total} questions`,
-                        `Niveau ${lvl + 1} sur ${L} · ${total} questions`,
+                        `Part ${lvl + 1} of ${L} · ${total} questions`,
+                        `Partie ${lvl + 1} sur ${L} · ${total} questions`,
                       )
                   : mine > 0
                     ? t(

@@ -14,7 +14,7 @@ export interface DeckData {
   done?: Record<string, RoleMap<boolean>>;
 }
 
-export type Verdict = "Shared" | "Matched" | "Close" | "Differed" | "Complementary";
+export type Verdict = "Shared" | "Agreed" | "Close" | "Worth a chat" | "Complementary";
 
 export interface ScoreResult {
   me: AnswerValue | undefined;
@@ -62,7 +62,7 @@ export function scoreQ(q: Question, deck: DeckData, role: Role): ScoreResult {
     const maxd = Math.floor((n * n) / 2) || 1;
     const score = Math.max(0, 1 - dist / maxd);
     const verdict: Verdict =
-      dist === 0 ? "Matched" : score >= 0.7 ? "Close" : "Differed";
+      dist === 0 ? "Agreed" : score >= 0.7 ? "Close" : "Worth a chat";
     return { me, th, verdict, score, rank: true, A, B };
   }
 
@@ -71,15 +71,15 @@ export function scoreQ(q: Question, deck: DeckData, role: Role): ScoreResult {
   if (q.type === "scale") {
     const diff = Math.abs(Number(me) - Number(th));
     score = 1 - diff / 4;
-    verdict = diff === 0 ? "Matched" : diff === 1 ? "Close" : "Differed";
+    verdict = diff === 0 ? "Agreed" : diff === 1 ? "Close" : "Worth a chat";
   } else {
     // mc
     score = me === th ? 1 : 0;
-    verdict = me === th ? "Matched" : "Differed";
+    verdict = me === th ? "Agreed" : "Worth a chat";
   }
   if (isComplement(q)) {
     score = 1;
-    verdict = me === th ? "Matched" : "Complementary";
+    verdict = me === th ? "Agreed" : "Complementary";
   }
 
   const g = deck.guesses?.[q.id]?.[role];

@@ -287,10 +287,10 @@ export const DECKS: Record<string, Deck> = {
       },
       {
         "id": "FIN-010",
-        "q": "How important is it that we're aligned on money?",
+        "q": "How important is it that we agree on money?",
         "type": "scale",
         "tier": "2",
-        "note": "Weights money gaps in the alignment score.",
+        "note": "Weights money gaps in the agreement score.",
         "guessable": true,
         "lo": "We can differ freely",
         "hi": "We need to agree"
@@ -460,7 +460,7 @@ export const DECKS: Record<string, Deck> = {
         "guessable": true,
         "opts": [
           "We need to agree",
-          "Talk it through till aligned",
+          "Talk it through till we agree",
           "Respect our differences",
           "Avoid the topic"
         ]
@@ -1374,10 +1374,10 @@ export const DECKS: Record<string, Deck> = {
       },
       {
         "id": "INT-007",
-        "q": "How important is it that we're aligned on physical intimacy?",
+        "q": "How important is it that we agree on physical intimacy?",
         "type": "scale",
         "tier": "3",
-        "note": "Weights intimacy gaps in the alignment score.",
+        "note": "Weights intimacy gaps in the agreement score.",
         "guessable": true,
         "lo": "We can differ freely",
         "hi": "We need to agree"

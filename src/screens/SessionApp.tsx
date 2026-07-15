@@ -27,9 +27,9 @@ const TABS: {
   Icon: (p: { size?: number }) => React.JSX.Element;
 }[] = [
   { key: "home", en: "Home", fr: "Accueil", Icon: IconHome },
-  { key: "decks", en: "Decks", fr: "Thèmes", Icon: IconDecks },
-  { key: "results", en: "Results", fr: "Résultats", Icon: IconResults },
-  { key: "profile", en: "Profile", fr: "Profil", Icon: IconProfile },
+  { key: "decks", en: "Talk", fr: "Parler", Icon: IconDecks },
+  { key: "results", en: "Us", fr: "Nous", Icon: IconResults },
+  { key: "profile", en: "You", fr: "Vous", Icon: IconProfile },
 ];
 
 export default function SessionApp({
@@ -181,7 +181,7 @@ export default function SessionApp({
           {t("All yours are in.", "Les vôtres sont enregistrées.")}
         </h2>
         <p className="sub center" style={{ margin: "10px 24px 20px" }}>
-          {t("Your alignment unlocks once you’ve ", "Votre alignement se révèle une fois que vous avez ")}
+          {t("Your agreement unlocks once you’ve ", "Votre accord se révèle une fois que vous avez ")}
           <b>{t("both", "tous les deux")}</b>
           {t(
             " finished — so you always see the same score.",

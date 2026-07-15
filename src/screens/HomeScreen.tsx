@@ -68,11 +68,11 @@ export default function HomeScreen({
   const allDone = catComplete(slug, deck, role);
 
   const cta = allDone
-    ? t("See your alignment →", "Voir votre alignement →")
+    ? t("See where you agree →", "Voir où vous êtes d’accord →")
     : L > 1
       ? mine > 0
-        ? t(`Continue Level ${lvl + 1} →`, `Continuer le niveau ${lvl + 1} →`)
-        : t(`Start Level ${lvl + 1} →`, `Commencer le niveau ${lvl + 1} →`)
+        ? t(`Continue Part ${lvl + 1} →`, `Continuer la partie ${lvl + 1} →`)
+        : t(`Start Part ${lvl + 1} →`, `Commencer la partie ${lvl + 1} →`)
       : mine > 0
         ? t("Continue →", "Continuer →")
         : t("Start answering →", "Commencer à répondre →");
@@ -217,9 +217,9 @@ export default function HomeScreen({
             <IconDecks size={15} />
           </span>
           <span className="tile-lb">
-            {t("Decks", "Thèmes")}
+            {t("Conversations", "Conversations")}
             <br />
-            {t("complete", "terminés")}
+            {t("complete", "terminées")}
           </span>
           <div>
             <b className="serif">{decksComplete}</b>
@@ -235,7 +235,7 @@ export default function HomeScreen({
             </svg>
           </span>
           <span className="tile-lb">
-            {t("Aligned", "Alignés")}
+            {t("Agreed", "D’accord")}
             <br />
             {t("so far", "jusqu’ici")}
           </span>
@@ -257,9 +257,9 @@ export default function HomeScreen({
               <span className="featnm">{deckName(slug, lang)} &#9662;</span>
               <span className="featmt">
                 {allDone
-                  ? t("All levels revealed", "Tous les niveaux révélés")
+                  ? t("All parts revealed", "Toutes les parties révélées")
                   : L > 1
-                    ? t(`Level ${lvl + 1} of ${L}`, `Niveau ${lvl + 1} sur ${L}`) +
+                    ? t(`Part ${lvl + 1} of ${L}`, `Partie ${lvl + 1} sur ${L}`) +
                       (joined ? t(` · with ${partnerName}`, ` · avec ${partnerName}`) : "")
                     : t(`${lvlTotal} questions`, `${lvlTotal} questions`)}
               </span>
@@ -304,7 +304,7 @@ export default function HomeScreen({
               <HomeRow
                 slug={closest.slug}
                 pct={closest.pct}
-                sub={t("Closest alignment", "Alignement le plus fort")}
+                sub={t("Closest agreement", "Accord le plus fort")}
                 onOpen={onReview}
                 lang={lang}
               />
@@ -329,7 +329,7 @@ export default function HomeScreen({
       )}
 
       <div className="link center" style={{ display: "block", marginTop: 18, fontSize: 14 }} onClick={onBrowse}>
-        {t("Browse all decks", "Parcourir tous les thèmes")}
+        {t("Browse all conversations", "Parcourir toutes les conversations")}
       </div>
     </section>
   );

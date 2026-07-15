@@ -85,9 +85,9 @@ function FakeNav({ on }: { on: string }) {
   const [active, setActive] = useState(on);
   const items = [
     { key: "home", label: "Home", Icon: IconHome },
-    { key: "decks", label: "Decks", Icon: IconDecks },
-    { key: "results", label: "Results", Icon: IconResults },
-    { key: "profile", label: "Profile", Icon: IconProfile },
+    { key: "decks", label: "Talk", Icon: IconDecks },
+    { key: "results", label: "Us", Icon: IconResults },
+    { key: "profile", label: "You", Icon: IconProfile },
   ];
   return <PillNav items={items} active={active} onSelect={setActive} />;
 }

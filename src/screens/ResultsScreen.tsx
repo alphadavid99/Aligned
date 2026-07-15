@@ -43,19 +43,19 @@ export default function ResultsScreen({
       {overallPct == null ? (
         <p className="sub serif center" style={{ fontStyle: "italic", margin: "20px 24px" }}>
           {t(
-            "Finish a level together and your shared alignment appears here — not to judge, but to open the conversation.",
-            "Terminez un niveau ensemble et votre alignement commun apparaît ici — non pour juger, mais pour ouvrir la conversation.",
+            "Finish a part together and your shared agreement appears here — not to judge, but to open the conversation.",
+            "Terminez une partie ensemble et votre accord commun apparaît ici — non pour juger, mais pour ouvrir la conversation.",
           )}
         </p>
       ) : (
         <>
           <div className="center" style={{ margin: "16px 0 6px" }}>
-            <PctRing pct={overallPct} size={190} label={t("aligned", "alignés")} />
+            <PctRing pct={overallPct} size={190} label={t("agreed", "d’accord")} />
           </div>
           <p className="sub serif center" style={{ fontStyle: "italic", margin: "0 24px 20px" }}>
             {t(
-              `Across ${rows.length} ${rows.length === 1 ? "deck" : "decks"} so far.`,
-              `Sur ${rows.length} thème${rows.length === 1 ? "" : "s"} jusqu’ici.`,
+              `Across ${rows.length} ${rows.length === 1 ? "conversation" : "conversations"} so far.`,
+              `Sur ${rows.length} conversation${rows.length === 1 ? "" : "s"} jusqu’ici.`,
             )}
           </p>
 
@@ -63,7 +63,7 @@ export default function ResultsScreen({
             <div className="synth">
               <div className="scall">
                 <div>
-                  <div className="lb">{t("Closest alignment", "Alignement le plus fort")}</div>
+                  <div className="lb">{t("Closest agreement", "Accord le plus fort")}</div>
                   <div className="nm">{deckName(closest.slug, lang)}</div>
                 </div>
                 <div className="pc">{closest.pct}%</div>
@@ -96,8 +96,8 @@ export default function ResultsScreen({
                     {lvls === of
                       ? t("Complete", "Terminé")
                       : t(
-                          `${lvls} of ${of} levels revealed`,
-                          `${lvls} niveau${lvls === 1 ? "" : "x"} sur ${of} révélé${lvls === 1 ? "" : "s"}`,
+                          `${lvls} of ${of} parts revealed`,
+                          `${lvls} partie${lvls === 1 ? "" : "s"} sur ${of} révélée${lvls === 1 ? "" : "s"}`,
                         )}
                   </span>
                 </span>

@@ -111,8 +111,8 @@ export default function PlayScreen({
     deckName(slug, lang).toUpperCase() +
     (multi
       ? t(
-          ` · LEVEL ${level + 1} OF ${nLevels(slug)}`,
-          ` · NIVEAU ${level + 1} SUR ${nLevels(slug)}`,
+          ` · PART ${level + 1} OF ${nLevels(slug)}`,
+          ` · PARTIE ${level + 1} SUR ${nLevels(slug)}`,
         )
       : "");
 
@@ -200,7 +200,7 @@ export default function PlayScreen({
         onClick={submitAnswer}
       >
         {idx + 1 === qs.length
-          ? t("Finish level →", "Terminer le niveau →")
+          ? t("Finish part →", "Terminer la partie →")
           : t("Next →", "Suivant →")}
       </button>
       <div className="hint">

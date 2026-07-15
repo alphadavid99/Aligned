@@ -313,11 +313,11 @@
     "type": "scale",
     "tier": "2",
     "level": 3,
-    "q": "How important is it that we're aligned on money?",
+    "q": "How important is it that we agree on money?",
     "lo": "We can differ freely",
     "hi": "We need to agree",
     "guessable": true,
-    "note": "Weights money gaps in the alignment score.",
+    "note": "Weights money gaps in the agreement score.",
     "status": "Draft",
     "source": "Self",
     "dateAdded": "2026-06-23"
@@ -540,7 +540,7 @@
     "q": "When our faith differs, how should we handle it?",
     "opts": [
       "We need to agree",
-      "Talk it through till aligned",
+      "Talk it through till we agree",
       "Respect our differences",
       "Avoid the topic"
     ],
@@ -1796,11 +1796,11 @@
     "type": "scale",
     "tier": "3",
     "level": 5,
-    "q": "How important is it that we're aligned on physical intimacy?",
+    "q": "How important is it that we agree on physical intimacy?",
     "lo": "We can differ freely",
     "hi": "We need to agree",
     "guessable": true,
-    "note": "Weights intimacy gaps in the alignment score.",
+    "note": "Weights intimacy gaps in the agreement score.",
     "status": "Draft",
     "source": "Self",
     "dateAdded": "2026-06-23"

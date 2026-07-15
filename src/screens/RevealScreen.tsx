@@ -20,19 +20,19 @@ import { useT, useLang } from "../lib/i18n";
 
 // Display labels for each verdict when the language is French.
 const VERDICT_FR: Record<Verdict, string> = {
-  Matched: "Identique",
+  Agreed: "D’accord",
   Close: "Proche",
-  Differed: "Différent",
+  "Worth a chat": "À discuter",
   Complementary: "Complémentaire",
   Shared: "Partagé",
 };
 
-// "Differed" is deliberately a calm, neutral ink — not alarm-red. Difference
+// "Worth a chat" is deliberately a calm, neutral ink — not alarm-red. Difference
 // here is an invitation to talk, never a failure state (see the subline below).
 const VERDICT_COLOR: Record<Verdict, string> = {
-  Matched: "#2fa96b",
+  Agreed: "#2fa96b",
   Close: "var(--honeyD)",
-  Differed: "#6a5a66",
+  "Worth a chat": "#6a5a66",
   Complementary: "#8250b8",
   Shared: "var(--sub)",
 };
@@ -134,8 +134,8 @@ export default function RevealScreen({
         ? t(" · REVIEW", " · RÉCAP")
         : multi
           ? t(
-              ` · LEVEL ${level + 1} OF ${nLevels(slug)}`,
-              ` · NIVEAU ${level + 1} SUR ${nLevels(slug)}`,
+              ` · PART ${level + 1} OF ${nLevels(slug)}`,
+              ` · PARTIE ${level + 1} SUR ${nLevels(slug)}`,
             )
           : ""}
     </div>
@@ -193,7 +193,7 @@ export default function RevealScreen({
                 <PctRing
                   pct={pct}
                   size={pct > 90 ? 234 : 210}
-                  label={t("aligned", "alignés")}
+                  label={t("agreed", "d’accord")}
                 />
               </span>
             </div>
@@ -246,7 +246,7 @@ export default function RevealScreen({
 
       {hasScore ? (
         <div className="center" style={{ margin: "16px 0 6px" }}>
-          <PctRing pct={pct} size={132} label={t("aligned", "alignés")} />
+          <PctRing pct={pct} size={132} label={t("agreed", "d’accord")} />
         </div>
       ) : (
         <h1 className="h1 center" style={{ margin: "16px 0 6px" }}>
@@ -408,7 +408,7 @@ function QCard({
           )}
         </div>
       )}
-      {r.verdict === "Differed" && (
+      {r.verdict === "Worth a chat" && (
         <div className="qc-note">
           {t("Worth a conversation.", "Un sujet à aborder ensemble.")}
         </div>
