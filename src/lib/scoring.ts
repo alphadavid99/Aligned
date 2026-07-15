@@ -17,11 +17,17 @@ export interface DeckData {
 
 export type Verdict = "Shared" | "Agreed" | "Close" | "Worth a chat" | "Complementary";
 
+// Additive metadata, NOT verdicts (brief §4). Verdicts are mutually exclusive;
+// flags stack. A question can be Agreed + unevenStakes. Internal keys are kept
+// descriptive; only the copy layer renames them ("Didn't know" / "Matters more").
+export type Flag = "blindSpot" | "unevenStakes";
+
 export interface ScoreResult {
   me: AnswerValue | undefined;
   th: AnswerValue | undefined;
   verdict: Verdict;
   score: number | null;
+  flags: Flag[];
   open?: boolean;
   rank?: boolean;
   A?: number[];
@@ -32,6 +38,9 @@ export interface ScoreResult {
   theyGuessed?: boolean;
   theyGuessRight?: boolean;
   theirGuess?: AnswerValue;
+  // Importance ratings backing the unevenStakes flag (undefined if unrated).
+  impMe?: number;
+  impTh?: number;
 }
 
 export const other = (r: Role): Role => (r === "host" ? "guest" : "host");
@@ -89,13 +98,25 @@ export function isComplement(q: Question): boolean {
   );
 }
 
+// unevenStakes (brief §4b): both partners rated importance and the gap is ≥3.
+// Independent of agreement and of question type (rank included). Rare by design.
+function stakesGap(q: Question, deck: DeckData, role: Role) {
+  const impMe = deck.importance?.[q.id]?.[role];
+  const impTh = deck.importance?.[q.id]?.[other(role)];
+  const uneven =
+    typeof impMe === "number" &&
+    typeof impTh === "number" &&
+    Math.abs(impMe - impTh) >= 3;
+  return { impMe, impTh, uneven };
+}
+
 export function scoreQ(q: Question, deck: DeckData, role: Role): ScoreResult {
   const a = deck.answers?.[q.id] ?? {};
   const me = a[role];
   const th = a[other(role)];
 
   if (q.type === "open") {
-    return { me, th, verdict: "Shared", score: null, open: true };
+    return { me, th, verdict: "Shared", score: null, open: true, flags: [] };
   }
 
   if (q.type === "rank") {
@@ -108,7 +129,20 @@ export function scoreQ(q: Question, deck: DeckData, role: Role): ScoreResult {
     const score = Math.max(0, 1 - dist / maxd);
     const verdict: Verdict =
       dist === 0 ? "Agreed" : score >= 0.7 ? "Close" : "Worth a chat";
-    return { me, th, verdict, score, rank: true, A, B };
+    // blindSpot excludes rank (never guessed); unevenStakes can still apply.
+    const { impMe, impTh, uneven } = stakesGap(q, deck, role);
+    return {
+      me,
+      th,
+      verdict,
+      score,
+      rank: true,
+      A,
+      B,
+      flags: uneven ? ["unevenStakes"] : [],
+      impMe,
+      impTh,
+    };
   }
 
   let verdict: Verdict;
@@ -133,17 +167,32 @@ export function scoreQ(q: Question, deck: DeckData, role: Role): ScoreResult {
   const tg = deck.guesses?.[q.id]?.[other(role)];
   const theyGuessed = tg != null;
   const theyGuessRight = theyGuessed && tg === me;
+
+  const flags: Flag[] = [];
+  // blindSpot (brief §4a): a real difference (verdict "Worth a chat") that at
+  // least one partner didn't see coming. Complementary/Close are deliberately
+  // excluded — those verdicts already say the difference isn't a problem.
+  const isBlindSpot =
+    verdict === "Worth a chat" &&
+    ((guessed && !guessRight) || (theyGuessed && !theyGuessRight));
+  if (isBlindSpot) flags.push("blindSpot");
+  const { impMe, impTh, uneven } = stakesGap(q, deck, role);
+  if (uneven) flags.push("unevenStakes");
+
   return {
     me,
     th,
     verdict,
     score,
+    flags,
     guessed,
     guessRight,
     guess: g,
     theyGuessed,
     theyGuessRight,
     theirGuess: tg,
+    impMe,
+    impTh,
   };
 }
 

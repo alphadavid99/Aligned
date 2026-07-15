@@ -738,6 +738,33 @@ textarea.input {
   padding: 16px 20px;
   border-bottom: 1px solid var(--cardb);
 }
+/* Per-conversation scores — agreed + known, side by side (brief §3b). */
+.resrow-scores {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.resrow-scores .rs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.05;
+}
+.resrow-scores .rs b {
+  font-weight: 700;
+  color: var(--berry);
+  font-variant-numeric: tabular-nums;
+}
+.resrow-scores .rs.kn b {
+  color: var(--amber);
+}
+.resrow-scores .rs i {
+  font-style: normal;
+  font-size: 9.5px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--sub);
+}
 
 /* ---- floating pill nav — active tab is a honey pill wearing its label ---- */
 .tabwrap {
@@ -1041,6 +1068,23 @@ textarea.input {
 /* ---- reveal: guess-accuracy capsule — a warm honey "medal" under the hero
    ring. A positive counterweight to a low alignment score without a second
    gauge competing for attention. Copy is tiered to the score (knowLine). ---- */
+/* Agreed + Known, two rings at equal weight (brief §3a). */
+.scorepair {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 22px;
+  margin: 16px 0 6px;
+}
+/* A quiet caption under the scores — the "how well you know each other" flavour,
+   no longer a boxed pill now that Known has its own ring. */
+.knowline {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--amber);
+  margin: 2px 24px 0;
+}
 .knowcaps {
   display: flex;
   justify-content: center;

@@ -1,7 +1,7 @@
 import { revealedRows } from "../lib/results";
 import type { Role } from "../lib/scoring";
 import type { Session } from "../types";
-import { PctRing } from "../components/Ring";
+import { ScorePair } from "../components/ScorePair";
 import { deckName } from "../lib/questions.fr";
 import { useT, useLang } from "../lib/i18n";
 
@@ -20,8 +20,9 @@ export default function ResultsScreen({
   const t = useT();
   const lang = useLang();
 
-  // Overall = average of all scoreable joint answers across revealed levels.
-  const { rows, overallPct } = revealedRows(session.decks, role);
+  // Overall = weighted mean of all scoreable joint answers across revealed
+  // levels; knownPct = guess accuracy over the same ground.
+  const { rows, overallPct, knownPct } = revealedRows(session.decks, role);
 
   // Surface the signal, don't bury it: the lowest deck IS the product — the
   // topic most worth a conversation. Rank ascending so the eye lands on it
@@ -49,9 +50,7 @@ export default function ResultsScreen({
         </p>
       ) : (
         <>
-          <div className="center" style={{ margin: "16px 0 6px" }}>
-            <PctRing pct={overallPct} size={190} label={t("agreed", "d’accord")} />
-          </div>
+          <ScorePair agreed={overallPct} known={knownPct} t={t} size={150} />
           <p className="sub serif center" style={{ fontStyle: "italic", margin: "0 24px 20px" }}>
             {t(
               `Across ${rows.length} ${rows.length === 1 ? "conversation" : "conversations"} so far.`,
@@ -81,7 +80,7 @@ export default function ResultsScreen({
           )}
 
           <div className="card" style={{ padding: 0, overflow: "hidden", marginTop: 14 }}>
-            {ranked.map(({ slug, pct, lvls, of }) => (
+            {ranked.map(({ slug, pct, known, lvls, of }) => (
               <div
                 key={slug}
                 className={`resrow${showSynth && slug === lowest.slug ? " hot" : ""}`}
@@ -101,7 +100,18 @@ export default function ResultsScreen({
                         )}
                   </span>
                 </span>
-                <span style={{ color: "var(--berry)", fontWeight: 700 }}>{pct}%</span>
+                <span className="resrow-scores">
+                  <span className="rs">
+                    <b>{pct}%</b>
+                    <i>{t("agreed", "d’accord")}</i>
+                  </span>
+                  {known != null && (
+                    <span className="rs kn">
+                      <b>{known}%</b>
+                      <i>{t("known", "connus")}</i>
+                    </span>
+                  )}
+                </span>
                 {onOpen && (
                   <span style={{ color: "var(--mut)", marginLeft: 10 }}>&#8250;</span>
                 )}
