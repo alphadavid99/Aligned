@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { User } from "firebase/auth";
+import { auth } from "./firebase";
 import { useAuth } from "./hooks/useAuth";
 import { useProfile } from "./hooks/useProfile";
 import { getActiveCode, setActiveCode, clearActiveCode } from "./lib/local";
@@ -155,39 +156,47 @@ function SignedIn({ user }: { user: User }) {
   );
 }
 
-// The no-account front door (brief 2 Part B §5). Whoever isn't signed into a
-// REAL account lands in onboarding, which signs them in anonymously along the
-// way — so a session code plus a first name reaches a reveal, no sign-up. When
-// onboarding hands back a code we drop into the app; a real account can be
-// linked later, additively, at the first moment they'd lose something.
-function OnboardingGate({ user }: { user: User | null }) {
-  const [code, setCode] = useState<string | null>(null);
-  if (code && user) {
-    return (
-      <SessionApp code={code} user={user} onLeave={() => setCode(null)} />
-    );
+// The no-account front door (onboarding spec v2 §5). Onboarding owns the whole
+// flow and only hands back a code when it's finished — critically, it stays
+// mounted THROUGH the mid-flow account upgrade (linkWithCredential flips
+// isAnonymous, but this gate doesn't re-route on that).
+function OnboardingGate() {
+  const [doneCode, setDoneCode] = useState<string | null>(null);
+  const u = auth.currentUser;
+  if (doneCode && u) {
+    return <SessionApp code={doneCode} user={u} onLeave={() => setDoneCode(null)} />;
   }
-  return (
-    <Onboarding inviteToken={inviteToken} onEnter={(c) => setCode(c)} />
-  );
+  return <Onboarding inviteToken={inviteToken} onDone={(c) => setDoneCode(c)} />;
 }
 
 export default function App() {
   const { user, loading } = useAuth();
   const t = useT();
+  // Decide the entry mode ONCE, when auth first settles, and lock it. A
+  // pre-existing real account goes to the app; everyone else (no user, or an
+  // anonymous user) enters onboarding and stays there even after the account is
+  // upgraded mid-flow. Reset to the front door on sign-out.
+  const [mode, setMode] = useState<null | "onboard" | "app">(null);
+  useEffect(() => {
+    if (loading) return;
+    if (!mode) {
+      setMode(user && !user.isAnonymous ? "app" : "onboard");
+    } else if (mode === "app" && !user) {
+      setMode("onboard");
+    }
+  }, [loading, user, mode]);
 
   return (
     <div className="phone">
-      {loading ? (
+      {loading || !mode ? (
         <>
           <Wordmark />
           <Boot label={t("Checking your account…", "Vérification de votre compte…")} />
         </>
-      ) : user && !user.isAnonymous ? (
-        // Returning real-account users keep the existing create/join flow.
+      ) : mode === "app" && user ? (
         <SignedIn user={user} />
       ) : (
-        <OnboardingGate user={user} />
+        <OnboardingGate />
       )}
     </div>
   );

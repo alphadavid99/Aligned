@@ -227,8 +227,8 @@ function Preview() {
       />
     );
   }
-  if (view === "onboard") return <Onboarding inviteToken={null} onEnter={noop} />;
-  if (view === "joinb") return <Onboarding inviteToken="demo" onEnter={noop} />;
+  if (view === "onboard") return <Onboarding inviteToken={null} onDone={noop} />;
+  if (view === "joinb") return <Onboarding inviteToken="demo" onDone={noop} />;
   if (view === "menu")
     return <StartMenu stage="engaged" onPick={noop} onSeeAll={noop} />;
   if (view === "start")

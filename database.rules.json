@@ -6,17 +6,62 @@
         ".write": "auth != null && auth.uid === $uid"
       }
     },
+
+    "consents": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
     "sessions": {
       "$code": {
         ".read": "auth != null && data.child('uids').child(auth.uid).exists()",
-        ".write": "auth != null && (data.child('uids').child(auth.uid).exists() || !data.exists())",
+        ".write": "auth != null && !data.exists()",
+
         "uids": {
-          "$uid": {
-            ".validate": "auth.uid === $uid"
+          "$uid": { ".validate": "auth.uid === $uid" }
+        },
+
+        "meatAt": {
+          ".write": "auth != null && root.child('sessions/'+$code+'/uids/'+auth.uid).exists()"
+        },
+
+        "decks": {
+          "$slug": {
+            "answers": {
+              "$qid": {
+                "$role": {
+                  ".write": "auth != null && !data.exists() && root.child('sessions/'+$code+'/uids/'+auth.uid).exists() && (($role === 'host' && root.child('sessions/'+$code+'/members/host/uid').val() === auth.uid) || ($role === 'guest' && root.child('sessions/'+$code+'/members/guest/uid').val() === auth.uid))"
+                }
+              }
+            },
+            "guesses": {
+              "$qid": {
+                "$role": {
+                  ".write": "auth != null && !data.exists() && root.child('sessions/'+$code+'/uids/'+auth.uid).exists() && (($role === 'host' && root.child('sessions/'+$code+'/members/host/uid').val() === auth.uid) || ($role === 'guest' && root.child('sessions/'+$code+'/members/guest/uid').val() === auth.uid))"
+                }
+              }
+            },
+            "importance": {
+              "$qid": {
+                "$role": {
+                  ".write": "auth != null && !data.exists() && root.child('sessions/'+$code+'/uids/'+auth.uid).exists() && (($role === 'host' && root.child('sessions/'+$code+'/members/host/uid').val() === auth.uid) || ($role === 'guest' && root.child('sessions/'+$code+'/members/guest/uid').val() === auth.uid))"
+                }
+              }
+            },
+            "done": {
+              "$lvl": {
+                "$role": {
+                  ".write": "auth != null && root.child('sessions/'+$code+'/uids/'+auth.uid).exists() && (($role === 'host' && root.child('sessions/'+$code+'/members/host/uid').val() === auth.uid) || ($role === 'guest' && root.child('sessions/'+$code+'/members/guest/uid').val() === auth.uid))"
+                }
+              }
+            }
           }
         }
       }
     },
+
     "invites": {
       ".read": false,
       ".write": false

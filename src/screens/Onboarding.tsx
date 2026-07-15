@@ -1,11 +1,25 @@
 import { useState } from "react";
-import { signInAnonymously } from "firebase/auth";
+import {
+  signInAnonymously,
+  linkWithCredential,
+  linkWithPopup,
+  EmailAuthProvider,
+} from "firebase/auth";
 import { get, ref } from "firebase/database";
-import { auth, db } from "../firebase";
-import { createSession, writeAnswer, writeGuess, recordConsent } from "../lib/session";
+import { auth, db, googleProvider } from "../firebase";
+import {
+  createSession,
+  writeAnswer,
+  markLevelDone,
+  recordConsent,
+  writeProfile,
+  writeMeetAt,
+} from "../lib/session";
 import { redeemInvite, createInvite } from "../lib/functions";
 import { prettyError } from "../lib/errors";
-import { DECKS } from "../lib/questions";
+import { fileToAvatarDataUrl } from "../lib/device/photo";
+import { type Question } from "../lib/questions";
+import { lvlQs } from "../lib/leveling";
 import { ONB_STAGES, type OnbStage } from "../lib/onboarding";
 import type { Stage } from "../types";
 import { Logo } from "../components/Logo";
@@ -14,59 +28,62 @@ import StartMenu from "./StartMenu";
 import AuthScreen from "./AuthScreen";
 import { useT } from "../lib/i18n";
 
-// The first live question (§A5): a depth-1 Fun question, full mechanic, no
-// instructions. Resolved from the bank so a reword follows it.
-const A5_ID = "FUN-002";
-const A5_SLUG = "fun-icebreakers";
-const a5 = DECKS[A5_SLUG].questions.find((q) => q.id === A5_ID);
+// The onboarding starter: the first Part of a warm deck, answer-only (no guess —
+// spec v2 §7.1). Both partners answer the SAME questions so the reveal overlaps.
+const STARTER_SLUG = "fun-icebreakers";
+const STARTER_QS: Question[] = lvlQs(STARTER_SLUG, 0).filter(
+  (q) => q.type === "mc" || q.type === "scale",
+);
 
-type FlowAStep = "welcome" | "names" | "stage" | "consent" | "first" | "wall" | "menu";
-type FlowBStep = "arrive" | "name" | "consent" | "ready";
+type T = (en: string, fr: string) => string;
+type AStep =
+  | "welcome"
+  | "names"
+  | "stage"
+  | "consent"
+  | "questions"
+  | "profile"
+  | "invite"
+  | "intention"
+  | "menu";
+type BStep = "arrive" | "name" | "consent" | "questions";
 
-// Onboarding is recruitment, not setup (brief 2 Part B §0). Flow A: the person
-// who arrives first, four screens then a real question, invite AFTER they've felt
-// it. Flow B: the person they bring, three screens then a reveal in sixty seconds.
-// No account to start — an anonymous session reaches a reveal; a real account
-// layers on additively later (§5).
+// Onboarding = recruitment (spec v2). Flow A: the person who arrives first —
+// answers, then creates their profile at the invite gate, then invites. Flow B:
+// the person they bring — reaches the reveal without ever needing an account.
+// Anonymous auth carries the pre-account state; the account is layered on at the
+// exact moment it earns its keep (the invite / the notification channel).
 export default function Onboarding({
   inviteToken,
-  onEnter,
+  onDone,
 }: {
   inviteToken: string | null;
-  onEnter: (code: string, startSlug?: string) => void;
+  onDone: (code: string) => void;
 }) {
   const t = useT();
   const joining = !!inviteToken;
 
-  // shared state
   const [myName, setMyName] = useState("");
   const [partnerName, setPartnerName] = useState("");
   const [stage, setStage] = useState<OnbStage | null>(null);
-  const [agreed, setAgreed] = useState(false);
+  const [code, setCode] = useState("");
+  const [role, setRole] = useState<"host" | "guest">("host");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  const [code, setCode] = useState("");
-  const [bankedCount, setBankedCount] = useState(0);
-  const [initiatorName, setInitiatorName] = useState("");
-
-  const [stepA, setStepA] = useState<FlowAStep>("welcome");
-  const [stepB, setStepB] = useState<FlowBStep>("arrive");
-  // Safety net (deploy-safe): if anonymous auth is unavailable — e.g. not yet
-  // enabled in the Firebase console — we fall back to the real account screen
-  // rather than stranding the user mid-flow. The "no account" path lights up
-  // automatically once anonymous auth is on.
   const [fallback, setFallback] = useState(false);
+
+  const [stepA, setStepA] = useState<AStep>("welcome");
+  const [stepB, setStepB] = useState<BStep>("arrive");
+  const [initiatorName, setInitiatorName] = useState("");
+  const [bankedCount, setBankedCount] = useState(0);
 
   const partner = partnerName.trim() || t("your partner", "votre partenaire");
 
-  // Sign in anonymously; on failure, degrade to the account flow instead of a
-  // dead end. Only the sign-in step triggers the fallback — later errors are
-  // shown inline.
+  // Anonymous sign-in with a timeout backstop; on failure, degrade to the
+  // account screen rather than stranding anyone.
   const ensureUser = async () => {
+    if (auth.currentUser) return auth.currentUser;
     try {
-      // Race against a timeout so a hung sign-in (not just a rejection —
-      // e.g. anonymous auth disabled, or an unreachable endpoint) still
-      // degrades to the account flow rather than spinning forever.
       const cred = await Promise.race([
         signInAnonymously(auth),
         new Promise<never>((_, rej) => setTimeout(() => rej(new Error("timeout")), 12000)),
@@ -78,21 +95,19 @@ export default function Onboarding({
     }
   };
 
-  // ---- Flow A: create the session after consent ---------------------------
+  // Flow A: consent → create the session (answers need somewhere to live).
   const startFlowA = async () => {
-    if (!agreed || busy) return;
+    if (busy) return;
     setBusy(true);
     setErr("");
     const user = await ensureUser();
-    if (!user) {
-      setBusy(false);
-      return;
-    }
+    if (!user) return setBusy(false);
     try {
-      await recordConsent(user.uid, myName.trim());
+      await recordConsent(user.uid);
       const c = await createSession(user.uid, myName.trim(), (stage ?? undefined) as Stage);
       setCode(c);
-      setStepA("first");
+      setRole("host");
+      setStepA("questions");
     } catch (e) {
       setErr(prettyError(e));
     } finally {
@@ -100,36 +115,33 @@ export default function Onboarding({
     }
   };
 
-  // ---- Flow B: join after consent, then read the banked count -------------
+  // Flow B: consent → join → read the initiator's banked count → answer.
   const startFlowB = async () => {
-    if (!agreed || busy || !inviteToken) return;
+    if (busy || !inviteToken) return;
     setBusy(true);
     setErr("");
     const user = await ensureUser();
-    if (!user) {
-      setBusy(false);
-      return;
-    }
+    if (!user) return setBusy(false);
     try {
-      await recordConsent(user.uid, myName.trim());
+      await recordConsent(user.uid);
       const res = await redeemInvite({ token: inviteToken });
       const c = res.data.code;
       setCode(c);
-      // Honest count for the joiner (§B1): how many the initiator has banked.
+      setRole("guest");
       try {
         const snap = await get(ref(db, `sessions/${c}`));
         const val = snap.val() ?? {};
         setInitiatorName(val?.members?.host?.name ?? "");
         const decks = (val.decks ?? {}) as Record<string, { answers?: Record<string, { host?: unknown }> }>;
         let n = 0;
-        for (const slug in decks)
-          for (const qid in decks[slug].answers ?? {})
-            if (decks[slug].answers![qid].host != null) n++;
+        for (const s in decks)
+          for (const qid in decks[s].answers ?? {})
+            if (decks[s].answers![qid].host != null) n++;
         setBankedCount(n);
       } catch {
-        /* count is a nicety, not a gate */
+        /* count is a nicety */
       }
-      setStepB("ready");
+      setStepB("questions");
     } catch (e) {
       setErr(prettyError(e));
     } finally {
@@ -139,13 +151,18 @@ export default function Onboarding({
 
   const shell = (children: React.ReactNode, onExit?: () => void) => (
     <section className="screen-enter">
-      {onExit ? <TopBar onExit={onExit} /> : <div className="brandhead brand-enter"><Logo size={40} /></div>}
+      {onExit ? (
+        <TopBar onExit={onExit} />
+      ) : (
+        <div className="brandhead brand-enter">
+          <Logo size={40} />
+        </div>
+      )}
       {children}
       {err && <div className="err">{err}</div>}
     </section>
   );
 
-  // Anonymous auth unavailable → the real account screen, so no one is stranded.
   if (fallback) {
     return (
       <section className="screen-enter">
@@ -164,7 +181,7 @@ export default function Onboarding({
   }
 
   // =========================================================================
-  // FLOW B — the joiner (3 screens: arrive, name, consent) → reveal
+  // FLOW B — the joiner: arrive → name → consent → answer → reveal
   // =========================================================================
   if (joining) {
     if (stepB === "arrive") {
@@ -174,12 +191,12 @@ export default function Onboarding({
             {t("You've been invited", "Vous êtes invité·e")}
           </div>
           <h1 className="h1 center" style={{ margin: "10px 24px 6px" }}>
-            {t("Your partner has started.", "Votre partenaire a commencé.")}
+            {t("Someone has started something.", "Quelqu'un a commencé quelque chose.")}
           </h1>
           <p className="sub serif center" style={{ fontStyle: "italic", margin: "10px 24px 26px" }}>
             {t(
-              "They've answered some questions and they're waiting for you. Catching up is the easy part.",
-              "Ils ont déjà répondu à quelques questions et vous attendent. Rattraper est la partie facile.",
+              "It doesn't work without you. Answer the same questions and you'll see where you two land.",
+              "Ça ne marche pas sans vous. Répondez aux mêmes questions et vous verrez où vous en êtes.",
             )}
           </p>
           <button className="btn pill" type="button" onClick={() => setStepB("name")}>
@@ -201,64 +218,42 @@ export default function Onboarding({
             maxLength={20}
             value={myName}
             onChange={(e) => setMyName(e.target.value)}
-            placeholder={t("e.g. Sarah", "p. ex. Sarah")}
+            placeholder={t("e.g. Judah", "p. ex. Judah")}
           />
-          <button
-            className="btn pill"
-            type="button"
-            disabled={!myName.trim()}
-            onClick={() => setStepB("consent")}
-          >
+          <button className="btn pill" type="button" disabled={!myName.trim()} onClick={() => setStepB("consent")}>
             {t("Continue →", "Continuer →")}
           </button>
         </>,
         () => setStepB("arrive"),
       );
     }
-    if (stepB === "ready") {
-      const who = initiatorName || t("Your partner", "Votre partenaire");
+    if (stepB === "consent") {
       return shell(
-        <>
-          <div className="bwrap">
-            <span className="bring" />
-            <Logo size={42} word={false} />
-          </div>
-          <h1 className="h1 center" style={{ marginTop: 8 }}>
-            {bankedCount > 0
-              ? t(
-                  `${who} has answered ${bankedCount}.`,
-                  `${who} a répondu à ${bankedCount}.`,
-                )
-              : t(`${who} is ready.`, `${who} est prêt·e.`)}
-          </h1>
-          <p className="sub center" style={{ margin: "10px 24px 24px" }}>
-            {t(
-              "Answer the same ones and they reveal the moment you finish.",
-              "Répondez aux mêmes et tout se révèle dès que vous avez terminé.",
-            )}
-          </p>
-          <button className="btn pill" type="button" onClick={() => onEnter(code)}>
-            {t("Start answering →", "Commencer à répondre →")}
-          </button>
-        </>,
+        <ConsentBody partner={partner} busy={busy} onStart={startFlowB} t={t} />,
+        () => setStepB("name"),
       );
     }
-    // consent (identical to A4; one person cannot consent for two)
-    return shell(
-      <ConsentBody
-        partner={partner}
-        agreed={agreed}
-        setAgreed={setAgreed}
-        busy={busy}
-        onStart={startFlowB}
+    // questions → reveal
+    return (
+      <OnbQuestions
+        code={code}
+        role={role}
         t={t}
-      />,
-      () => setStepB("name"),
+        heading={
+          bankedCount > 0
+            ? t(
+                `${initiatorName || partner} answered ${bankedCount}. Your turn.`,
+                `${initiatorName || partner} a répondu à ${bankedCount}. À vous.`,
+              )
+            : t("Your turn.", "À vous.")
+        }
+        onDone={() => onDone(code)}
+      />
     );
   }
 
   // =========================================================================
-  // FLOW A — the initiator (4 screens → a live question → invite → A7)
+  // FLOW A — the initiator
   // =========================================================================
   if (stepA === "welcome") {
     return shell(
@@ -267,16 +262,15 @@ export default function Onboarding({
           <p className="verse serif center" style={{ marginTop: 24 }}>
             {t(
               "“Can two walk together, unless they are agreed?”",
-              "« Deux hommes marchent-ils ensemble, sans s’être concertés ? »",
+              "« Deux hommes marchent-ils ensemble, sans s'être concertés ? »",
             )}
             <span className="verse-ref">Amos 3:3</span>
           </p>
-          <p className="sub center" style={{ margin: "0 24px 28px" }}>
-            {t(
-              "You'll both answer the same questions, on your own. Then you'll see where you landed — and talk about it.",
-              "Vous répondrez tous les deux aux mêmes questions, chacun de votre côté. Puis vous verrez où vous en êtes — et vous en parlerez.",
-            )}
-          </p>
+          <ul className="obfacts">
+            <li>{t("It takes two — nothing happens until you're both in.", "Il en faut deux — rien ne se passe tant que vous n'êtes pas là tous les deux.")}</li>
+            <li>{t("Neither of you sees the other's answers until you've both answered.", "Aucun de vous ne voit les réponses de l'autre avant que vous ayez tous deux répondu.")}</li>
+            <li>{t("There's no money, ever.", "Il n'y a pas d'argent, jamais.")}</li>
+          </ul>
         </div>
         <button className="btn pill" type="button" onClick={() => setStepA("names")}>
           {t("Start", "Commencer")}
@@ -292,29 +286,10 @@ export default function Onboarding({
           {t("What should we call you?", "Comment doit-on vous appeler ?")}
         </h1>
         <label htmlFor="me">{t("Your name", "Votre nom")}</label>
-        <input
-          className="input"
-          id="me"
-          maxLength={20}
-          value={myName}
-          onChange={(e) => setMyName(e.target.value)}
-          placeholder={t("e.g. Sarah", "p. ex. Sarah")}
-        />
+        <input className="input" id="me" maxLength={20} value={myName} onChange={(e) => setMyName(e.target.value)} placeholder={t("e.g. Sarah", "p. ex. Sarah")} />
         <label htmlFor="them">{t("And who are you doing this with?", "Et avec qui faites-vous ceci ?")}</label>
-        <input
-          className="input"
-          id="them"
-          maxLength={20}
-          value={partnerName}
-          onChange={(e) => setPartnerName(e.target.value)}
-          placeholder={t("e.g. Judah", "p. ex. Judah")}
-        />
-        <button
-          className="btn pill"
-          type="button"
-          disabled={!myName.trim() || !partnerName.trim()}
-          onClick={() => setStepA("stage")}
-        >
+        <input className="input" id="them" maxLength={20} value={partnerName} onChange={(e) => setPartnerName(e.target.value)} placeholder={t("e.g. Judah", "p. ex. Judah")} />
+        <button className="btn pill" type="button" disabled={!myName.trim() || !partnerName.trim()} onClick={() => setStepA("stage")}>
           {t("Continue →", "Continuer →")}
         </button>
       </>,
@@ -330,23 +305,12 @@ export default function Onboarding({
         </h1>
         <div className="stagegrid" style={{ marginTop: 20, gridTemplateColumns: "1fr" }}>
           {ONB_STAGES.map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              className={`stagechip ${stage === s.key ? "on" : ""}`}
-              onClick={() => setStage(s.key)}
-              aria-pressed={stage === s.key}
-            >
+            <button key={s.key} type="button" className={`stagechip ${stage === s.key ? "on" : ""}`} onClick={() => setStage(s.key)} aria-pressed={stage === s.key}>
               {t(s.en, s.fr)}
             </button>
           ))}
         </div>
-        <button
-          className="btn pill"
-          type="button"
-          disabled={!stage}
-          onClick={() => setStepA("consent")}
-        >
+        <button className="btn pill" type="button" disabled={!stage} onClick={() => setStepA("consent")}>
           {t("Continue →", "Continuer →")}
         </button>
       </>,
@@ -356,109 +320,113 @@ export default function Onboarding({
 
   if (stepA === "consent") {
     return shell(
-      <ConsentBody
-        partner={partner}
-        agreed={agreed}
-        setAgreed={setAgreed}
-        busy={busy}
-        onStart={startFlowA}
-        t={t}
-      />,
+      <ConsentBody partner={partner} busy={busy} onStart={startFlowA} t={t} />,
       () => setStepA("stage"),
     );
   }
 
-  if (stepA === "first" && a5) {
+  if (stepA === "questions") {
     return (
-      <FirstQuestion
+      <OnbQuestions
         code={code}
-        partner={partner}
-        onDone={() => setStepA("wall")}
-      />
-    );
-  }
-
-  if (stepA === "wall") {
-    return (
-      <Wall
-        code={code}
-        partner={partner}
-        onContinue={() => setStepA("menu")}
+        role={role}
         t={t}
+        heading={t("A few to start with.", "Quelques-unes pour commencer.")}
+        onDone={() => setStepA("profile")}
       />
     );
   }
 
-  // A7 — after the invite, so it costs nothing against the screen budget.
+  if (stepA === "profile") {
+    return (
+      <ProfileStep
+        partner={partner}
+        name={myName.trim()}
+        code={code}
+        t={t}
+        onDone={() => setStepA("invite")}
+        onFallback={() => setFallback(true)}
+      />
+    );
+  }
+
+  if (stepA === "invite") {
+    return (
+      <InviteStep
+        code={code}
+        partner={partner}
+        myName={myName.trim()}
+        t={t}
+        onContinue={() => setStepA("intention")}
+      />
+    );
+  }
+
+  if (stepA === "intention") {
+    return <IntentionStep code={code} t={t} onNext={() => setStepA("menu")} />;
+  }
+
+  // A7 — "where would you like to start?" (spec §A7 / decision #3: reuse this as
+  // the Path). It renders alternatives with real questions; picking one enters
+  // the app.
   return (
-    <StartMenu
-      stage={stage ?? "dating"}
-      onPick={(slug) => onEnter(code, slug)}
-      onSeeAll={() => onEnter(code)}
-    />
+    <StartMenu stage={stage ?? "dating"} onPick={() => onDone(code)} onSeeAll={() => onDone(code)} />
   );
 }
 
-// ---- Consent (A4 / B3) — the one screen that cannot be cut ----------------
+// ---- Article 9 consent — two ticks, never one (spec v2 §2) ----------------
 function ConsentBody({
   partner,
-  agreed,
-  setAgreed,
   busy,
   onStart,
   t,
 }: {
   partner: string;
-  agreed: boolean;
-  setAgreed: (v: boolean) => void;
   busy: boolean;
   onStart: () => void;
-  t: (en: string, fr: string) => string;
+  t: T;
 }) {
+  const [terms, setTerms] = useState(false);
+  const [faith, setFaith] = useState(false);
   return (
     <>
       <h1 className="h1 center" style={{ marginTop: 22 }}>
         {t("Before we start.", "Avant de commencer.")}
       </h1>
-      <div className="consentcard">
-        <p>
-          {t(
-            "This asks about your faith, your money, your past, and your sex life. That's the point — those are the conversations that matter, and most couples never quite have them.",
-            "Ceci vous interroge sur votre foi, votre argent, votre passé et votre vie intime. C'est le but — ce sont les conversations qui comptent, et que la plupart des couples n'ont jamais vraiment.",
-          )}
-        </p>
-        <p>
-          {t(
-            "It also means we're storing some genuinely private things about you. We need you to say yes to that, plainly.",
-            "Cela veut dire aussi que nous conservons des choses vraiment privées sur vous. Nous avons besoin que vous l'acceptiez, clairement.",
-          )}
-        </p>
-        <p>
-          {t(
-            `Your answers are visible to ${partner} and to no one else. You can export or delete everything, whenever you want.`,
-            `Vos réponses sont visibles par ${partner} et personne d'autre. Vous pouvez tout exporter ou supprimer, quand vous voulez.`,
-          )}
-        </p>
-        <p className="consent-not">
-          {t(
-            "This won't tell you whether to get married. It'll tell you what you haven't talked about.",
-            "Ceci ne vous dira pas s'il faut vous marier. Cela vous dira ce dont vous n'avez pas parlé.",
-          )}
-        </p>
-      </div>
+      <p className="sub center" style={{ margin: "8px 24px 4px" }}>
+        {t(
+          "Because TwoAgree is about faith and marriage, we need your clear okay before we keep anything you write.",
+          "Comme TwoAgree touche à la foi et au mariage, nous avons besoin de votre accord clair avant de conserver ce que vous écrivez.",
+        )}
+      </p>
+      <p className="sub serif center" style={{ fontStyle: "italic", margin: "10px 24px 14px", color: "var(--berry)" }}>
+        {t(
+          "This won't tell you whether to get married. It'll tell you what you haven't talked about.",
+          "Ceci ne vous dira pas s'il faut vous marier. Cela vous dira ce dont vous n'avez pas parlé.",
+        )}
+      </p>
       <label className="consent">
-        <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+        <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} />
+        <span>
+          {t("I accept the ", "J'accepte les ")}
+          <a className="link" href="/terms.html" target="_blank" rel="noreferrer">
+            {t("Terms & Conditions", "Conditions générales")}
+          </a>
+        </span>
+      </label>
+      <label className="consent">
+        <input type="checkbox" checked={faith} onChange={(e) => setFaith(e.target.checked)} />
         <span>
           {t(
-            "I understand, and I agree to TwoAgree storing this.",
-            "Je comprends et j'accepte que TwoAgree conserve ces données.",
+            `I agree TwoAgree can save my answers about my faith and my relationship, so that ${partner} and I can see where we align once we've both answered.`,
+            `J'accepte que TwoAgree conserve mes réponses sur ma foi et ma relation, afin que ${partner} et moi puissions voir où nous nous rejoignons une fois que nous aurons tous deux répondu.`,
           )}
         </span>
       </label>
       <button
         className={busy ? "btn pill busy" : "btn pill"}
         type="button"
-        disabled={!agreed || busy}
+        disabled={!terms || !faith || busy}
         onClick={onStart}
       >
         {busy ? t("One moment…", "Un instant…") : t("Start →", "Commencer →")}
@@ -467,144 +435,296 @@ function ConsentBody({
   );
 }
 
-// ---- A5: the first live question (answer, then guess) ---------------------
-function FirstQuestion({
+// ---- Answer-only question sequence (no guess — spec v2 §7.1) ---------------
+function OnbQuestions({
   code,
-  partner,
+  role,
+  heading,
   onDone,
+  t,
 }: {
   code: string;
-  partner: string;
+  role: "host" | "guest";
+  heading: string;
   onDone: () => void;
+  t: T;
 }) {
-  const t = useT();
-  const [phase, setPhase] = useState<"answer" | "guess">("answer");
-  const [ans, setAns] = useState<number | null>(null);
-  const [guess, setGuess] = useState<number | null>(null);
+  const [idx, setIdx] = useState(0);
+  const [pend, setPend] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
-  if (!a5) return null;
+  const q = STARTER_QS[idx];
+  const last = idx + 1 >= STARTER_QS.length;
 
-  const submitAnswer = async () => {
-    if (ans == null || busy) return;
+  const submit = async () => {
+    if (pend == null || busy || !q) return;
     setBusy(true);
-    await writeAnswer(code, A5_SLUG, A5_ID, "host", ans);
+    await writeAnswer(code, STARTER_SLUG, q.id, role, pend);
+    if (last) await markLevelDone(code, STARTER_SLUG, 0, role);
     setBusy(false);
-    setPhase("guess");
+    setPend(null);
+    if (last) onDone();
+    else setIdx((i) => i + 1);
   };
-  const submitGuess = async () => {
-    if (guess == null || busy) return;
-    setBusy(true);
-    await writeGuess(code, A5_SLUG, A5_ID, "host", guess);
-    setBusy(false);
+
+  if (!q) {
     onDone();
-  };
+    return null;
+  }
 
   return (
-    <section>
+    <section className="screen-enter">
       <div className="brandhead brand-enter">
         <Logo size={30} word={false} />
       </div>
-      <div className="qcard glide-in" style={{ marginTop: 18 }}>
-        <div className="qrow">
-          <div className="eyebrow">{t("FUN", "DÉTENTE")}</div>
-          {phase === "guess" && <span className="badge honey">&#10022; {t("GUESS", "DEVINEZ")}</span>}
-        </div>
-        <div className="qtext">
-          {phase === "answer" ? (
-            a5.q
-          ) : (
-            <>
-              {t("What would ", "Que répondrait ")}
-              <span style={{ color: "var(--amber)" }}>{partner}</span>
-              {t(" say?", " ?")}
-            </>
-          )}
-        </div>
-        <div style={{ marginTop: 4 }}>
-          {a5.opts?.map((o, i) => {
-            const sel = (phase === "answer" ? ans : guess) === i;
-            return (
-              <div
-                key={i}
-                className={`opt ${phase === "guess" ? "guess" : ""} ${sel ? "sel" : ""}`}
-                onClick={() => (phase === "answer" ? setAns(i) : setGuess(i))}
-              >
+      <div className="qprog">
+        <i style={{ width: `${Math.round(((idx + 1) / STARTER_QS.length) * 100)}%` }} />
+      </div>
+      <p className="muted center" style={{ fontSize: 13, marginTop: 12 }}>{heading}</p>
+      <div key={q.id} className="qcard glide-in" style={{ marginTop: 12 }}>
+        <div className="qtext">{q.q}</div>
+        {q.type === "scale" ? (
+          <>
+            <div className="slabels">
+              <span>{q.lo}</span>
+              <span style={{ textAlign: "right" }}>{q.hi}</span>
+            </div>
+            <div className="scale">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className={`orb ${pend === i ? "sel" : ""}`} onClick={() => setPend(i)}>
+                  {i}
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div style={{ marginTop: 4 }}>
+            {q.opts?.map((o, i) => (
+              <div key={i} className={`opt ${pend === i ? "sel" : ""}`} onClick={() => setPend(i)}>
                 {o}
                 <span className="dot" />
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
-      {phase === "answer" ? (
-        <button className="btn" type="button" disabled={ans == null || busy} onClick={submitAnswer}>
-          {t("Next →", "Suivant →")}
-        </button>
-      ) : (
-        <button className="btn honey" type="button" disabled={guess == null || busy} onClick={submitGuess}>
-          {t("Lock it in →", "Je valide →")}
-        </button>
-      )}
+      <button className="btn" type="button" disabled={pend == null || busy} onClick={submit}>
+        {last ? t("Done →", "Terminé →") : t("Next →", "Suivant →")}
+      </button>
+      <div className="hint">{t(`${idx + 1} OF ${STARTER_QS.length}`, `${idx + 1} SUR ${STARTER_QS.length}`)}</div>
     </section>
   );
 }
 
-// ---- A6: the wall, then the invite (the thing they now want) --------------
-function Wall({
+// ---- Create your profile at the invite gate (email/pw or Google + photo) --
+function ProfileStep({
+  partner,
+  name,
+  code,
+  onDone,
+  onFallback,
+  t,
+}: {
+  partner: string;
+  name: string;
+  code: string;
+  onDone: () => void;
+  onFallback: () => void;
+  t: T;
+}) {
+  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  const finish = async (emailUsed?: string) => {
+    const u = auth.currentUser;
+    if (u) await writeProfile(u.uid, { name, email: emailUsed, photo: photo ?? undefined });
+    onDone();
+  };
+
+  const withEmail = async () => {
+    if (!email.trim() || pw.length < 6 || busy) return;
+    setBusy(true);
+    setErr("");
+    try {
+      const u = auth.currentUser;
+      if (!u) return onFallback();
+      await linkWithCredential(u, EmailAuthProvider.credential(email.trim(), pw));
+      await finish(email.trim());
+    } catch (e) {
+      setErr(prettyError(e));
+      setBusy(false);
+    }
+  };
+
+  const withGoogle = async () => {
+    if (busy) return;
+    setBusy(true);
+    setErr("");
+    try {
+      const u = auth.currentUser;
+      if (!u) return onFallback();
+      const res = await linkWithPopup(u, googleProvider);
+      await finish(res.user.email ?? undefined);
+    } catch (e) {
+      setErr(prettyError(e));
+      setBusy(false);
+    }
+  };
+
+  const onPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setPhoto(await fileToAvatarDataUrl(file));
+    } catch {
+      /* ignore — photo is optional */
+    }
+  };
+
+  const initial = (name || "?").trim().charAt(0).toUpperCase() || "?";
+  void code;
+  return (
+    <section className="screen-enter">
+      <div className="brandhead brand-enter">
+        <Logo size={30} word={false} />
+      </div>
+      <h1 className="h1 center" style={{ marginTop: 16 }}>
+        {t(`Set up your profile to invite ${partner}.`, `Créez votre profil pour inviter ${partner}.`)}
+      </h1>
+      <p className="sub center" style={{ margin: "8px 24px 10px" }}>
+        {t("This is how we let you know when they answer.", "C'est ainsi que nous vous prévenons quand ils répondent.")}
+      </p>
+
+      <div className="avatarwrap" style={{ marginTop: 6 }}>
+        <div className="avatar" style={{ width: 76, height: 76 }}>
+          {photo ? <img src={photo} alt="" /> : initial}
+        </div>
+        <label className="photobtn" style={{ cursor: "pointer" }}>
+          {photo ? t("Change photo", "Changer la photo") : t("Add a photo (optional)", "Ajouter une photo (facultatif)")}
+          <input type="file" accept="image/*" hidden onChange={onPhoto} />
+        </label>
+      </div>
+
+      <button className="btn out google" type="button" onClick={withGoogle} disabled={busy} style={{ marginTop: 14 }}>
+        {t("Continue with Google", "Continuer avec Google")}
+      </button>
+      <div className="authdiv">{t("or use email", "ou par e-mail")}</div>
+
+      <label htmlFor="oe">{t("Email", "E-mail")}</label>
+      <input className="input" id="oe" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+      <label htmlFor="op">{t("Password", "Mot de passe")}</label>
+      <input className="input" id="op" type="password" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder={t("At least 6 characters", "Au moins 6 caractères")} />
+      {err && <div className="err">{err}</div>}
+      <button className={busy ? "btn pill busy" : "btn pill"} type="button" disabled={!email.trim() || pw.length < 6 || busy} onClick={withEmail}>
+        {busy ? t("One moment…", "Un instant…") : t("Create profile →", "Créer le profil →")}
+      </button>
+    </section>
+  );
+}
+
+// ---- The invite: editable draft + share link (spec v2 §A4) ----------------
+function InviteStep({
   code,
   partner,
+  myName,
   onContinue,
   t,
 }: {
   code: string;
   partner: string;
+  myName: string;
   onContinue: () => void;
-  t: (en: string, fr: string) => string;
+  t: T;
 }) {
-  const [msg, setMsg] = useState("");
+  const [msg, setMsg] = useState(
+    t(
+      `Hey ${partner} — I started something on TwoAgree and it needs you. It takes 5 minutes. `,
+      `Coucou ${partner} — j'ai commencé quelque chose sur TwoAgree et j'ai besoin de toi. Ça prend 5 minutes. `,
+    ),
+  );
   const [busy, setBusy] = useState(false);
-  const share = async (link: string) => {
-    const txt = t(`Join me on TwoAgree — ${link}`, `Rejoignez-moi sur TwoAgree — ${link}`);
-    if (navigator.share) await navigator.share({ text: txt }).catch(() => {});
-    else if (navigator.clipboard) await navigator.clipboard.writeText(link);
-  };
-  const invite = async () => {
+  const [status, setStatus] = useState("");
+
+  const send = async () => {
     setBusy(true);
-    setMsg("");
+    setStatus("");
+    let link = "";
     try {
       const res = await createInvite({ code });
-      await share(`${window.location.origin}/?t=${res.data.token}`);
-      setMsg(t("Invite ready — sent or copied.", "Invitation prête — envoyée ou copiée."));
+      link = `${window.location.origin}/?t=${res.data.token}`;
     } catch {
-      // fall back to sharing the bare code
-      await share(code);
-      setMsg(t(`Share your code: ${code}`, `Partagez votre code : ${code}`));
-    } finally {
-      setBusy(false);
+      link = `${window.location.origin}/?c=${code}`; // fallback: bare code link
     }
+    const text = `${msg}${link}`;
+    try {
+      if (navigator.share) await navigator.share({ text });
+      else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        setStatus(t("Copied — paste it to ", "Copié — collez-le à ") + partner);
+      }
+    } catch {
+      /* user dismissed the share sheet */
+    }
+    setBusy(false);
+  };
+
+  void myName;
+  return (
+    <section className="screen-enter">
+      <div className="brandhead brand-enter">
+        <Logo size={30} word={false} />
+      </div>
+      <h1 className="h1 center" style={{ marginTop: 16 }}>
+        {t(`Now bring ${partner} in.`, `Faites venir ${partner}.`)}
+      </h1>
+      <p className="sub center" style={{ margin: "8px 24px 6px" }}>
+        {t("You've answered — now they can see where you two land. Send them this:", "Vous avez répondu — ils peuvent maintenant voir où vous en êtes. Envoyez-leur ceci :")}
+      </p>
+      <textarea className="input" style={{ minHeight: 96 }} value={msg} onChange={(e) => setMsg(e.target.value)} maxLength={220} />
+      <button className={busy ? "btn pill busy" : "btn pill"} type="button" onClick={send} disabled={busy}>
+        {busy ? t("One moment…", "Un instant…") : t(`Send ${partner} the link →`, `Envoyer le lien à ${partner} →`)}
+      </button>
+      {status && <div className="ok center">{status}</div>}
+      <button className="btn ghost" type="button" onClick={onContinue}>
+        {t("I'll do that in a moment", "Je le ferai dans un instant")}
+      </button>
+    </section>
+  );
+}
+
+// ---- Implementation intention (spec v2 §A6) -------------------------------
+function IntentionStep({ code, onNext, t }: { code: string; onNext: () => void; t: T }) {
+  const [when, setWhen] = useState("");
+  const [busy, setBusy] = useState(false);
+  const save = async () => {
+    if (busy) return;
+    setBusy(true);
+    if (when) {
+      const ms = Date.parse(when);
+      if (!Number.isNaN(ms)) await writeMeetAt(code, ms);
+    }
+    setBusy(false);
+    onNext();
   };
   return (
     <section className="screen-enter">
-      <div className="bwrap">
-        <span className="bring" />
-        <span className="bring b2" />
-        <Logo size={42} word={false} />
+      <div className="brandhead brand-enter">
+        <Logo size={30} word={false} />
       </div>
-      <h1 className="h1 center" style={{ fontSize: 24, marginTop: 8 }}>
-        {t(`That's locked until ${partner} answers.`, `C'est verrouillé jusqu'à ce que ${partner} réponde.`)}
+      <h1 className="h1 center" style={{ marginTop: 20 }}>
+        {t("When will you two sit down for this together?", "Quand vous poserez-vous ensemble pour cela ?")}
       </h1>
-      <p className="sub center" style={{ margin: "10px 24px 22px" }}>
+      <p className="sub center" style={{ margin: "8px 24px 14px" }}>
         {t(
-          "You can keep going — your answers are saved and waiting. But nothing unlocks until you're both in.",
-          "Vous pouvez continuer — vos réponses sont enregistrées et en attente. Mais rien ne se révèle tant que vous n'êtes pas tous les deux là.",
+          "Couples who pick a moment actually have the conversation. No reminders, no nagging.",
+          "Les couples qui choisissent un moment ont vraiment la conversation. Aucun rappel, aucune relance.",
         )}
       </p>
-      <button className={busy ? "btn pill busy" : "btn pill"} type="button" disabled={busy} onClick={invite}>
-        {busy ? t("One moment…", "Un instant…") : t(`Bring ${partner} in →`, `Faites venir ${partner} →`)}
-      </button>
-      {msg && <div className="ok" style={{ textAlign: "center" }}>{msg}</div>}
-      <button className="btn ghost" type="button" onClick={onContinue}>
-        {t("I'll do that later", "Je le ferai plus tard")}
+      <input className="input" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
+      <button className="btn pill" type="button" disabled={busy} onClick={save}>
+        {when ? t("Set it →", "C'est noté →") : t("Skip for now →", "Passer pour l'instant →")}
       </button>
     </section>
   );

@@ -48,14 +48,36 @@ export async function createSession(
 // Guest join is server-side now (joinByCode / redeemInvite callables) so the
 // sessions write rule can stay locked to members. See src/lib/functions.ts.
 
-// Article 9 consent, captured per person with a timestamp (brief 2 §A4/§B3).
-// Stored on the user, because one person cannot consent for two.
-export function recordConsent(uid: string, name: string): Promise<void> {
-  return update(ref(db, `users/${uid}`), {
-    name,
-    "consent/agreed": true,
-    "consent/at": Date.now(),
+// Article 9 consent (onboarding spec v2 §2). Its OWN node — never nested with
+// anything else, so the faith-data consent is an unbundled, demonstrable record.
+// Bump the version whenever the wording the person ticks changes.
+export const CONSENT_VERSION = "2026-07-15";
+export function recordConsent(uid: string): Promise<void> {
+  return update(ref(db, `consents/${uid}`), {
+    "article9/granted": true,
+    "article9/version": CONSENT_VERSION,
+    "article9/timestampMs": Date.now(),
   });
+}
+
+// Profile write — name at consent/sign-up; email + photo when the account is
+// created at the invite gate (spec v2 §2, §7.4). Only scalar leaves, never {}.
+export function writeProfile(
+  uid: string,
+  data: { name?: string; email?: string; photo?: string },
+): Promise<void> {
+  const patch: Record<string, string | number> = {};
+  if (data.name != null) patch.name = data.name;
+  if (data.email != null) patch.email = data.email;
+  if (data.photo != null) patch.photo = data.photo;
+  patch.updated = Date.now();
+  return update(ref(db, `users/${uid}`), patch);
+}
+
+// Implementation intention (spec v2 §A6) — when the couple will sit down.
+// Stored on the session (the couple), skippable, never nagged.
+export function writeMeetAt(code: string, whenMs: number): Promise<void> {
+  return update(ref(db, `sessions/${code}`), { meetAt: whenMs });
 }
 
 export function writeAnswer(

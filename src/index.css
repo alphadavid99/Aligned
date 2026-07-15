@@ -2848,3 +2848,28 @@ textarea.input {
   font-size: 12px;
   color: var(--mut);
 }
+
+/* Onboarding welcome — the three things A must know up front (spec v2 §A0). */
+.obfacts {
+  list-style: none;
+  margin: 6px 20px 24px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.obfacts li {
+  position: relative;
+  padding-left: 26px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.obfacts li::before {
+  content: "✦";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  color: var(--honey);
+  font-size: 13px;
+}
