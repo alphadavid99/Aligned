@@ -12,6 +12,7 @@ import HomeScreen from "./screens/HomeScreen";
 import DecksScreen from "./screens/DecksScreen";
 import PlayScreen from "./screens/PlayScreen";
 import StartScreen from "./screens/StartScreen";
+import PartPicker from "./screens/PartPicker";
 import ResultsScreen from "./screens/ResultsScreen";
 import RevealScreen from "./screens/RevealScreen";
 import AuthScreen from "./screens/AuthScreen";
@@ -209,6 +210,21 @@ function Preview() {
         <FakeNav on="home" />
       </div>
     );
+  if (view === "picker") {
+    // a multi-part deck where you've finished part 1, partner hasn't
+    const pdeck = fakeDeck(slugA, 1, 4);
+    pdeck.done = { 0: { host: true } }; // you done part 0, them not
+    return (
+      <PartPicker
+        slug={slugA}
+        deck={pdeck}
+        role="host"
+        partnerName="Judah"
+        onSelect={noop}
+        onExit={noop}
+      />
+    );
+  }
   if (view === "start")
     return <StartScreen uid="u1" name="Sarah" onEnter={noop} />;
   if (view === "play")

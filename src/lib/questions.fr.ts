@@ -31,6 +31,8 @@ export const DECK_NAMES_FR: Record<string, string> = {
   "character-self-awareness": "Caractère & connaissance de soi",
   "us-compatibility": "Nous & compatibilité",
   "values-convictions": "Valeurs & convictions",
+  "faithfulness-loyalty": "Fidélité & loyauté",
+  "where-we-are-now": "Où nous en sommes",
 };
 
 /** Per-question French fields. Only the user-facing text is translated. */
@@ -156,14 +158,14 @@ export const Q_FR: Record<string, QFr> = {
   "INT-001": { q: "À quel point l’intimité physique est-elle importante pour toi dans le mariage ?", lo: "Une faible priorité", hi: "Très importante" },
   "INT-002": { q: "Quelles devraient être nos limites physiques avant le mariage ?", opts: ["Réserver toute intimité physique au mariage", "Un peu d’affection avec des limites claires", "À l’aise d’être physiquement proches", "On en discute encore"] },
   "INT-003": { q: "Quelle place l’attirance physique tient-elle dans une relation pour toi ?", lo: "Peu", hi: "Beaucoup" },
-  "INT-004": { q: "Où commence le fait de franchir la ligne pour toi ?", opts: ["Tout flirt", "Une proximité émotionnelle avec quelqu’un d’autre", "Seulement le contact physique", "On devrait le définir ensemble"] },
+  "LOYAL-001": { q: "Où commence le fait de franchir la ligne pour toi ?", opts: ["Tout flirt", "Une proximité émotionnelle avec quelqu’un d’autre", "Seulement le contact physique", "On devrait le définir ensemble"] },
   "INT-005": { q: "À quel point es-tu à l’aise pour parler ouvertement de sexualité ?", lo: "Très mal à l’aise", hi: "Très à l’aise" },
-  "INT-006": { q: "Comment vois-tu la pornographie dans un mariage ?", opts: ["Jamais acceptable", "Un problème grave", "Ça dépend", "Pas si grave"] },
+  "LOYAL-002": { q: "Comment vois-tu la pornographie dans un mariage ?", opts: ["Jamais acceptable", "Un problème grave", "Ça dépend", "Pas si grave"] },
   "INT-007": { q: "À quel point est-ce important qu’on soit alignés sur l’intimité physique ?", lo: "On peut diverger librement", hi: "On doit être d’accord" },
   "INT-008": { q: "À quel point est-ce important pour toi que ton partenaire ait réservé, ou réserve, la sexualité au mariage ?", lo: "Pas important", hi: "Essentiel" },
   "INT-009": { q: "Quelle est ta vision du sexe avant le mariage ?", opts: ["À réserver au mariage, sans exception", "Idéal, mais grâce pour le passé", "Un choix personnel", "Pas un enjeu moral pour moi"] },
   "INT-010": { q: "À quel point es-tu ouvert à partager entièrement ton passé sexuel avant le mariage ?", lo: "Je préfère garder mon passé privé", hi: "Totalement ouvert à ce sujet" },
-  "INT-011": { q: "Si l’un de nous lutte contre la tentation sexuelle ou la pornographie, que devrait-on faire ?", opts: ["Toujours se le dire", "Le dire à un mentor ou un partenaire de redevabilité", "Gérer ça en privé", "Pas sûr"] },
+  "LOYAL-003": { q: "Si l’un de nous lutte contre la tentation sexuelle ou la pornographie, que devrait-on faire ?", opts: ["Toujours se le dire", "Le dire à un mentor ou un partenaire de redevabilité", "Gérer ça en privé", "Pas sûr"] },
   "INT-012": { q: "À quel point l’affection et la complicité au quotidien sont-elles importantes pour toi ?", lo: "Pas un grand besoin", hi: "Très importantes" },
 
   // --- Conflict & Communication ---
@@ -171,12 +173,12 @@ export const Q_FR: Record<string, QFr> = {
   "CONF-002": { q: "À quelle vitesse aimes-tu résoudre un conflit ?", lo: "J’ai d’abord besoin d’espace", hi: "Le régler tout de suite" },
   "CONF-003": { q: "Classe ta façon de réagir sous stress, la plus proche de toi en premier.", opts: ["Me replier et me taire", "En parler", "Foncer seul", "Devenir irritable"] },
   "CONF-004": { q: "À quel point te sens-tu anxieux face au mariage ?", lo: "Parfaitement serein", hi: "Assez anxieux" },
-  "CONF-005": { q: "À quel point nos réseaux sociaux devraient-ils être ouverts l’un à l’autre ?", lo: "Garder nos profils privés", hi: "Totalement ouverts l’un à l’autre" },
-  "CONF-006": { q: "À quel point nos téléphones devraient-ils être ouverts l’un à l’autre ?", lo: "Les téléphones restent privés", hi: "Accès total l’un à l’autre" },
-  "CONF-007": { q: "À quel point es-tu à l’aise avec des voyages en solo entre amis ?", lo: "Pas à l’aise", hi: "Tout à fait à l’aise" },
+  "LOYAL-004": { q: "À quel point nos réseaux sociaux devraient-ils être ouverts l’un à l’autre ?", lo: "Garder nos profils privés", hi: "Totalement ouverts l’un à l’autre" },
+  "LOYAL-005": { q: "À quel point nos téléphones devraient-ils être ouverts l’un à l’autre ?", lo: "Les téléphones restent privés", hi: "Accès total l’un à l’autre" },
+  "LOYAL-006": { q: "À quel point es-tu à l’aise avec des voyages en solo entre amis ?", lo: "Pas à l’aise", hi: "Tout à fait à l’aise" },
   "CONF-008": { q: "Classe ce qui te fait le plus sentir respecté.", opts: ["Être écouté", "La loyauté", "L’honnêteté", "Le soutien en public", "Mon indépendance"] },
   "CONF-009": { q: "Classe-les, du plus au moins, selon ta façon de donner et recevoir l’amour.", opts: ["Les paroles valorisantes", "Le temps de qualité", "Les services rendus", "Les cadeaux", "Le contact physique"] },
-  "CONF-010": { q: "À quel point es-tu à l’aise avec des amitiés proches avec le sexe opposé après le mariage ?", lo: "Pas à l’aise", hi: "Tout à fait à l’aise" },
+  "LOYAL-007": { q: "À quel point es-tu à l’aise avec des amitiés proches avec le sexe opposé après le mariage ?", lo: "Pas à l’aise", hi: "Tout à fait à l’aise" },
   "CONF-011": { q: "Classe ces styles de communication, du plus au moins proche de toi.", opts: ["Direct et droit au but", "Qui décortique en détail", "Silencieux et intérieur", "Expressif et bavard"] },
   "CONF-012": { q: "Quand tu dois soulever un problème, comment préfères-tu le faire ?", opts: ["Le régler tout de suite", "Attendre le bon moment", "L’écrire ou l’envoyer par message", "L’éviter jusqu’à ce que ça déborde"] },
   "CONF-013": { q: "Dans le feu du conflit, quel est ton réflexe ?", opts: ["Céder", "Me replier", "Pousser pour gagner", "Faire un compromis", "Le régler à fond"] },
@@ -207,15 +209,11 @@ export const Q_FR: Record<string, QFr> = {
 
   // --- Fun & Icebreakers ---
   "FUN-002": { q: "Quelle est ta façon idéale de passer une journée libre ?", opts: ["Partir à l’aventure", "Bien au chaud à la maison", "Avec des amis", "À bricoler des projets"] },
-  "FUN-003": { q: "Voici tout ce que j’adore faire — lesquelles préférerais-tu secrètement éviter ?" },
-  "FUN-004": { q: "Quelles séries ou quels films t’ont vraiment marqué — et qui tient la télécommande ?" },
-  "FUN-005": { q: "Héritage surprise, l’argent n’est plus un souci — où vit-on, que fais-tu, et suis-je encore dans le tableau ?" },
   "FUN-006": { q: "Quelle part de ton temps libre veux-tu consacrer à tes propres loisirs plutôt qu’ensemble ?", lo: "Surtout ensemble", hi: "Beaucoup de temps indépendant" },
 
   // --- Deal-breakers ---
   "DEAL-001": { q: "Classe-les, du plus au moins rédhibitoire pour toi.", opts: ["La malhonnêteté", "Le manque de respect", "Une foi différente", "L’addiction", "L’infidélité", "La paresse"] },
   "DEAL-002": { q: "Classe tes incontournables chez un conjoint, le plus important en premier.", opts: ["La foi", "La bonté", "L’ambition", "L’humour", "La loyauté", "L’attirance", "Des objectifs communs"] },
-  "DEAL-003": { q: "Quelle valeur ou quelle part de ta vie ne serais-tu jamais prêt à abandonner ?" },
   "DEAL-004": { q: "Pourrais-tu épouser quelqu’un qui ne partage pas ta foi ?", opts: ["Non, jamais", "Seulement s’il y était ouvert", "Oui, si on se respectait", "La foi n’est pas essentielle pour moi"] },
   "DEAL-005": { q: "Pourrais-tu rester avec quelqu’un devenu infidèle ?", opts: ["Non, c’est la fin", "J’essaierais de surmonter", "Ça dépendrait des circonstances", "Je pardonnerais et reconstruirais"] },
   "DEAL-006": { q: "À quel point une addiction grave serait-elle rédhibitoire pour toi ?", lo: "Je pourrais le surmonter", hi: "Absolument rédhibitoire" },
@@ -240,7 +238,7 @@ export const Q_FR: Record<string, QFr> = {
   "PAST-002": { q: "Y a-t-il quelqu’un dans notre entourage avec qui tu as eu plus qu’une amitié et que je devrais connaître ?" },
   "PAST-003": { q: "Que t’ont appris tes relations passées qui feront de toi un meilleur partenaire aujourd’hui ?" },
   "PAST-004": { q: "Combien de « bagages » apportes-tu — et dans quelle taille ça rentre ?", opts: ["Une mallette", "Un bagage cabine", "Une grosse valise", "Une malle de voyage"] },
-  "PAST-005": { q: "À quel point tes relations passées sont-elles pleinement closes ?", lo: "Je les digère encore", hi: "Pleinement closes" },
+  "LOYAL-008": { q: "À quel point tes relations passées sont-elles pleinement closes ?", lo: "Je les digère encore", hi: "Pleinement closes" },
   "PAST-006": { q: "Choisis quelques mots pour ta relation avec chacun de tes parents — et raconte-moi l’histoire derrière." },
   "PAST-007": { q: "Y a-t-il quelque chose que tu aurais aimé dire à tes parents sans jamais l’avoir fait ?" },
   "PAST-008": { q: "À quoi ressemblait le foyer où tu as grandi ?", opts: ["Chaleureux et stable", "Strict", "Chaotique ou tendu", "Distant"] },

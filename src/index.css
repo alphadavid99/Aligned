@@ -2556,3 +2556,71 @@ textarea.input {
   font-weight: 600;
   color: var(--amber);
 }
+
+/* Part picker (brief 2 §A7d) — pick any part; see both partners' per-part state */
+.partlist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.partrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1.5px solid transparent;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(62, 26, 46, 0.07);
+  padding: 14px 16px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.partrow.here {
+  border-color: var(--honey);
+}
+.partrow.done {
+  background: var(--optbg);
+}
+.partrow-main {
+  min-width: 0;
+}
+.partrow-t {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  font-weight: 700;
+  font-size: 15.5px;
+  color: var(--ink);
+}
+.partrow-depth {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+.partrow-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: var(--sub);
+}
+.partrow-track {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+.ptick {
+  font-size: 11px;
+  color: var(--mut);
+  white-space: nowrap;
+}
+.ptick.on {
+  color: var(--sage);
+  font-weight: 700;
+}

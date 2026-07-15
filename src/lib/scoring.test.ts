@@ -12,19 +12,19 @@ import {
 } from "./scoring";
 import type { Question } from "./questions";
 
-const scale = (id = "S"): Question => ({ id, q: "", type: "scale", tier: "2" });
+const scale = (id = "S"): Question => ({ id, q: "", type: "scale", depth: 3 });
 const mc = (id = "M"): Question => ({
   id,
   q: "",
   type: "mc",
-  tier: "2",
+  depth: 3,
   opts: ["a", "b"],
 });
 const rank = (id = "R"): Question => ({
   id,
   q: "",
   type: "rank",
-  tier: "2",
+  depth: 3,
   opts: ["a", "b", "c", "d"],
 });
 
@@ -79,7 +79,7 @@ describe("scoreQ — rank", () => {
 
 describe("scoreQ — open", () => {
   it("is shared, unscored", () => {
-    const r = scoreQ({ id: "O", q: "", type: "open", tier: "1" }, deck({ O: { host: "x", guest: "y" } }), "host");
+    const r = scoreQ({ id: "O", q: "", type: "open", depth: 1 }, deck({ O: { host: "x", guest: "y" } }), "host");
     expect(r.score).toBeNull();
     expect(r.verdict).toBe("Shared");
     expect(r.open).toBe(true);
@@ -87,7 +87,7 @@ describe("scoreQ — open", () => {
 });
 
 describe("complementary (PAR-004)", () => {
-  const par: Question = { id: "PAR-004", q: "", type: "scale", tier: "2" };
+  const par: Question = { id: "PAR-004", q: "", type: "scale", depth: 3 };
   it("is flagged", () => expect(isComplement(par)).toBe(true));
   it("differing answers still score 1, verdict Complementary", () => {
     const r = scoreQ(par, deck({ "PAR-004": { host: 1, guest: 5 } }), "host");
@@ -156,49 +156,50 @@ describe("Not yet (§7)", () => {
   });
 });
 
-describe("weighting (brief §2)", () => {
-  const at = (id: string, tier: "1" | "2" | "3"): Question => ({
-    id,
-    q: "",
-    type: "scale",
-    tier,
+describe("weighting (brief 2 §1a — depth)", () => {
+  const at = (id: string, depth: number): Question => ({ id, q: "", type: "scale", depth });
+
+  it("weightOf uses depth as the default weight (5 buckets)", () => {
+    expect(weightOf(at("A", 1))).toBe(0.5);
+    expect(weightOf(at("A", 2))).toBe(0.75);
+    expect(weightOf(at("A", 3))).toBe(1);
+    expect(weightOf(at("A", 4))).toBe(1.5);
+    expect(weightOf(at("A", 5))).toBe(2);
   });
 
-  it("weightOf uses tier as the default weight", () => {
-    expect(weightOf(at("A", "1"))).toBe(0.5);
-    expect(weightOf(at("B", "2"))).toBe(1);
-    expect(weightOf(at("C", "3"))).toBe(2);
+  it("a depth-5 question outweighs a depth-1 by 4× (DoD)", () => {
+    expect(weightOf(at("A", 5)) / weightOf(at("A", 1))).toBe(4);
   });
 
-  it("an importance rating (1..5) overrides the tier weight", () => {
-    expect(weightOf(at("C", "3"), 5)).toBeCloseTo(5 / 3);
-    expect(weightOf(at("C", "3"), 1)).toBeCloseTo(1 / 3); // tier-3, yet barely counts
-    expect(weightOf(at("A", "1"), 3)).toBe(1);
+  it("an importance rating (1..5) overrides the depth weight", () => {
+    expect(weightOf(at("C", 5), 5)).toBeCloseTo(5 / 3);
+    expect(weightOf(at("C", 5), 1)).toBeCloseTo(1 / 3); // depth-5, yet barely counts
+    expect(weightOf(at("A", 1), 3)).toBe(1);
   });
 
   // Same three scores; only the weights differ. Flat-mean = 58, so any change
-  // proves the weighting is live.
-  const qs = [at("A", "1"), at("B", "2"), at("C", "3")];
+  // proves the weighting is live. depths 1/3/5 give weights 0.5/1/2.
+  const qs = [at("A", 1), at("B", 3), at("C", 5)];
   const answers = {
     A: { host: 3, guest: 3 }, // score 1
     B: { host: 3, guest: 4 }, // score 0.75
     C: { host: 1, guest: 5 }, // score 0
   };
 
-  it("a flat-weight (single-tier) fixture matches the old flat mean", () => {
-    const flat = [at("A", "2"), at("B", "2"), at("C", "2")];
+  it("a flat-weight (single-depth) fixture matches the old flat mean", () => {
+    const flat = [at("A", 3), at("B", 3), at("C", 3)];
     expect(overall(flat, deck(answers), "host")).toBe(58);
   });
 
-  it("tier weights move the number (58 → 36)", () => {
+  it("depth weights move the number (58 → 36)", () => {
     // (1·0.5 + 0.75·1 + 0·2) / (0.5+1+2) = 1.25/3.5 = 0.357 → 36
     expect(overall(qs, deck(answers), "host")).toBe(36);
   });
 
   it("combinedImportance takes the higher of the two partners' ratings", () => {
     const d: DeckData = { ...deck(answers), importance: { C: { host: 1, guest: 5 } } };
-    expect(combinedImportance(at("C", "3"), d)).toBe(5);
-    // C now weighs 5/3 instead of tier-3's 2:
+    expect(combinedImportance(at("C", 5), d)).toBe(5);
+    // C now weighs 5/3 instead of depth-5's 2:
     // (0.5 + 0.75 + 0) / (0.5 + 1 + 5/3) = 1.25/3.167 = 0.3947 → 39
     expect(overall(qs, d, "host")).toBe(39);
   });

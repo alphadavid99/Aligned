@@ -1,6 +1,6 @@
 import { DECKS, ORDER } from "../lib/questions";
-import { stageOf, STAGES, nLevels } from "../lib/leveling";
-import { curLevel, catComplete } from "../lib/progress";
+import { stageOf, STAGES, deckDepthWord } from "../lib/leveling";
+import { catComplete } from "../lib/progress";
 import { revealedRows } from "../lib/results";
 import { type DeckData, type Role } from "../lib/scoring";
 import type { Session } from "../types";
@@ -64,26 +64,18 @@ export default function DecksScreen({
               const deck = session.decks?.[slug];
               const total = d.questions.length;
               const mine = answered(slug, deck);
-              const L = nLevels(slug);
-              const lvl = curLevel(slug, deck, role);
-              const sub =
-                L > 1
-                  ? catComplete(slug, deck, role)
-                    ? t(
-                        `All ${L} parts done · ${total} questions`,
-                        `Les ${L} parties terminées · ${total} questions`,
-                      )
-                    : t(
-                        `Part ${lvl + 1} of ${L} · ${total} questions`,
-                        `Partie ${lvl + 1} sur ${L} · ${total} questions`,
-                      )
-                  : mine > 0
-                    ? t(
-                        `${mine} of ${total} answered`,
-                        `${mine} sur ${total} répondues`,
-                      )
-                    : t(`${total} questions`, `${total} questions`);
-              const pct = catComplete(slug, deck, role) ? pctOf(slug) : undefined;
+              const complete = catComplete(slug, deck, role);
+              // The deck's depth word — "what this is like" (brief 2 §A7c).
+              const word = t(...deckDepthWord(slug));
+              const sub = complete
+                ? t(`${word} · complete`, `${word} · terminé`)
+                : mine > 0
+                  ? t(
+                      `${word} · ${mine} of ${total} answered`,
+                      `${word} · ${mine} sur ${total} répondues`,
+                    )
+                  : t(`${word} · ${total} questions`, `${word} · ${total} questions`);
+              const pct = complete ? pctOf(slug) : undefined;
               return (
                 <div key={slug} className="row" onClick={() => onPlay(slug)}>
                   <div className="catico" style={{ background: `${d.color}1A`, color: d.color }}>

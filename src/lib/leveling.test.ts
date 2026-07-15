@@ -3,10 +3,17 @@ import { levelsOf, nLevels, lvlQs, stageOf } from "./leveling";
 import { DECKS, ORDER } from "./questions";
 
 describe("question bank integrity", () => {
-  it("has 19 decks and 270 questions", () => {
-    expect(ORDER).toHaveLength(19);
+  it("has 21 conversations and 398 questions (brief 2)", () => {
+    expect(ORDER).toHaveLength(21);
     const total = ORDER.reduce((n, s) => n + DECKS[s].questions.length, 0);
-    expect(total).toBe(270);
+    expect(total).toBe(398);
+  });
+  it("every deck is sorted by depth ascending (brief 2 §A7b)", () => {
+    for (const slug of ORDER) {
+      const depths = DECKS[slug].questions.map((q) => q.depth);
+      const sorted = [...depths].sort((a, b) => a - b);
+      expect(depths, `${slug} not depth-sorted`).toEqual(sorted);
+    }
   });
 });
 
@@ -24,10 +31,9 @@ describe("levelsOf partitions a deck in order", () => {
     }
   });
   it("distributes the remainder to the earliest levels", () => {
-    // in-the-home has 9 questions -> 1 level of 9
-    expect(lvlQs("in-the-home", 0).length).toBe(
-      DECKS["in-the-home"].questions.length,
-    );
+    // A single-part deck's part 0 is the whole deck.
+    const single = ORDER.find((s) => nLevels(s) === 1)!;
+    expect(lvlQs(single, 0).length).toBe(DECKS[single].questions.length);
   });
 });
 

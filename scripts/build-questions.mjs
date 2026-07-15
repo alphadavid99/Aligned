@@ -25,7 +25,6 @@ const OUT_PATH = path.join(ROOT, "src", "data", "questions.generated.ts");
 
 const CHECK = process.argv.includes("--check");
 const TYPES = new Set(["scale", "mc", "rank", "open"]);
-const TIERS = new Set(["1", "2", "3"]);
 
 function readJson(p) {
   try {
@@ -110,8 +109,9 @@ for (const q of questions) {
   else if (q.deck !== expectedSlug) bad(`deck "${q.deck}" does not match prefix "${prefix}" (expected "${expectedSlug}")`);
 
   if (!TYPES.has(q.type)) bad(`type "${q.type}" must be one of scale/mc/rank/open`);
-  if (!TIERS.has(String(q.tier))) bad(`tier "${q.tier}" must be 1, 2 or 3`);
-  if (!Number.isInteger(q.level) || q.level < 1 || q.level > 5) bad(`level "${q.level}" must be an integer 1–5`);
+  // `depth` (1–5) is the single internal sort key + weight; `tier`/`level` are gone.
+  if (!Number.isInteger(q.depth) || q.depth < 1 || q.depth > 5) bad(`depth "${q.depth}" must be an integer 1–5`);
+  if ("tier" in q || "level" in q) bad("`tier`/`level` are removed — use `depth`");
   if (typeof q.q !== "string" || !q.q.trim()) bad("question text (q) is empty");
   if (q.guessable !== true && q.guessable !== false) bad("guessable must be true or false");
 
@@ -137,14 +137,21 @@ if (errors.length) {
 const order = decks.map((d) => d.slug);
 const byDeck = new Map(order.map((s) => [s, []]));
 for (const q of questions) byDeck.get(q.deck).push(q);
+// Sort every deck by depth ascending (stable — ties keep bank order). This is
+// what turns the existing ~7-per-chunk grouping into a real difficulty ramp:
+// Part 1 is a deck's lightest questions, Part N its heaviest (brief §A7b).
+for (const arr of byDeck.values()) arr.sort((a, b) => a.depth - b.depth);
 
 function runtimeQuestion(q) {
-  const o = { id: q.id, q: q.q, type: q.type, tier: String(q.tier) };
+  const o = { id: q.id, q: q.q, type: q.type, depth: q.depth };
   if (q.ref) o.ref = q.ref;
   if (q.note) o.note = q.note;
   if (q.guessable === true) o.guessable = true;
   if (q.complement === true) o.complement = true;
   if (q.notYet === true) o.notYet = true;
+  if (q.core === true) o.core = true;
+  if (q.showIf) o.showIf = q.showIf;
+  if (q.complementary) o.complementary = q.complementary;
   if (q.opts) o.opts = q.opts;
   if (q.lo) o.lo = q.lo;
   if (q.hi) o.hi = q.hi;
@@ -173,8 +180,8 @@ export interface Question {
   id: string;
   q: string;
   type: QuestionType;
-  /** Difficulty tier "1"|"2"|"3" (kept as string, verbatim from the bank). */
-  tier: string;
+  /** 1–5 internal sort key + weight. Never rendered as a number (brief 2 §A3). */
+  depth: number;
   ref?: string;
   note?: string;
   /** Supports the predict-your-partner scoring layer. */
@@ -183,6 +190,12 @@ export interface Question {
   complement?: boolean;
   /** Offers a first-class, unscored "Not yet" answer (brief §7). */
   notYet?: boolean;
+  /** Part of the fixed Core scoring instrument (brief 2 §C). */
+  core?: boolean;
+  /** Reserved: conditional display (brief 2 §A3). */
+  showIf?: string;
+  /** Reserved: id of a complementary question (brief 2 §A3). */
+  complementary?: string;
   /** Options for mc / rank questions. */
   opts?: string[];
   /** Scale endpoint labels (type === "scale"). */

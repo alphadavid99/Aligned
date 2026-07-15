@@ -30,7 +30,7 @@ const SCALE_WORDS_FR = [
 // tier default so the user isn't taxed on every question (brief §2b). Open
 // questions never score, so they're never asked.
 const asksImportance = (q: Question): boolean =>
-  q.type !== "open" && (Number(q.tier) === 3 || q.id.startsWith("DEAL-"));
+  q.type !== "open" && (Number(q.depth) >= 4 || q.id.startsWith("DEAL-"));
 
 // The answering flow for one level: answer each question, and for guessable
 // (non-open) questions, predict your partner. Ported from the legacy question
@@ -285,7 +285,8 @@ export default function PlayScreen({
       <div key={q.id} className="qcard glide-in" style={{ marginTop: 18 }}>
         <div className="qrow">
           <div className="eyebrow">{eyebrow}</div>
-          <span className="badge">{t(`TIER ${q.tier}`, `NIVEAU ${q.tier}`)}</span>
+          {/* The numeric TIER badge is gone (brief 2 §A7c) — depth is never a
+              number in the UI. The eyebrow's Part label carries the ramp. */}
         </div>
         <div className="qtext">{q.q}</div>
         <QuestionInput

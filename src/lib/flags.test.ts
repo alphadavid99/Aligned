@@ -7,11 +7,11 @@ const mc = (id = "M"): Question => ({
   id,
   q: "",
   type: "mc",
-  tier: "2",
+  depth: 3,
   opts: ["a", "b"],
   guessable: true,
 });
-const scale = (id = "S"): Question => ({ id, q: "", type: "scale", tier: "2" });
+const scale = (id = "S"): Question => ({ id, q: "", type: "scale", depth: 3 });
 
 describe("blindSpot flag (§4a)", () => {
   it("fires on a Worth-a-chat difference the partner guessed wrong", () => {
@@ -45,7 +45,7 @@ describe("blindSpot flag (§4a)", () => {
   });
 
   it("excludes Complementary", () => {
-    const par: Question = { id: "PAR-004", q: "", type: "scale", tier: "2", guessable: true };
+    const par: Question = { id: "PAR-004", q: "", type: "scale", depth: 3, guessable: true };
     const d: DeckData = {
       answers: { "PAR-004": { host: 1, guest: 5 } },
       guesses: { "PAR-004": { host: 5 } }, // wrong
@@ -56,8 +56,8 @@ describe("blindSpot flag (§4a)", () => {
   });
 
   it("excludes open and rank", () => {
-    const open: Question = { id: "O", q: "", type: "open", tier: "1" };
-    const rank: Question = { id: "R", q: "", type: "rank", tier: "2", opts: ["a", "b", "c"] };
+    const open: Question = { id: "O", q: "", type: "open", depth: 1 };
+    const rank: Question = { id: "R", q: "", type: "rank", depth: 3, opts: ["a", "b", "c"] };
     expect(scoreQ(open, { answers: { O: { host: "x", guest: "y" } } }, "host").flags).toEqual([]);
     const rd: DeckData = { answers: { R: { host: "0,1,2", guest: "2,1,0" } } };
     expect(scoreQ(rank, rd, "host").flags).not.toContain("blindSpot");

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { User } from "firebase/auth";
 import { ORDER } from "../lib/questions";
-import { lvlQs } from "../lib/leveling";
+import { lvlQs, nLevels } from "../lib/leveling";
 import { curLevel, levelDone, levelComplete, catComplete, doneInLevel, revealedQs } from "../lib/progress";
 import { jointQuestions, other } from "../lib/scoring";
 import { useSession } from "../hooks/useSession";
@@ -10,6 +10,7 @@ import DecksScreen from "./DecksScreen";
 import ResultsScreen from "./ResultsScreen";
 import ProfileScreen from "./ProfileScreen";
 import PlayScreen from "./PlayScreen";
+import PartPicker from "./PartPicker";
 import RevealScreen from "./RevealScreen";
 import { TopBar } from "../components/TopBar";
 import { Logo } from "../components/Logo";
@@ -18,7 +19,7 @@ import { IconHome, IconDecks, IconResults, IconProfile } from "../components/ico
 import { useT } from "../lib/i18n";
 
 type Tab = "home" | "decks" | "results" | "profile";
-type Flow = null | "play" | "review" | "reviewDeck";
+type Flow = null | "picker" | "play" | "review" | "reviewDeck";
 
 const TABS: {
   key: Tab;
@@ -99,9 +100,23 @@ export default function SessionApp({
       setFlow("reviewDeck");
       return;
     }
+    // Multi-part decks open the picker so a couple can choose any part and see
+    // both partners' per-part state (brief 2 §A7d). Single-part decks go straight
+    // in — there's nothing to pick.
+    if (nLevels(s) > 1) {
+      setFlow("picker");
+      return;
+    }
     const lvl = curLevel(s, d, role);
     setLevel(lvl);
     setFlow(levelDone(d, lvl, role) ? "review" : "play");
+  };
+
+  // From the part picker: play a not-yet-finished part, or open the waiting/
+  // reveal screen for one you've already done.
+  const selectPart = (lvl: number) => {
+    setLevel(lvl);
+    setFlow(levelDone(session.decks?.[slug], lvl, role) ? "review" : "play");
   };
 
   // From Results: always open the deck's revealed levels as a review, even if
@@ -117,6 +132,19 @@ export default function SessionApp({
   };
 
   // ---- In-flow screens (bottom nav hidden) ----
+  if (flow === "picker") {
+    return (
+      <PartPicker
+        slug={slug}
+        deck={deck}
+        role={role}
+        partnerName={partnerName}
+        onSelect={selectPart}
+        onExit={exitFlow}
+      />
+    );
+  }
+
   if (flow === "play") {
     return (
       <PlayScreen

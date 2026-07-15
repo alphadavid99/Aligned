@@ -52,14 +52,15 @@ export const NOT_YET = "__not_yet__";
 export const isNotYet = (v: AnswerValue | null | undefined): boolean =>
   v === NOT_YET;
 
-// ---- Weighting (brief §2) ------------------------------------------------
-// Every question carries a `tier` (1/2/3) — the default importance weight.
-// A partner-supplied importance rating (1..5), when present, overrides it.
-const TIER_WEIGHT: Record<number, number> = { 1: 0.5, 2: 1, 3: 2 };
+// ---- Weighting (brief 2 §1a) ---------------------------------------------
+// `depth` (1–5) is the default importance weight — five buckets, endpoints
+// preserved from the old three-tier scale. A partner-supplied importance
+// rating (1..5), when present, overrides it.
+const DEPTH_WEIGHT: Record<number, number> = { 1: 0.5, 2: 0.75, 3: 1, 4: 1.5, 5: 2 };
 
 export function weightOf(q: Question, importance?: number | null): number {
   if (importance != null) return importance / 3; // 1..5 → 0.33..1.67
-  return TIER_WEIGHT[Number(q.tier)] ?? TIER_WEIGHT[2];
+  return DEPTH_WEIGHT[Number(q.depth)] ?? 1;
 }
 
 // The shared score must read the SAME for both partners, so a question's weight
