@@ -112,6 +112,13 @@ const session: Session = {
   },
 } as Session;
 
+// Solo-first: a session where only the host has joined and banked a few answers.
+const soloSession: Session = {
+  created: 0,
+  members: { host: { name: "Sarah Elizabeth", uid: "u1" } },
+  decks: { [slugC]: fakeDeck(slugC, 0, 4) },
+} as Session;
+
 function FakeNav({ on }: { on: string }) {
   // Interactive so the sliding pill can be exercised in the harness.
   const [active, setActive] = useState(on);
@@ -184,6 +191,22 @@ function Preview() {
       <div className="tabwrap">
         <DecksScreen session={session} role="host" onPlay={noop} />
         <FakeNav on="decks" />
+      </div>
+    );
+  if (view === "solo")
+    return (
+      <div className="tabwrap">
+        <HomeScreen
+          code="ABCD"
+          session={soloSession}
+          role="host"
+          slug={slugC}
+          onPlay={noop}
+          onBrowse={noop}
+          onReview={noop}
+          onProfile={noop}
+        />
+        <FakeNav on="home" />
       </div>
     );
   if (view === "start")

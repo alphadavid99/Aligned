@@ -2548,3 +2548,11 @@ textarea.input {
   background: #fff;
   color: var(--berry);
 }
+
+/* Solo-first — honest "answers waiting" progress (brief §6), calm not naggy. */
+.waitline {
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--amber);
+}

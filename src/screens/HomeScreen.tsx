@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ORDER } from "../lib/questions";
 import { nLevels, lvlQs } from "../lib/leveling";
 import { curLevel, doneInLevel, catComplete } from "../lib/progress";
-import { revealedRows } from "../lib/results";
+import { revealedRows, answersWaiting } from "../lib/results";
 import { other, type DeckData, type Role } from "../lib/scoring";
 import { createInvite } from "../lib/functions";
 import { prettyError } from "../lib/errors";
@@ -82,6 +82,8 @@ export default function HomeScreen({
     catComplete(s, session.decks?.[s], role),
   ).length;
   const { rows, overallPct } = revealedRows(session.decks, role);
+  // Solo-first: answers you've banked that your partner hasn't matched yet.
+  const waiting = answersWaiting(session.decks, role);
   const ranked = [...rows].sort((a, b) => a.pct - b.pct);
   const lowest = ranked[0];
   const closest = ranked[ranked.length - 1];
@@ -172,7 +174,7 @@ export default function HomeScreen({
         <small>
           {joined
             ? t("Where you left off, together.", "Là où vous en étiez, ensemble.")
-            : t("It starts when your partner joins.", "Tout commence quand votre partenaire arrive.")}
+            : t("Start whenever you like — your partner can join anytime.", "Commencez quand vous voulez — votre partenaire peut vous rejoindre à tout moment.")}
         </small>
       </h1>
       {justJoined && (
@@ -207,6 +209,16 @@ export default function HomeScreen({
           </button>
           {inviteMsg && (
             <div style={{ marginTop: 8, fontSize: 13 }}>{inviteMsg}</div>
+          )}
+          {waiting > 0 && (
+            <div className="waitline">
+              {/* Always pre-join here, so the full "your partner" reads right
+                  (the header's first-name form would clip it to "your"). */}
+              {t(
+                `${waiting} ${waiting === 1 ? "answer" : "answers"} saved — waiting for your partner`,
+                `${waiting} réponse${waiting === 1 ? "" : "s"} enregistrée${waiting === 1 ? "" : "s"} — en attente de votre partenaire`,
+              )}
+            </div>
           )}
         </div>
       )}

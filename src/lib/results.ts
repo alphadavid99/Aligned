@@ -2,9 +2,26 @@
 // Home stat tiles / recent-reveals rows so the numbers can never disagree.
 import { ORDER } from "./questions";
 import { completedLevels, revealedQs } from "./progress";
-import { overall, weightedStats, knowScore, type DeckData, type Role } from "./scoring";
+import { overall, weightedStats, knowScore, other, type DeckData, type Role } from "./scoring";
 import { nLevels } from "./leveling";
 import type { Session } from "../types";
+
+// Solo-first (brief §6): how many questions you've answered that your partner
+// hasn't yet — the count behind "N answers waiting for Judah". Works before the
+// partner has even joined (all your answers are then waiting), and is honest
+// progress, never a nag. Iterates the stored answers directly, no bank needed.
+export function answersWaiting(decks: Session["decks"], role: Role): number {
+  const o = other(role);
+  let n = 0;
+  for (const slug in decks) {
+    const answers = decks[slug]?.answers ?? {};
+    for (const qid in answers) {
+      const a = answers[qid];
+      if (a?.[role] != null && a[o] == null) n++;
+    }
+  }
+  return n;
+}
 
 export type DeckRow = {
   slug: string;
