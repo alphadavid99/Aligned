@@ -1,6 +1,32 @@
 import { describe, it, expect } from "vitest";
-import { answersWaiting } from "./results";
+import { answersWaiting, overallAll, knownAll, isCore } from "./results";
+import { DECKS } from "./questions";
 import type { Session } from "../types";
+
+// The fixed Core instrument (brief 2 §C6): 70 Agreed, 63 Known.
+describe("Core aggregates", () => {
+  it("has the fixed denominators — 70 agreed, 63 known", () => {
+    expect(overallAll({}, "host", isCore).total).toBe(70);
+    expect(knownAll({}, "host", isCore).total).toBe(63);
+  });
+
+  it("counts only both-answered core questions toward `done`", () => {
+    // find a scoreable core question and answer it by both partners
+    let slug = "";
+    let qid = "";
+    for (const s in DECKS) {
+      const q = DECKS[s].questions.find((x) => x.core && x.type !== "open");
+      if (q) {
+        slug = s;
+        qid = q.id;
+        break;
+      }
+    }
+    const decks: Session["decks"] = { [slug]: { answers: { [qid]: { host: 3, guest: 3 } } } };
+    expect(overallAll(decks, "host", isCore).done).toBe(1);
+    expect(overallAll(decks, "host", isCore).pct).toBe(100); // they agree
+  });
+});
 
 // Solo-first: the count behind "N answers waiting for Judah" (brief §6).
 describe("answersWaiting", () => {
