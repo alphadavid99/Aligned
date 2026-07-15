@@ -1,7 +1,7 @@
 // Dev-only visual harness: mounts session screens with fake data so the
 // revamp can be screenshotted without Firebase. Not shipped (only reachable
 // via preview.html, which is not linked and excluded from the build inputs).
-import { StrictMode } from "react";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { ORDER } from "./lib/questions";
@@ -14,6 +14,7 @@ import ResultsScreen from "./screens/ResultsScreen";
 import RevealScreen from "./screens/RevealScreen";
 import AuthScreen from "./screens/AuthScreen";
 import { Logo } from "./components/Logo";
+import { PillNav } from "./components/PillNav";
 import { IconHome, IconDecks, IconResults, IconProfile } from "./components/icons";
 
 const noop = () => {};
@@ -80,22 +81,15 @@ const session: Session = {
 } as Session;
 
 function FakeNav({ on }: { on: string }) {
+  // Interactive so the sliding pill can be exercised in the harness.
+  const [active, setActive] = useState(on);
   const items = [
     { key: "home", label: "Home", Icon: IconHome },
     { key: "decks", label: "Decks", Icon: IconDecks },
     { key: "results", label: "Results", Icon: IconResults },
     { key: "profile", label: "Profile", Icon: IconProfile },
   ];
-  return (
-    <nav className="bnav">
-      {items.map(({ key, label, Icon }) => (
-        <button key={key} type="button" className={`bnav-item ${on === key ? "on" : ""}`}>
-          <Icon size={on === key ? 17 : 21} />
-          {on === key && <span>{label}</span>}
-        </button>
-      ))}
-    </nav>
-  );
+  return <PillNav items={items} active={active} onSelect={setActive} />;
 }
 
 const view = new URLSearchParams(window.location.search).get("view") ?? "home";

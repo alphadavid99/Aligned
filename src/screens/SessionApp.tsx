@@ -13,6 +13,7 @@ import PlayScreen from "./PlayScreen";
 import RevealScreen from "./RevealScreen";
 import { TopBar } from "../components/TopBar";
 import { Logo } from "../components/Logo";
+import { PillNav } from "../components/PillNav";
 import { IconHome, IconDecks, IconResults, IconProfile } from "../components/icons";
 import { useT } from "../lib/i18n";
 
@@ -237,27 +238,12 @@ export default function SessionApp({
         </div>
       </div>
 
-      {/* Floating pill nav — the active tab is a honey pill wearing its label;
-          the rest stay quiet icon circles. */}
-      <nav className="bnav">
-        {TABS.map(({ key, en, fr, Icon }) => {
-          const label = t(en, fr);
-          const on = tab === key;
-          return (
-            <button
-              key={key}
-              type="button"
-              className={`bnav-item ${on ? "on" : ""}`}
-              onClick={() => setTab(key)}
-              aria-label={label}
-              aria-current={on ? "page" : undefined}
-            >
-              <Icon size={on ? 17 : 21} />
-              {on && <span>{label}</span>}
-            </button>
-          );
-        })}
-      </nav>
+      {/* Floating pill nav — the honey pill slides to whichever tab you pick. */}
+      <PillNav
+        items={TABS.map(({ key, en, fr, Icon }) => ({ key, label: t(en, fr), Icon }))}
+        active={tab}
+        onSelect={(k) => setTab(k as Tab)}
+      />
     </>
   );
 }
