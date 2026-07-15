@@ -12,8 +12,10 @@ import {
   type ScoreResult,
 } from "../lib/scoring";
 import { type Question } from "../lib/questions";
+import { collectFlagRows } from "../lib/flags";
 import { deckName, localizeQuestion } from "../lib/questions.fr";
 import { ScorePair } from "../components/ScorePair";
+import FlagsReview, { FlagBox } from "./FlagsReview";
 import { TopBar } from "../components/TopBar";
 import { Avatar } from "../components/Avatar";
 import { useT, useLang } from "../lib/i18n";
@@ -89,6 +91,9 @@ export default function RevealScreen({
   const multi = nLevels(slug) > 1;
   // Reflection-only decks have nothing to score — show the answers, not a 0% ring.
   const hasScore = joint.some((q) => q.type !== "open");
+  // "Before you walk on" — the flagged questions worth a closer look (§4/§5).
+  const flagRows = collectFlagRows(qs, data, role);
+  const [showFlags, setShowFlags] = useState(false);
 
   // ---- The Level-Up moment (fresh reveals only) ----
   // The reveal and the review are now distinct screens. A fresh reveal is a
@@ -140,6 +145,17 @@ export default function RevealScreen({
           : ""}
     </div>
   );
+
+  if (showFlags) {
+    return (
+      <FlagsReview
+        rows={flagRows}
+        myName={myName}
+        partnerName={partnerName}
+        onClose={() => setShowFlags(false)}
+      />
+    );
+  }
 
   if (phase === "ceremony") {
     return (
@@ -208,6 +224,11 @@ export default function RevealScreen({
         <h1 className="h1 center" style={{ margin: "16px 0 6px" }}>
           {t("What you each said", "Ce que chacun a dit")}
         </h1>
+      )}
+
+      {/* The berry box — renders only when there are flags (no empty state). */}
+      {flagRows.length > 0 && (
+        <FlagBox count={flagRows.length} onOpen={() => setShowFlags(true)} t={t} />
       )}
 
       {/* Called as a plain function (not <RevealBody/>) so re-renders don't

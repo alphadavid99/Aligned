@@ -67,6 +67,36 @@ const slugA = ORDER.find((s) => nLevels(s) >= 3) ?? ORDER[0]; // featured, mid-d
 const slugB = ORDER[1]; // fully complete
 const slugC = ORDER[0]; // one level revealed
 
+// A deck engineered to show every flag shape: mutual blindSpot, one-sided
+// blindSpot, and an unevenStakes gap on an otherwise-agreed question.
+function flagDeck(): DeckData {
+  const qs0 = lvlQs(slugB, 0);
+  const mcqs = qs0.filter((q) => q.type === "mc");
+  const scaleqs = qs0.filter((q) => q.type === "scale");
+  const answers: DeckData["answers"] = {};
+  const guesses: DeckData["guesses"] = {};
+  const importance: DeckData["importance"] = {};
+  if (scaleqs[0]) {
+    answers[scaleqs[0].id] = { host: 3, guest: 3 }; // Agreed
+    importance[scaleqs[0].id] = { host: 5, guest: 1 }; // unevenStakes
+  }
+  if (mcqs[0]) {
+    answers[mcqs[0].id] = { host: 0, guest: 1 }; // Worth a chat
+    guesses[mcqs[0].id] = { host: 0, guest: 1 }; // both guessed wrong → mutual
+  }
+  if (mcqs[1]) {
+    answers[mcqs[1].id] = { host: 0, guest: 1 };
+    guesses[mcqs[1].id] = { host: 0 }; // only host wrong → one-sided
+  }
+  qs0.forEach((q) => {
+    if (answers[q.id]) return; // rest agree, so they add no flags
+    const v =
+      q.type === "scale" ? 3 : q.type === "rank" ? q.opts!.map((_, i) => i).join(",") : 0;
+    answers[q.id] = { host: v, guest: v };
+  });
+  return { answers, guesses, importance, done: { 0: { host: true, guest: true } } };
+}
+
 const session: Session = {
   created: 0,
   members: {
@@ -161,9 +191,14 @@ function Preview() {
         <FakeNav on="results" />
       </div>
     );
-  // reveal ceremony (fresh, normal or >90% grand) and answers (review)
+  // reveal ceremony (fresh, normal or >90% grand), answers (review), flags
+  const isReview = view === "answers" || view === "flags";
   const deck =
-    view === "reveal90" ? fakeDeck(slugB, 1, 0, true) : session.decks![slugB];
+    view === "reveal90"
+      ? fakeDeck(slugB, 1, 0, true)
+      : view === "flags"
+        ? flagDeck()
+        : session.decks![slugB];
   return (
     <RevealScreen
       slug={slugB}
@@ -172,8 +207,8 @@ function Preview() {
       deck={deck}
       myName="Sarah"
       partnerName="Judah"
-      questions={view === "answers" ? lvlQs(slugB, 0) : undefined}
-      review={view === "answers"}
+      questions={isReview ? lvlQs(slugB, 0) : undefined}
+      review={isReview}
       onDone={noop}
     />
   );
