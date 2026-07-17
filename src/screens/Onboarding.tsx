@@ -23,7 +23,8 @@ import { type Question } from "../lib/questions";
 import { lvlQs } from "../lib/leveling";
 import { ONB_STAGES, type OnbStage } from "../lib/onboarding";
 import type { Stage } from "../types";
-import { Logo } from "../components/Logo";
+import { Mark } from "../brand/Mark";
+import { Wordmark } from "../brand/Wordmark";
 import { TopBar } from "../components/TopBar";
 import StartMenu from "./StartMenu";
 import AuthScreen from "./AuthScreen";
@@ -158,7 +159,7 @@ export default function Onboarding({
         <TopBar onExit={onExit} />
       ) : (
         <div className="brandhead brand-enter">
-          <Logo size={40} />
+          <Wordmark size={32} />
         </div>
       )}
       {children}
@@ -170,7 +171,7 @@ export default function Onboarding({
     return (
       <section className="screen-enter">
         <div className="brandhead brand-enter">
-          <Logo size={40} />
+          <Wordmark size={32} />
         </div>
         <p className="sub center" style={{ margin: "14px 24px 0" }}>
           {t(
@@ -550,13 +551,13 @@ function OnbQuestions({
     return (
       <section className="screen-enter">
         <div className="brandhead brand-enter">
-          <Logo size={30} word={false} />
+          <Mark height={30} title="TwoAgree" colour="var(--berry)" />
         </div>
         {progress}
         <div
           key={`${q.id}-guess`}
           className="qcard glide-in"
-          style={{ marginTop: 12, borderColor: "#F3E6CF" }}
+          style={{ marginTop: 12, borderColor: "var(--app-honey-line)" }}
         >
           <div className="qrow">
             <div className="eyebrow">{t("YOUR GUESS", "VOTRE INTUITION")}</div>
@@ -597,7 +598,7 @@ function OnbQuestions({
   return (
     <section className="screen-enter">
       <div className="brandhead brand-enter">
-        <Logo size={30} word={false} />
+        <Mark height={30} title="TwoAgree" colour="var(--berry)" />
       </div>
       {progress}
       <p className="muted center" style={{ fontSize: 13, marginTop: 12 }}>{heading}</p>
@@ -690,7 +691,7 @@ function ProfileStep({
   return (
     <section className="screen-enter">
       <div className="brandhead brand-enter">
-        <Logo size={30} word={false} />
+        <Mark height={30} title="TwoAgree" colour="var(--berry)" />
       </div>
       <h1 className="h1 center" style={{ marginTop: 16 }}>
         {t(`Set up your profile to invite ${partner}.`, `Créez votre profil pour inviter ${partner}.`)}
@@ -776,7 +777,7 @@ function InviteStep({
   return (
     <section className="screen-enter">
       <div className="brandhead brand-enter">
-        <Logo size={30} word={false} />
+        <Mark height={30} title="TwoAgree" colour="var(--berry)" />
       </div>
       <h1 className="h1 center" style={{ marginTop: 16 }}>
         {t(`Now bring ${partner} in.`, `Faites venir ${partner}.`)}
@@ -813,7 +814,7 @@ function IntentionStep({ code, onNext, t }: { code: string; onNext: () => void; 
   return (
     <section className="screen-enter">
       <div className="brandhead brand-enter">
-        <Logo size={30} word={false} />
+        <Mark height={30} title="TwoAgree" colour="var(--berry)" />
       </div>
       <h1 className="h1 center" style={{ marginTop: 20 }}>
         {t("When will you two sit down for this together?", "Quand vous poserez-vous ensemble pour cela ?")}

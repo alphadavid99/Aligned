@@ -1,5 +1,5 @@
 /**
- * Cloud Functions for Aligned — region-pinned to europe-west1.
+ * Cloud Functions for TwoAgree — region-pinned to europe-west1.
  *
  * These are the operations the client cannot be trusted with (GDPR §8): a full
  * account delete must cascade across the partner's session data, which the

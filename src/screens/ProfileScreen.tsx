@@ -141,8 +141,6 @@ export default function ProfileScreen({
   }
 
   const photo = pendingPhoto ?? profile?.photo ?? null;
-  const initial =
-    (name || user.email || "?").trim().charAt(0).toUpperCase() || "?";
 
   return (
     <section>
@@ -153,7 +151,9 @@ export default function ProfileScreen({
       <div className="card" style={{ marginTop: 16, textAlign: "center" }}>
         <div className="avatarwrap">
           <div className="avatar">
-            {photo ? <img src={photo} alt="" /> : initial}
+            {/* No photo → the branded blush/claret placeholder, not initials
+                (brand pack §6). Identity avatars elsewhere keep their initials. */}
+            <img src={photo ?? "/avatar-placeholder-256.png"} alt="" />
           </div>
           <button
             className="photobtn"

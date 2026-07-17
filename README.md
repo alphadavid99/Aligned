@@ -1,4 +1,8 @@
-# Aligned
+# TwoAgree
+
+> Formerly **Aligned**. User-facing copy is now TwoAgree; internal identifiers
+> (Firebase project `aligned-9f843`, localStorage keys) still read `aligned` by
+> design — see CLAUDE.md.
 
 A faith-based (non-denominational, Christian) couples compatibility app.
 Two partners answer the same questions independently; their answers are scored

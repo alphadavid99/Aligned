@@ -18,7 +18,8 @@ import StartMenu from "./screens/StartMenu";
 import ResultsScreen from "./screens/ResultsScreen";
 import RevealScreen from "./screens/RevealScreen";
 import AuthScreen from "./screens/AuthScreen";
-import { Logo } from "./components/Logo";
+import { Mark } from "./brand/Mark";
+import { Wordmark } from "./brand/Wordmark";
 import { PillNav } from "./components/PillNav";
 import { IconHome, IconDecks, IconResults, IconProfile } from "./components/icons";
 
@@ -144,22 +145,20 @@ function Preview() {
       <div style={{ display: "flex", flexDirection: "column", gap: 28, paddingTop: 30 }}>
         {[16, 32, 64].map((fs) => (
           <div key={fs} style={{ textDecoration: "underline", textUnderlineOffset: 0 }}>
-            <Logo size={fs / 0.8} />
+            <Wordmark size={fs} />
           </div>
         ))}
         <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
-          <Logo size={64} word={false} />
+          <Mark height={64} title="TwoAgree" colour="var(--berry)" />
           <span
-            className="on-claret"
-            style={{ background: "var(--twoagree-claret)", padding: 24, display: "inline-flex" }}
+            style={{ background: "var(--ta-claret)", padding: 24, display: "inline-flex" }}
           >
-            <Logo size={64} word={false} />
+            <Mark height={64} title="TwoAgree" colour="var(--ta-honey)" />
           </span>
           <span
-            className="on-claret"
-            style={{ background: "var(--twoagree-claret)", padding: 24, display: "inline-flex" }}
+            style={{ background: "var(--ta-claret)", padding: 24, display: "inline-flex" }}
           >
-            <Logo size={40} />
+            <Wordmark size={32} tone="onClaret" />
           </span>
         </div>
       </div>
@@ -168,7 +167,7 @@ function Preview() {
     return (
       <>
         <div className="brandhead brand-enter">
-          <Logo size={40} />
+          <Wordmark size={32} />
         </div>
         <AuthScreen />
       </>

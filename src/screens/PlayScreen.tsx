@@ -228,7 +228,7 @@ export default function PlayScreen({
         <div
           key={`${q.id}-guess`}
           className="qcard glide-in"
-          style={{ marginTop: 20, borderColor: "#F3E6CF" }}
+          style={{ marginTop: 20, borderColor: "var(--app-honey-line)" }}
         >
           <div className="qrow">
             <div className="eyebrow">{deckName(slug, lang).toUpperCase()}</div>

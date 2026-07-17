@@ -32,10 +32,10 @@ const VERDICT_FR: Record<Verdict, string> = {
 // "Worth a chat" is deliberately a calm, neutral ink — not alarm-red. Difference
 // here is an invitation to talk, never a failure state (see the subline below).
 const VERDICT_COLOR: Record<Verdict, string> = {
-  Agreed: "#2fa96b",
+  Agreed: "var(--app-guess-ok)",
   Close: "var(--honeyD)",
-  "Worth a chat": "#6a5a66",
-  Complementary: "#8250b8",
+  "Worth a chat": "var(--app-verdict-grey)",
+  Complementary: "var(--app-complement)",
   Shared: "var(--sub)",
 };
 
@@ -299,8 +299,21 @@ function Celebration({ big }: { big: boolean }) {
   const count = big ? 96 : 26;
   const petals = Array.from({ length: count }, (_, i) => i);
   const colors = big
-    ? ["#5C2E46", "#E5A93C", "#D9963A", "#F1C8D2", "#9C4A6E", "#F6C46B"]
-    : ["#5C2E46", "#E5A93C", "#D9963A", "#F1C8D2", "#9C4A6E"];
+    ? [
+        "var(--berry2)",
+        "var(--honey)",
+        "var(--honeyD)",
+        "var(--app-petal-pink)",
+        "var(--rose)",
+        "var(--app-spark)",
+      ]
+    : [
+        "var(--berry2)",
+        "var(--honey)",
+        "var(--honeyD)",
+        "var(--app-petal-pink)",
+        "var(--rose)",
+      ];
   return (
     <div className="celebrate" aria-hidden="true">
       <span className="wash" />

@@ -29,7 +29,7 @@ export function Avatar({
       style={{
         width: size,
         height: size,
-        background: photo ? "#fff" : TONE_BG[tone],
+        background: photo ? "var(--ta-white)" : TONE_BG[tone],
         fontSize: Math.round(size * 0.42),
         borderWidth: ring ? Math.max(2, Math.round(size * 0.06)) : 0,
       }}

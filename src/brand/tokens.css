@@ -1,0 +1,83 @@
+/* TwoAgree — brand tokens
+   Single source of truth for colour. Import once in main.tsx:  import './brand/tokens.css'
+   Never hard-code a hex anywhere else in the app. */
+
+:root {
+  /* --- Brand --- */
+  --ta-claret:        #3E1A2E;  /* primary. grounds, headers, primary buttons */
+  --ta-claret-deep:   #2A1120;  /* ink. body text, pressed states */
+  --ta-claret-hover:  #5C2E45;  /* hover on claret, hairlines on dark grounds */
+  --ta-honey:         #C6913C;  /* accent. ONLY ever on a claret ground */
+  --ta-honey-raised:  #DCB265;  /* accent, hover/raised, on claret only */
+
+  /* --- Surfaces --- */
+  --ta-white:         #FFFFFF;  /* in-app screen background. the default. */
+  --ta-paper:         #FBF6F0;  /* marketing / brand surfaces only, NOT app screens */
+  --ta-blush:         #F3DED6;  /* cards, callouts, selected states */
+
+  /* --- Text --- */
+  --ta-ink:           #2A1120;  /* 14.0:1 on white */
+  --ta-grey:          #6B5A61;  /* secondary text. 6.0:1 on white */
+  --ta-line:          #EADFD8;  /* hairlines on light grounds */
+
+  /* --- Semantic --- */
+  --ta-bg:            var(--ta-white);
+  --ta-surface:       var(--ta-blush);
+  --ta-text:          var(--ta-ink);
+  --ta-text-muted:    var(--ta-grey);
+  --ta-border:        var(--ta-line);
+  --ta-focus:         var(--ta-honey);
+
+  /* ==========================================================================
+     App layer (hybrid) — the running app keeps its warm honey accent system on
+     light grounds (Dave-approved: pill nav, play/progress bars, selected orbs,
+     honey CTAs). Those placements are NOT the pack's strict "gold only on
+     claret" rule, so they live here as their own tokens rather than --ta-honey.
+     This block is the ONLY other place a raw hex may appear (see index.css).
+     ========================================================================== */
+
+  /* Warm accent — the app's action colour on the blush ground. Distinct from
+     the mark's --ta-honey; text uses the darkened, contrast-safe amber. */
+  --app-honey:        #E5A93C;  /* accent fills (dark text sits on top) */
+  --app-honey-deep:   #D9963A;  /* accent hover / secondary partner colour */
+  --app-honey-ink:    #3A2410;  /* text/icon that sits on a honey fill */
+  --app-amber:        #8F5A12;  /* text-safe amber for honey-coloured TEXT on light */
+
+  /* Secondary text / muted labels / hairlines / soft surfaces */
+  --app-sub:          #8A6A78;
+  --app-mut:          #7E6B76;
+  --app-card-line:    #F1E4E7;  /* card hairlines, option borders */
+  --app-opt-bg:       #F8E9EC;  /* soft blush wells: inputs, chips, selected */
+  --app-honey-bg:     #FBEBDC;  /* honey-tinted callout ground */
+  --app-honey-line:   #F3E6CF;  /* honey-tinted hairline (guess card) */
+  --app-track:        #F0DEE2;  /* progress/ring tracks */
+  --app-orb-line:     #E0B9C2;  /* unselected orb / dot borders */
+  --app-opt-hover:    #DCC0CB;  /* option border on hover */
+  --app-row-hover:    #FDF7F9;  /* result row hover ground */
+
+  /* Ground gradient (blush field the white cards float on) */
+  --app-ground-top:   #FBF2F5;
+  --app-ground-bot:   #F8E9EC;
+
+  /* State + verdict colours */
+  --app-danger:       #B23A48;
+  --app-sage:         #5E7A4E;  /* calm agree/ok green */
+  --app-guess-ok:     #2FA96B;  /* brighter "guessed right" green */
+  --app-complement:   #8250B8;  /* complementary verdict purple */
+  --app-verdict-grey: #6A5A66;  /* "worth a chat" verdict */
+  --app-banner-ink:   #6B4A16;  /* text on honey banner/knowpill */
+  --app-banner-line:  #EAD3B2;  /* honey banner/knowpill border */
+  --app-rose:         #9C4A6E;
+
+  /* Decorative — reveal ceremony glints/sparks/petals */
+  --app-glint:        #FFE9BD;
+  --app-spark:        #F6C46B;
+  --app-petal-pink:   #F1C8D2;
+}
+
+/* Focus ring — honey reads clearly on both claret and white grounds. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--ta-honey);
+  outline-offset: 3px;
+  border-radius: 4px;
+}

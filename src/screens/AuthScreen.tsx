@@ -161,6 +161,8 @@ export default function AuthScreen() {
         onClick={google}
         style={{ marginTop: 18 }}
       >
+        {/* Google's official "G" mark — brand colours are fixed by Google's
+            guidelines and must NOT be tokenised or recoloured. */}
         <svg viewBox="0 0 48 48" aria-hidden="true">
           <path
             fill="#EA4335"

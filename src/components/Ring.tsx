@@ -55,7 +55,7 @@ export function ProgressRing({
   const dash = (circ * frac * p).toFixed(1);
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#F0DEE2" strokeWidth="9" />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--track)" strokeWidth="9" />
       <circle
         cx={size / 2}
         cy={size / 2}

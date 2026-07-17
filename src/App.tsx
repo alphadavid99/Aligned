@@ -10,13 +10,13 @@ import ProfileScreen from "./screens/ProfileScreen";
 import StartScreen from "./screens/StartScreen";
 import SessionApp from "./screens/SessionApp";
 import Onboarding from "./screens/Onboarding";
-import { Logo } from "./components/Logo";
+import { Wordmark } from "./brand/Wordmark";
 import { IconSettings, IconBack } from "./components/icons";
 import { useT } from "./lib/i18n";
 
-const Wordmark = () => (
+const BrandHead = () => (
   <div className="brandhead brand-enter">
-    <Logo size={40} />
+    <Wordmark size={32} />
   </div>
 );
 
@@ -49,7 +49,7 @@ function NoSession({
   return (
     <>
       <div className="landinghead brand-enter">
-        <Logo size={30} />
+        <Wordmark size={24} />
         <button
           className="iconbtn landinghead-action"
           type="button"
@@ -117,7 +117,7 @@ function SignedIn({ user }: { user: User }) {
   if (!profile?.name) {
     return (
       <>
-        <Wordmark />
+        <BrandHead />
         <ProfileScreen user={user} />
       </>
     );
@@ -190,7 +190,7 @@ export default function App() {
     <div className="phone">
       {loading || !mode ? (
         <>
-          <Wordmark />
+          <BrandHead />
           <Boot label={t("Checking your account…", "Vérification de votre compte…")} />
         </>
       ) : mode === "app" && user ? (

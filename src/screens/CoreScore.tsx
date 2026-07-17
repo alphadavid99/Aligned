@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Logo } from "../components/Logo";
+import { Wordmark } from "../brand/Wordmark";
 
 type T = (en: string, fr: string) => string;
 type Stat = { pct: number | null; done: number; total: number };
@@ -125,7 +125,7 @@ function ShareCard({
           {agreed.pct ?? "—"}% {t("agreed", "d’accord")} · {agreed.done}/{agreed.total}
         </div>
         <div className="sharecard-mark">
-          <Logo size={22} />
+          <Wordmark size={18} />
         </div>
       </div>
       <button className="btn pill" type="button" onClick={share} style={{ maxWidth: 360 }}>

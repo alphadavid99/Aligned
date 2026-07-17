@@ -13,7 +13,8 @@ import PlayScreen from "./PlayScreen";
 import PartPicker from "./PartPicker";
 import RevealScreen from "./RevealScreen";
 import { TopBar } from "../components/TopBar";
-import { Logo } from "../components/Logo";
+import { Mark } from "../brand/Mark";
+import { Wordmark } from "../brand/Wordmark";
 import { PillNav } from "../components/PillNav";
 import { IconHome, IconDecks, IconResults, IconProfile } from "../components/icons";
 import { useT } from "../lib/i18n";
@@ -203,7 +204,7 @@ export default function SessionApp({
         <div className="bwrap">
           <span className="bring" />
           <span className="bring b2" />
-          <Logo size={42} word={false} />
+          <Mark height={42} title="TwoAgree" colour="var(--berry)" />
         </div>
         <h2 className="h1 center" style={{ fontSize: 24 }}>
           {t("All yours are in.", "Les vôtres sont enregistrées.")}
@@ -239,7 +240,11 @@ export default function SessionApp({
             the brand mark up top. */}
         {tab !== "home" && (
           <div className="brandhead" style={{ padding: "2px 0 10px" }}>
-            <Logo size={30} word={tab === "profile"} />
+            {tab === "profile" ? (
+              <Wordmark size={24} />
+            ) : (
+              <Mark height={30} title="TwoAgree" colour="var(--berry)" />
+            )}
           </div>
         )}
         {/* keyed per tab so each pane rises in on switch */}

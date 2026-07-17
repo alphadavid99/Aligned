@@ -156,6 +156,36 @@ Dave is not a lawyer; flag legal specifics for him to confirm, don't invent them
 - Full token block, spacing (4/8 scale), radius scale, and berry-tinted elevation live in the `:root` of `index.html` — reuse verbatim, don't re-derive.
 - Placeholder names in mockups: **Sarah** (user) / **Judah** (partner).
 
+### 10.1 Brand pack v1 "Claret & Gold" — applied Jul 2026
+
+The designer's brand pack (`twoagree-brand-pack`) is now integrated. **`src/brand/tokens.css` is the single source of colour — a raw hex may appear ONLY there** (mirror: `src/brand/tokens.ts`; plus two documented exceptions — Google's fixed "G" brand colours in `AuthScreen`, and decorative `rgba()` shadows/glows/washes in `index.css`). `src/index.css`'s `:root` holds no hex: the app's legacy token names (`--berry`, `--honey`, …) now resolve to `--ta-*` brand tokens or `--app-*` accent tokens.
+
+Palette (from the pack README):
+
+| Token (`--ta-*`) | Hex | Job |
+|---|---|---|
+| claret | `#3E1A2E` | Primary. Grounds, headers, primary buttons. |
+| claret-deep / ink | `#2A1120` | Body text, pressed states. |
+| claret-hover | `#5C2E45` | Hover on claret, hairlines on dark. |
+| honey | `#C6913C` | Accent. **Claret grounds only.** |
+| honey-raised | `#DCB265` | Accent hover, claret only. |
+| blush | `#F3DED6` | Cards, callouts, selected states. |
+| paper | `#FBF6F0` | Marketing surfaces only — **not** app screens. |
+| white | `#FFFFFF` | In-app screen background. The default. |
+| grey | `#6B5A61` | Secondary text (6.0:1 on white). |
+| line | `#EADFD8` | Hairlines on light grounds. |
+
+**The three rules (enforce, don't just read):**
+1. **Gold only ever sits on a claret ground.** On white/blush it fails contrast — use claret instead.
+2. **App screens are white.** Paper is marketing-only; blush is the in-app card/surface colour.
+3. **The mark is the A.** Never set "TwoAgree" as plain text in the UI — use `<Wordmark>`.
+
+**Hybrid deviation (Dave-approved, this pass):** the app keeps its warm **honey accent system on light grounds** (pill nav, play/progress bars, selected orbs, honey CTAs) rather than recolouring it claret per strict Rule 1. Those placements use `--app-honey` / `--app-amber` (text-safe), defined in the App-layer block of `tokens.css`; strict gold-on-claret still governs any claret surface and the mark.
+
+**Fonts (self-hosted via `@fontsource`, no Google CDN — GDPR):** wordmark = **Inter** (`src/brand/Wordmark.tsx`); UI = **Hanken Grotesk**; display = **Fraunces**. Questrial and the old `Logo.tsx` are retired.
+
+**Logo:** `src/brand/Mark.tsx` (icon-only) + `src/brand/Wordmark.tsx` (full, mark inlined as the A, `tone="onClaret"` on claret grounds). Static icons/favicons/OG/avatar-placeholder live flat in `public/` from the pack's `02-web` + `04-social`.
+
 ---
 
 ## 11. Working rules for Claude Code
