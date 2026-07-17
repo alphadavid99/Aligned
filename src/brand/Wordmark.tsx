@@ -30,7 +30,9 @@ export function Wordmark({ tone = 'onLight', size = 32, className }: WordmarkPro
     >
       <span aria-hidden="true">Two</span>
       <span aria-hidden="true" style={{ display: 'inline-block', margin: '0 0.015em', transform: 'translateY(0.015em)' }}>
-        <Mark height="0.78em" colour={onClaret ? 'var(--ta-honey)' : 'var(--ta-claret)'} />
+        {/* Identity spec (.wm svg): height .78em, width .62em — narrower than
+            square so the /\ reads as the letter A, not an oversized icon. */}
+        <Mark height="0.78em" width="0.62em" colour={onClaret ? 'var(--ta-honey)' : 'var(--ta-claret)'} />
       </span>
       <span aria-hidden="true">gree</span>
     </span>
