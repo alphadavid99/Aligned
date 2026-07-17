@@ -37,6 +37,17 @@
   color-scheme: light;
 }
 
+/* Inter carries the wordmark only. Self-hosted with a stable path (not the
+   hashed @fontsource build) so index.html can preload it — the mark's letters
+   then render in Inter on first paint instead of flashing the system font. */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-latin-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   margin: 0;
   padding: 0;

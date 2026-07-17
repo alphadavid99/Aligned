@@ -11,6 +11,16 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#3E1A2E" />
 
+    <!-- Preload the wordmark font so the mark's letters render in Inter on
+         first paint (no fallback-font flash). -->
+    <link
+      rel="preload"
+      href="/fonts/inter-latin-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
     <title>TwoAgree — Can two walk together?</title>
     <meta
       name="description"
