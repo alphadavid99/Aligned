@@ -51,7 +51,7 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: aligned-9f843
+          projectId: twoagreeapp
           channelId: live
 
       # Deploy the Realtime Database security rules from database.rules.json.
@@ -67,6 +67,6 @@ jobs:
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
           npx --yes firebase-tools@latest deploy \
             --only database \
-            --project aligned-9f843 \
+            --project twoagreeapp \
             --non-interactive
           rm -f "$RUNNER_TEMP/sa.json"
