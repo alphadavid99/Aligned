@@ -5,6 +5,24 @@ import { deckDepthWord } from "./leveling";
 
 export type OnbStage = "dating" | "engaged" | "married";
 
+// Onboarding warm-ups — the "how well do you know each other?" hook. All are
+// "Who's more likely to…?" so every couple fits an option (the old free-day /
+// hobbies items failed because their fixed options didn't cover everyone).
+// Predict-your-partner turns each into a bet; a disagreement is the conversation.
+// The array order is the ask order.
+//
+// CONSTRAINT: every id must sit in fun-icebreakers' level-0 slice (its first
+// depth-1 questions — see the Fun-block order in data/questions.json). Onboarding
+// marks that level done and the reveal shows jointQuestions(lvlQs(slug, 0)); an id
+// outside the slice would be answered but never appear in the reveal.
+export const STARTER_QIDS = [
+  "FUN-010", // Who's more likely to be running late?
+  "FUN-008", // Who's more likely to cry at a film?
+  "FUN-023", // Who's more likely to overthink a text?
+  "FUN-009", // Who's more likely to apologise first after a row?
+  "FUN-011", // Who's more likely to fall asleep during the sermon?
+];
+
 // Three stages only (§A3 Part B). Blended is a family structure, not a stage —
 // it gets its own field when it earns one. "dating" is labelled "In a relationship".
 export const ONB_STAGES: { key: OnbStage; en: string; fr: string }[] = [

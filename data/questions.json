@@ -2474,6 +2474,97 @@
     "ref": ""
   },
   {
+    "id": "FUN-010",
+    "deck": "fun-icebreakers",
+    "type": "mc",
+    "depth": 1,
+    "q": "Who's more likely to be running late?",
+    "guessable": true,
+    "ref": "",
+    "note": "Light, concrete, and the source of more real friction than most couples admit before living together.",
+    "status": "Draft",
+    "source": "Nectar lovePrint",
+    "opts": [
+      "Him",
+      "Her",
+      "Both of us, equally",
+      "Neither of us"
+    ]
+  },
+  {
+    "id": "FUN-008",
+    "deck": "fun-icebreakers",
+    "type": "mc",
+    "depth": 1,
+    "q": "Who's more likely to cry at a film?",
+    "guessable": true,
+    "ref": "",
+    "note": "A pure warm-up. Costs nothing, wrong answers are charming, and it teaches the guess mechanic before anything is at stake.",
+    "status": "Draft",
+    "source": "Nectar lovePrint",
+    "opts": [
+      "Him",
+      "Her",
+      "Both of us, equally",
+      "Neither of us"
+    ]
+  },
+  {
+    "id": "FUN-023",
+    "deck": "fun-icebreakers",
+    "type": "mc",
+    "q": "Who's more likely to overthink a text?",
+    "opts": [
+      "Him",
+      "Her",
+      "Both of us, equally",
+      "Neither of us"
+    ],
+    "guessable": true,
+    "note": "Warm-up hook — modern and instantly relatable; universal options.",
+    "status": "Draft",
+    "source": "Self",
+    "dateAdded": "2026-07-18",
+    "depth": 1,
+    "ref": ""
+  },
+  {
+    "id": "FUN-009",
+    "deck": "fun-icebreakers",
+    "type": "mc",
+    "depth": 1,
+    "q": "Who's more likely to apologise first after a row?",
+    "guessable": true,
+    "ref": "",
+    "note": "Plays as a laugh and lands as a finding. If both say the same name, that person is doing the repair work — and now they've both seen it.",
+    "status": "Draft",
+    "source": "Nectar lovePrint",
+    "opts": [
+      "Him",
+      "Her",
+      "Both of us, equally",
+      "Neither of us"
+    ]
+  },
+  {
+    "id": "FUN-011",
+    "deck": "fun-icebreakers",
+    "type": "mc",
+    "depth": 1,
+    "q": "Who's more likely to fall asleep during the sermon?",
+    "guessable": true,
+    "ref": "",
+    "note": "Faith-culture humour that only works inside the niche. This is the kind of question a secular competitor structurally cannot write.",
+    "status": "Draft",
+    "source": "Nectar lovePrint",
+    "opts": [
+      "Him",
+      "Her",
+      "Both of us, equally",
+      "Neither of us"
+    ]
+  },
+  {
     "id": "FUN-002",
     "deck": "fun-icebreakers",
     "type": "mc",
@@ -2489,81 +2580,6 @@
     "status": "Draft",
     "source": "Self",
     "dateAdded": "2026-06-23",
-    "depth": 1,
-    "ref": ""
-  },
-  {
-    "id": "FUN-003",
-    "deck": "fun-icebreakers",
-    "type": "mc",
-    "q": "Of all the things I love doing, which would you secretly rather sit out?",
-    "guessable": true,
-    "note": "Clears the air on shared vs solo activities, honestly.",
-    "status": "Draft",
-    "source": "Self",
-    "dateAdded": "2026-06-23",
-    "depth": 1,
-    "ref": "",
-    "opts": [
-      "Your hobbies",
-      "Big group things",
-      "Church events",
-      "Family visits",
-      "Nothing — I'm in for all of it"
-    ]
-  },
-  {
-    "id": "FUN-004",
-    "deck": "fun-icebreakers",
-    "type": "mc",
-    "q": "A perfect evening in together looks like…",
-    "guessable": true,
-    "note": "A warm opener about how each likes to spend time together — reframed from a TV-pick question that set a slightly disengaged tone for a couples app.",
-    "status": "Draft",
-    "source": "Self",
-    "dateAdded": "2026-06-23",
-    "depth": 1,
-    "ref": "",
-    "opts": [
-      "A film under a blanket",
-      "Cooking something together",
-      "Same room, both doing our own thing",
-      "Talking for hours",
-      "Friends round"
-    ]
-  },
-  {
-    "id": "FUN-005",
-    "deck": "fun-icebreakers",
-    "type": "mc",
-    "q": "Surprise inheritance, money's no object. What actually happens?",
-    "guessable": true,
-    "note": "A fun hypothetical that quietly surfaces values.",
-    "status": "Draft",
-    "source": "Self",
-    "dateAdded": "2026-06-23",
-    "depth": 1,
-    "ref": "",
-    "opts": [
-      "We quit and travel",
-      "Buy a house outright",
-      "Give a big chunk away",
-      "Barely change anything",
-      "Start something of our own"
-    ]
-  },
-  {
-    "id": "FUN-006",
-    "deck": "fun-icebreakers",
-    "type": "scale",
-    "q": "How much of your free time do you want to spend on your own hobbies versus together?",
-    "lo": "Mostly together",
-    "hi": "Lots of independent time",
-    "guessable": true,
-    "note": "Leisure allocation, distinct from solitude-to-recharge (SELF-013).",
-    "status": "Draft",
-    "source": "Greg Gifford video",
-    "dateAdded": "2026-06-25",
     "depth": 1,
     "ref": ""
   },
@@ -4546,22 +4562,23 @@
     "depth": 5
   },
   {
-    "id": "FUN-001",
+    "id": "FUN-003",
     "deck": "fun-icebreakers",
     "type": "mc",
-    "depth": 1,
-    "q": "When it comes to food, what are you?",
+    "q": "Of all the things I love doing, which would you secretly rather sit out?",
     "guessable": true,
-    "ref": "",
-    "note": "Reframed from a pick-a-cuisine question (too limiting — the options excluded whole tastes). Now captures the underlying value: your disposition toward food, which is what actually aligns.",
+    "note": "Clears the air on shared vs solo activities, honestly.",
     "status": "Draft",
     "source": "Self",
+    "dateAdded": "2026-06-23",
+    "depth": 1,
+    "ref": "",
     "opts": [
-      "Adventurous — I'll try anything",
-      "Give me my comfort favourites",
-      "Health comes first",
-      "Quick and easy — food's just fuel",
-      "A proper foodie — I live for it"
+      "Your hobbies",
+      "Big group things",
+      "Church events",
+      "Family visits",
+      "Nothing — I'm in for all of it"
     ]
   },
   {
@@ -5408,21 +5425,23 @@
     ]
   },
   {
-    "id": "FUN-007",
+    "id": "FUN-004",
     "deck": "fun-icebreakers",
     "type": "mc",
-    "depth": 1,
-    "q": "You've got a free evening and I'm busy. What's your instinct?",
+    "q": "A perfect evening in together looks like…",
     "guessable": true,
-    "ref": "",
-    "note": "A light, behavioural read on independence that lands the same construct as the solitude scales without asking anyone to rate themselves.",
+    "note": "A warm opener about how each likes to spend time together — reframed from a TV-pick question that set a slightly disengaged tone for a couples app.",
     "status": "Draft",
-    "source": "Nectar lovePrint",
+    "source": "Self",
+    "dateAdded": "2026-06-23",
+    "depth": 1,
+    "ref": "",
     "opts": [
-      "Go do something on my own",
-      "Save it for when we're both free",
-      "Call a friend",
-      "Stay in and rest"
+      "A film under a blanket",
+      "Cooking something together",
+      "Same room, both doing our own thing",
+      "Talking for hours",
+      "Friends round"
     ]
   },
   {
@@ -5612,75 +5631,75 @@
     ]
   },
   {
-    "id": "FUN-008",
+    "id": "FUN-005",
     "deck": "fun-icebreakers",
     "type": "mc",
-    "depth": 1,
-    "q": "Who's more likely to cry at a film?",
+    "q": "Surprise inheritance, money's no object. What actually happens?",
     "guessable": true,
-    "ref": "",
-    "note": "A pure warm-up. Costs nothing, wrong answers are charming, and it teaches the guess mechanic before anything is at stake.",
+    "note": "A fun hypothetical that quietly surfaces values.",
     "status": "Draft",
-    "source": "Nectar lovePrint",
+    "source": "Self",
+    "dateAdded": "2026-06-23",
+    "depth": 1,
+    "ref": "",
     "opts": [
-      "Him",
-      "Her",
-      "Both of us, equally",
-      "Neither of us"
+      "We quit and travel",
+      "Buy a house outright",
+      "Give a big chunk away",
+      "Barely change anything",
+      "Start something of our own"
     ]
   },
   {
-    "id": "FUN-009",
+    "id": "FUN-006",
     "deck": "fun-icebreakers",
-    "type": "mc",
-    "depth": 2,
-    "q": "Who's more likely to apologise first?",
+    "type": "scale",
+    "q": "How much of your free time do you want to spend on your own hobbies versus together?",
+    "lo": "Mostly together",
+    "hi": "Lots of independent time",
     "guessable": true,
-    "ref": "",
-    "note": "Plays as a laugh and lands as a finding. If both say the same name, that person is doing the repair work — and now they've both seen it.",
+    "note": "Leisure allocation, distinct from solitude-to-recharge (SELF-013).",
     "status": "Draft",
-    "source": "Nectar lovePrint",
-    "opts": [
-      "Him",
-      "Her",
-      "Both of us, equally",
-      "Neither of us"
-    ]
+    "source": "Greg Gifford video",
+    "dateAdded": "2026-06-25",
+    "depth": 1,
+    "ref": ""
   },
   {
-    "id": "FUN-010",
+    "id": "FUN-001",
     "deck": "fun-icebreakers",
     "type": "mc",
     "depth": 1,
-    "q": "Who's more likely to be running late?",
+    "q": "When it comes to food, what are you?",
     "guessable": true,
     "ref": "",
-    "note": "Light, concrete, and the source of more real friction than most couples admit before living together.",
+    "note": "Reframed from a pick-a-cuisine question (too limiting — the options excluded whole tastes). Now captures the underlying value: your disposition toward food, which is what actually aligns.",
     "status": "Draft",
-    "source": "Nectar lovePrint",
+    "source": "Self",
     "opts": [
-      "Him",
-      "Her",
-      "Both of us, equally",
-      "Neither of us"
+      "Adventurous — I'll try anything",
+      "Give me my comfort favourites",
+      "Health comes first",
+      "Quick and easy — food's just fuel",
+      "A proper foodie — I live for it"
     ]
   },
   {
-    "id": "FUN-011",
+    "id": "FUN-007",
     "deck": "fun-icebreakers",
     "type": "mc",
     "depth": 1,
-    "q": "Who's more likely to fall asleep during the sermon?",
+    "q": "You've got a free evening and I'm busy. What's your instinct?",
     "guessable": true,
     "ref": "",
-    "note": "Faith-culture humour that only works inside the niche. This is the kind of question a secular competitor structurally cannot write.",
+    "note": "A light, behavioural read on independence that lands the same construct as the solitude scales without asking anyone to rate themselves.",
     "status": "Draft",
     "source": "Nectar lovePrint",
     "opts": [
-      "Him",
-      "Her",
-      "Both of us, equally",
-      "Neither of us"
+      "Go do something on my own",
+      "Save it for when we're both free",
+      "Call a friend",
+      "Stay in and rest"
     ]
   },
   {

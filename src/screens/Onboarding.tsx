@@ -19,9 +19,8 @@ import {
 import { redeemInvite, createInvite } from "../lib/functions";
 import { prettyError } from "../lib/errors";
 import { fileToAvatarDataUrl } from "../lib/device/photo";
-import { type Question } from "../lib/questions";
-import { lvlQs } from "../lib/leveling";
-import { ONB_STAGES, type OnbStage } from "../lib/onboarding";
+import { DECKS, type Question } from "../lib/questions";
+import { ONB_STAGES, STARTER_QIDS, type OnbStage } from "../lib/onboarding";
 import type { Stage } from "../types";
 import { Mark } from "../brand/Mark";
 import { Wordmark } from "../brand/Wordmark";
@@ -30,13 +29,18 @@ import StartMenu from "./StartMenu";
 import AuthScreen from "./AuthScreen";
 import { useT } from "../lib/i18n";
 
-// The onboarding starter: the first Part of a warm deck. Each guessable question
-// is answered, then you predict your partner's answer (the "predict your partner"
-// layer, same as the main play flow). Both partners answer the SAME questions so
-// the reveal overlaps.
+// The onboarding starter: a hand-picked set of warm "Who's more likely to…?"
+// questions (STARTER_QIDS in ../lib/onboarding — chosen so every couple fits an
+// option). Each guessable question is answered, then you predict your partner's
+// answer (the "predict your partner" layer, same as the main play flow). Both
+// partners answer the SAME questions so the reveal overlaps. The ids live in
+// fun-icebreakers' level-0 slice, so marking that level done reveals exactly them.
 const STARTER_SLUG = "fun-icebreakers";
-const STARTER_QS: Question[] = lvlQs(STARTER_SLUG, 0).filter(
-  (q) => q.type === "mc" || q.type === "scale",
+const STARTER_BY_ID = new Map(
+  DECKS[STARTER_SLUG].questions.map((q) => [q.id, q]),
+);
+const STARTER_QS: Question[] = STARTER_QIDS.map((id) => STARTER_BY_ID.get(id)).filter(
+  (q): q is Question => !!q && (q.type === "mc" || q.type === "scale"),
 );
 
 type T = (en: string, fr: string) => string;

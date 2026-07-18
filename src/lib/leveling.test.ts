@@ -3,10 +3,10 @@ import { levelsOf, nLevels, lvlQs, stageOf } from "./leveling";
 import { DECKS, ORDER } from "./questions";
 
 describe("question bank integrity", () => {
-  it("has 21 conversations and 398 questions (brief 2)", () => {
+  it("has 21 conversations and 399 questions (brief 2)", () => {
     expect(ORDER).toHaveLength(21);
     const total = ORDER.reduce((n, s) => n + DECKS[s].questions.length, 0);
-    expect(total).toBe(398);
+    expect(total).toBe(399);
   });
   it("every deck is sorted by depth ascending (brief 2 §A7b)", () => {
     for (const slug of ORDER) {

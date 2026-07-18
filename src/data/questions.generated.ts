@@ -2546,6 +2546,76 @@ export const DECKS: Record<string, Deck> = {
     },
     "questions": [
       {
+        "id": "FUN-010",
+        "q": "Who's more likely to be running late?",
+        "type": "mc",
+        "depth": 1,
+        "note": "Light, concrete, and the source of more real friction than most couples admit before living together.",
+        "guessable": true,
+        "opts": [
+          "Him",
+          "Her",
+          "Both of us, equally",
+          "Neither of us"
+        ]
+      },
+      {
+        "id": "FUN-008",
+        "q": "Who's more likely to cry at a film?",
+        "type": "mc",
+        "depth": 1,
+        "note": "A pure warm-up. Costs nothing, wrong answers are charming, and it teaches the guess mechanic before anything is at stake.",
+        "guessable": true,
+        "opts": [
+          "Him",
+          "Her",
+          "Both of us, equally",
+          "Neither of us"
+        ]
+      },
+      {
+        "id": "FUN-023",
+        "q": "Who's more likely to overthink a text?",
+        "type": "mc",
+        "depth": 1,
+        "note": "Warm-up hook — modern and instantly relatable; universal options.",
+        "guessable": true,
+        "opts": [
+          "Him",
+          "Her",
+          "Both of us, equally",
+          "Neither of us"
+        ]
+      },
+      {
+        "id": "FUN-009",
+        "q": "Who's more likely to apologise first after a row?",
+        "type": "mc",
+        "depth": 1,
+        "note": "Plays as a laugh and lands as a finding. If both say the same name, that person is doing the repair work — and now they've both seen it.",
+        "guessable": true,
+        "opts": [
+          "Him",
+          "Her",
+          "Both of us, equally",
+          "Neither of us"
+        ]
+      },
+      {
+        "id": "FUN-011",
+        "q": "Who's more likely to fall asleep during the sermon?",
+        "type": "mc",
+        "depth": 1,
+        "note": "Faith-culture humour that only works inside the niche. This is the kind of question a secular competitor structurally cannot write.",
+        "guessable": true,
+        "opts": [
+          "Him",
+          "Her",
+          "Both of us, equally",
+          "Neither of us"
+        ]
+      },
+      {
         "id": "FUN-002",
         "q": "What's your ideal way to spend a free day?",
         "type": "mc",
@@ -2644,48 +2714,6 @@ export const DECKS: Record<string, Deck> = {
         ]
       },
       {
-        "id": "FUN-008",
-        "q": "Who's more likely to cry at a film?",
-        "type": "mc",
-        "depth": 1,
-        "note": "A pure warm-up. Costs nothing, wrong answers are charming, and it teaches the guess mechanic before anything is at stake.",
-        "guessable": true,
-        "opts": [
-          "Him",
-          "Her",
-          "Both of us, equally",
-          "Neither of us"
-        ]
-      },
-      {
-        "id": "FUN-010",
-        "q": "Who's more likely to be running late?",
-        "type": "mc",
-        "depth": 1,
-        "note": "Light, concrete, and the source of more real friction than most couples admit before living together.",
-        "guessable": true,
-        "opts": [
-          "Him",
-          "Her",
-          "Both of us, equally",
-          "Neither of us"
-        ]
-      },
-      {
-        "id": "FUN-011",
-        "q": "Who's more likely to fall asleep during the sermon?",
-        "type": "mc",
-        "depth": 1,
-        "note": "Faith-culture humour that only works inside the niche. This is the kind of question a secular competitor structurally cannot write.",
-        "guessable": true,
-        "opts": [
-          "Him",
-          "Her",
-          "Both of us, equally",
-          "Neither of us"
-        ]
-      },
-      {
         "id": "FUN-016",
         "q": "Who gets the remote?",
         "type": "mc",
@@ -2741,20 +2769,6 @@ export const DECKS: Record<string, Deck> = {
           "See friends",
           "A project at home",
           "Whatever you fancy"
-        ]
-      },
-      {
-        "id": "FUN-009",
-        "q": "Who's more likely to apologise first?",
-        "type": "mc",
-        "depth": 2,
-        "note": "Plays as a laugh and lands as a finding. If both say the same name, that person is doing the repair work — and now they've both seen it.",
-        "guessable": true,
-        "opts": [
-          "Him",
-          "Her",
-          "Both of us, equally",
-          "Neither of us"
         ]
       },
       {
