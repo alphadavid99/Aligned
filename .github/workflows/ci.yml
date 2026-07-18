@@ -16,6 +16,13 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      # The RTDB emulator needs a JVM, and current firebase-tools requires
+      # JDK 21+ ("no longer supports Java version before 21"). Pin it explicitly
+      # rather than relying on the runner's default JDK, which is older.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
       - run: npm ci
       - run: npm run lint
       - run: npm test
@@ -24,9 +31,8 @@ jobs:
         run: |
           npm --prefix functions ci
           npm --prefix functions run build
-      # Security rules are verified against a real emulator. The RTDB emulator
-      # needs a JVM; ubuntu-latest ships one. Rules that are never tested are
-      # rules nobody can trust (CLAUDE.md §7).
+      # Security rules are verified against a real emulator (JDK 21 set up above).
+      # Rules that are never tested are rules nobody can trust (CLAUDE.md §7).
       - name: Test security rules
         run: |
           npm i -g firebase-tools

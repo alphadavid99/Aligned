@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { User } from "firebase/auth";
 import { auth } from "./firebase";
 import { useAuth } from "./hooks/useAuth";
@@ -177,12 +177,25 @@ export default function App() {
   // anonymous user) enters onboarding and stays there even after the account is
   // upgraded mid-flow. Reset to the front door on sign-out.
   const [mode, setMode] = useState<null | "onboard" | "app">(null);
+  // Track the previous auth state so we can tell a fresh real sign-in
+  // (null → real) apart from the mid-onboarding account upgrade (anonymous →
+  // real via linkWithCredential), which must NOT re-route out of onboarding.
+  const prevUser = useRef<User | null>(null);
   useEffect(() => {
     if (loading) return;
+    const wasAnon = !!prevUser.current?.isAnonymous;
+    prevUser.current = user;
     if (!mode) {
       setMode(user && !user.isAnonymous ? "app" : "onboard");
     } else if (mode === "app" && !user) {
       setMode("onboard");
+    } else if (mode === "onboard" && user && !user.isAnonymous && !wasAnon) {
+      // A real account appeared with no anonymous session before it — the
+      // onboarding anonymous-auth fallback, where the user creates an account
+      // on AuthScreen. That screen hands off via onAuthStateChanged and has no
+      // forward navigation of its own, so without this it would sit on
+      // "One moment…" forever. Route into the app.
+      setMode("app");
     }
   }, [loading, user, mode]);
 
