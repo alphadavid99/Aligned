@@ -51,19 +51,6 @@ export const IconProfile = ({ size = 24 }: P) =>
     </>
   ));
 
-// A winding trail with waypoint dots — the Path tab. Placeholder line icon
-// (Dave's icon pack replaces it later).
-export const IconPath = ({ size = 24 }: P) =>
-  svg(size, (
-    <>
-      <path d="M6 21c3 0 3-5 6-5s3-5 6-5" opacity="0.9" />
-      <circle cx="6" cy="21" r="1.4" fill="currentColor" stroke="none" />
-      <circle cx="12" cy="16" r="1.4" fill="currentColor" stroke="none" />
-      <circle cx="18" cy="11" r="1.4" fill="currentColor" stroke="none" />
-      <path d="M18 3v5M15.5 5.5h5" />
-    </>
-  ));
-
 export const IconBack = ({ size = 24 }: P) =>
   svg(size, <path d="M15 5l-7 7 7 7" />);
 

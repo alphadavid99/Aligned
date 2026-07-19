@@ -19,6 +19,7 @@
     "@fontsource/fraunces": "^5.2.9",
     "@fontsource/hanken-grotesk": "^5.2.8",
     "firebase": "^12.15.0",
+    "lucide-react": "^1.25.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },

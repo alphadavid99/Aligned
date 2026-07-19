@@ -45,6 +45,23 @@ jobs:
       - if: steps.gate.outputs.ready == 'true'
         run: npm run build
 
+      # Deploy the Cloud Functions (generatePath, invites, GDPR) BEFORE Hosting,
+      # so the front-end never goes live pointing at a function that isn't there.
+      # Was a manual step; automated here now that the Path depends on it.
+      - name: Deploy Cloud Functions (live)
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          npm --prefix functions ci
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npx --yes firebase-tools@latest deploy \
+            --only functions \
+            --project twoagreeapp \
+            --non-interactive
+          rm -f "$RUNNER_TEMP/sa.json"
+
       - name: Deploy to Firebase Hosting (live)
         if: steps.gate.outputs.ready == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0

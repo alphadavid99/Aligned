@@ -17,7 +17,8 @@ import { TopBar } from "../components/TopBar";
 import { Mark } from "../brand/Mark";
 import { Wordmark } from "../brand/Wordmark";
 import { PillNav } from "../components/PillNav";
-import { IconHome, IconDecks, IconResults, IconProfile, IconPath } from "../components/icons";
+import { IconHome, IconDecks, IconResults, IconProfile } from "../components/icons";
+import { Route } from "lucide-react";
 import { useT } from "../lib/i18n";
 
 type Tab = "home" | "decks" | "path" | "results" | "profile";
@@ -34,7 +35,14 @@ const TABS: {
   // The Path ships behind a flag (VITE_PATH_ENABLED) — it needs the generatePath
   // Cloud Function deployed, and touches live users, so it stays dark by default.
   ...(import.meta.env.VITE_PATH_ENABLED === "true"
-    ? [{ key: "path" as Tab, en: "Path", fr: "Chemin", Icon: IconPath }]
+    ? [
+        {
+          key: "path" as Tab,
+          en: "Path",
+          fr: "Chemin",
+          Icon: ({ size }: { size?: number }) => <Route size={size} strokeWidth={2} />,
+        },
+      ]
     : []),
   { key: "results", en: "Together", fr: "Ensemble", Icon: IconResults },
   { key: "profile", en: "You", fr: "Vous", Icon: IconProfile },
