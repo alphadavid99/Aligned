@@ -50,12 +50,6 @@ jobs:
       # Was a manual step; automated here now that the Path depends on it.
       - name: Deploy Cloud Functions (live)
         if: steps.gate.outputs.ready == 'true'
-        # Non-blocking until the CI service account has "Service Account User" on
-        # twoagreeapp@appspot.gserviceaccount.com (iam.serviceAccounts.ActAs).
-        # Without it functions deploy fails; we must NOT let that skip the Hosting
-        # and DB-rules deploys below. Once the role is granted, drop this line so a
-        # real functions failure blocks the deploy again.
-        continue-on-error: true
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
