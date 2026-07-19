@@ -31,10 +31,16 @@ const TABS: {
 }[] = [
   { key: "home", en: "Home", fr: "Accueil", Icon: IconHome },
   { key: "decks", en: "Talk", fr: "Parler", Icon: IconDecks },
-  { key: "path", en: "Path", fr: "Chemin", Icon: IconPath },
+  // The Path ships behind a flag (VITE_PATH_ENABLED) — it needs the generatePath
+  // Cloud Function deployed, and touches live users, so it stays dark by default.
+  ...(import.meta.env.VITE_PATH_ENABLED === "true"
+    ? [{ key: "path" as Tab, en: "Path", fr: "Chemin", Icon: IconPath }]
+    : []),
   { key: "results", en: "Together", fr: "Ensemble", Icon: IconResults },
   { key: "profile", en: "You", fr: "Vous", Icon: IconProfile },
 ];
+
+const PATH_ENABLED = import.meta.env.VITE_PATH_ENABLED === "true";
 
 export default function SessionApp({
   code,
@@ -282,7 +288,7 @@ export default function SessionApp({
           {tab === "decks" && (
             <DecksScreen session={session} role={role} onPlay={openDeck} />
           )}
-          {tab === "path" && (
+          {PATH_ENABLED && tab === "path" && (
             <PathScreen
               code={code}
               session={session}
