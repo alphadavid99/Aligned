@@ -115,3 +115,77 @@ describe("invites — server-only", () => {
     await assertFails(set(ref(db, "invites/tok"), { code: CODE }));
   });
 });
+
+describe("intake/{uid} — private to its author (the Path privacy guarantee)", () => {
+  // The intake holds special-category data (faith stage, health, family conflict).
+  // The generated path's emphasis is itself a readout of these answers, so a
+  // partner must NOT be able to read the other's intake (brief §2.1).
+  it("lets the author write and read their own intake", async () => {
+    const db = env.authenticatedContext(HOST).database();
+    await assertSucceeds(
+      update(ref(db, `intake/${HOST}`), { updated: 1, answers: { stage: 2 } }),
+    );
+    await assertSucceeds(get(ref(db, `intake/${HOST}`)));
+  });
+
+  it("denies the PARTNER reading or writing the other's intake", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await set(ref(ctx.database(), `intake/${HOST}`), { answers: { avoided: [3] } });
+    });
+    const db = env.authenticatedContext(GUEST).database();
+    await assertFails(get(ref(db, `intake/${HOST}`)));
+    await assertFails(set(ref(db, `intake/${HOST}`), { answers: {} }));
+  });
+
+  it("denies a signed-out visitor", async () => {
+    const db = env.unauthenticatedContext().database();
+    await assertFails(get(ref(db, `intake/${HOST}`)));
+    await assertFails(set(ref(db, `intake/${HOST}`), { answers: {} }));
+  });
+});
+
+describe("sessions/{code}/path — generated server-side, read by members only", () => {
+  // The Cloud Function (Admin SDK, bypasses rules) writes the path. Clients must
+  // never write it; only members may read it (brief §2.2).
+  const seedWithPath = async () =>
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await set(ref(ctx.database(), `sessions/${CODE}`), {
+        created: 1,
+        members: {
+          host: { name: "Sarah", uid: HOST },
+          guest: { name: "Judah", uid: GUEST },
+        },
+        uids: { [HOST]: true, [GUEST]: true },
+        path: { generatedAt: 1, steps: { 0: { qids: ["FUN-001"] } } },
+      });
+    });
+
+  it("lets a member read the generated path", async () => {
+    await seedWithPath();
+    const db = env.authenticatedContext(GUEST).database();
+    await assertSucceeds(get(ref(db, `sessions/${CODE}/path`)));
+  });
+
+  it("denies a non-member reading the path", async () => {
+    await seedWithPath();
+    const db = env.authenticatedContext(STRANGER).database();
+    await assertFails(get(ref(db, `sessions/${CODE}/path`)));
+  });
+
+  it("forbids ANY client from writing the path (server-only)", async () => {
+    await seedWithPath();
+    const db = env.authenticatedContext(HOST).database();
+    await assertFails(
+      set(ref(db, `sessions/${CODE}/path/steps/0/qids/0`), "HACK-001"),
+    );
+    await assertFails(set(ref(db, `sessions/${CODE}/path`), { steps: {} }));
+  });
+
+  it("lets a member light a lamp but denies a stranger", async () => {
+    await seedWithPath();
+    const memberDb = env.authenticatedContext(HOST).database();
+    await assertSucceeds(set(ref(memberDb, `sessions/${CODE}/pathLamps/0`), true));
+    const strangerDb = env.authenticatedContext(STRANGER).database();
+    await assertFails(set(ref(strangerDb, `sessions/${CODE}/pathLamps/1`), true));
+  });
+});

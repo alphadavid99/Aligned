@@ -37,3 +37,10 @@ export const redeemInvite = httpsCallable<{ token: string }, { code: string }>(
   functions,
   "redeemInvite",
 );
+
+// The Path generator. Returns "waiting" until both partners' intakes are in;
+// "ready" once the path is laid (or already existed). regenerate re-lays it.
+export const generatePath = httpsCallable<
+  { code: string; regenerate?: boolean },
+  { status: "ready" | "waiting"; reason?: "partner-missing" | "intake-missing" }
+>(functions, "generatePath");

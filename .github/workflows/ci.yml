@@ -27,10 +27,11 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
-      - name: Build Cloud Functions
+      - name: Build & test Cloud Functions
         run: |
           npm --prefix functions ci
           npm --prefix functions run build
+          npm --prefix functions test
       # Security rules are verified against a real emulator (JDK 21 set up above).
       # Rules that are never tested are rules nobody can trust (CLAUDE.md §7).
       - name: Test security rules

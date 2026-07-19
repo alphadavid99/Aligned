@@ -3,6 +3,7 @@
 // via preview.html, which is not linked and excluded from the build inputs).
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
+import "./brand/tokens.css"; // brand tokens first — the app loads these via main.tsx
 import "./index.css";
 import { ORDER } from "./lib/questions";
 import { lvlQs, nLevels } from "./lib/leveling";
@@ -15,6 +16,8 @@ import StartScreen from "./screens/StartScreen";
 import PartPicker from "./screens/PartPicker";
 import Onboarding from "./screens/Onboarding";
 import StartMenu from "./screens/StartMenu";
+import PathStep from "./screens/PathStep";
+import { PathMap } from "./screens/PathScreen";
 import ResultsScreen from "./screens/ResultsScreen";
 import RevealScreen from "./screens/RevealScreen";
 import AuthScreen from "./screens/AuthScreen";
@@ -228,6 +231,48 @@ function Preview() {
   }
   if (view === "onboard") return <Onboarding inviteToken={null} onDone={noop} />;
   if (view === "joinb") return <Onboarding inviteToken="demo" onDone={noop} />;
+  if (view === "pathmap") {
+    const pathSession = {
+      members: { host: { name: "Sarah", uid: "u1" }, guest: { name: "Judah", uid: "u2" } },
+      uids: { u1: true, u2: true },
+      path: {
+        generatedAt: 1,
+        version: 1,
+        questionCount: 70,
+        steps: Object.fromEntries(
+          ["trailhead", "fork", "storehouse", "table", "garden", "valley", "hilltop", "horizon", "summit"].map(
+            (key, i) => [i, { key, mechanic: "guess", qids: [] }],
+          ),
+        ),
+      },
+      pathLamps: { 0: true, 1: true, 2: true },
+    } as unknown as Session;
+    return (
+      <div className="tabwrap">
+        <PathMap session={pathSession} onOpen={noop} t={(en: string) => en} />
+        <FakeNav on="path" />
+      </div>
+    );
+  }
+  if (view === "patharrival") {
+    const s = {
+      members: { host: { name: "Sarah", uid: "u1" }, guest: { name: "Judah", uid: "u2" } },
+      uids: { u1: true, u2: true },
+      decks: {},
+    } as unknown as Session;
+    return (
+      <PathStep
+        code="ABCD"
+        role="host"
+        session={s}
+        index={1}
+        step={{ key: "fork", mechanic: "guess", qids: ["CONF-001", "CONF-002"] }}
+        myName="Sarah"
+        partnerName="Judah"
+        onExit={noop}
+      />
+    );
+  }
   if (view === "menu")
     return <StartMenu stage="engaged" onPick={noop} onSeeAll={noop} />;
   if (view === "start")

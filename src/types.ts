@@ -20,10 +20,27 @@ export interface Member {
 // conversation ordering later, and eventually Paths — which are out of scope now.
 export type Stage = "dating" | "engaged" | "married" | "blended";
 
+// The generated Path curriculum, written server-side by the generatePath Cloud
+// Function (clients read only). A step is a thin sequencer over existing
+// question ids — never a new question store.
+export interface PathStepData {
+  key: string;
+  mechanic: "guess" | "noguess";
+  qids: string[];
+}
+export interface SessionPath {
+  generatedAt?: number;
+  version?: number;
+  questionCount?: number;
+  steps?: Record<string, PathStepData>;
+}
+
 export interface Session {
   created?: number;
   stage?: Stage;
   members?: Partial<Record<Role, Member>>;
   uids?: Record<string, boolean>;
   decks?: Record<string, DeckData>;
+  path?: SessionPath;
+  pathLamps?: Record<string, boolean>;
 }

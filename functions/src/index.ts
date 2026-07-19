@@ -13,6 +13,7 @@ import { initializeApp } from "firebase-admin/app";
 import { getDatabase } from "firebase-admin/database";
 import { getAuth } from "firebase-admin/auth";
 import { randomUUID } from "node:crypto";
+import { composePath, type Intake } from "./composePath.js";
 
 setGlobalOptions({ region: "europe-west1" });
 initializeApp();
@@ -36,6 +37,7 @@ interface SessionNode {
       done?: Record<string, Record<string, unknown>>;
     }
   >;
+  path?: unknown;
 }
 
 function requireUid(auth: { uid: string } | undefined): string {
@@ -58,13 +60,18 @@ async function sessionsForUser(uid: string) {
  */
 export const exportMyData = onCall(async (request) => {
   const uid = requireUid(request.auth);
-  const profileSnap = await getDatabase().ref(`users/${uid}`).once("value");
+  const db = getDatabase();
+  const profileSnap = await db.ref(`users/${uid}`).once("value");
+  // The Path intake is special-category data held privately per author — it must
+  // travel with the GDPR export (brief §2.5).
+  const intakeSnap = await db.ref(`intake/${uid}`).once("value");
   const sessions = await sessionsForUser(uid);
 
   return {
     exportedAt: new Date().toISOString(),
     uid,
     profile: profileSnap.val() ?? null,
+    intake: intakeSnap.val() ?? null,
     sessions: Object.fromEntries(sessions),
   };
 });
@@ -121,6 +128,8 @@ export const deleteMyAccount = onCall(async (request) => {
   }
 
   await db.ref(`users/${uid}`).remove();
+  // The Path intake is author-only private data; erasure must purge it too.
+  await db.ref(`intake/${uid}`).remove();
   await getAuth().deleteUser(uid);
 
   logger.info("account deleted", { uid, sessionsUpdated, sessionsDeleted });
@@ -208,4 +217,49 @@ export const redeemInvite = onCall(async (request) => {
   const code = await seatGuest(uid, inv.code);
   await invRef.remove();
   return { code };
+});
+
+/**
+ * generatePath — the Path curriculum generator (build brief §"Path composition").
+ * This is the ONLY thing that reads BOTH partners' intakes; it runs server-side
+ * so no client ever reads its partner's private intake. It merges the two into a
+ * spine + weighted list of existing question ids and writes the result to
+ * sessions/{code}/path. Generate-once: refuses to overwrite an existing path
+ * unless { regenerate: true } (the Settings-only re-lay action). Until both
+ * intakes are in, it reports "waiting" and writes nothing.
+ */
+export const generatePath = onCall(async (request) => {
+  const uid = requireUid(request.auth);
+  const data = (request.data ?? {}) as { code?: string; regenerate?: boolean };
+  const code = String(data.code ?? "").trim().toUpperCase();
+  if (code.length < 4) {
+    throw new HttpsError("invalid-argument", "A valid session code is required.");
+  }
+  const db = getDatabase();
+  const s = (await db.ref(`sessions/${code}`).once("value")).val() as
+    | SessionNode
+    | null;
+  if (!s) throw new HttpsError("not-found", "No such session.");
+  if (!s.uids?.[uid]) {
+    throw new HttpsError("permission-denied", "You are not in this session.");
+  }
+  // Generate-once — the path is a stable curriculum, re-laid only on request.
+  if (s.path && data.regenerate !== true) return { status: "ready" as const };
+
+  const hostUid = s.members?.host?.uid;
+  const guestUid = s.members?.guest?.uid;
+  if (!hostUid || !guestUid) {
+    return { status: "waiting" as const, reason: "partner-missing" as const };
+  }
+  const hostIntake = (await db.ref(`intake/${hostUid}`).once("value")).val() as Intake | null;
+  const guestIntake = (await db.ref(`intake/${guestUid}`).once("value")).val() as Intake | null;
+  // The path is drawn from BOTH intakes — it only lays once both are in.
+  if (!hostIntake || !guestIntake) {
+    return { status: "waiting" as const, reason: "intake-missing" as const };
+  }
+
+  const path = composePath(hostIntake, guestIntake);
+  await db.ref(`sessions/${code}/path`).set({ generatedAt: Date.now(), ...path });
+  logger.info("path generated", { code, uid, questionCount: path.questionCount });
+  return { status: "ready" as const };
 });

@@ -128,3 +128,24 @@ export function markLevelDone(
     [role]: true,
   });
 }
+
+// ---- The Path -------------------------------------------------------------
+// Each partner's intake is private (intake/{uid}, author-only rules). Scalar
+// leaves only, never {} (RTDB gotcha §6). `answers` is keyed by intake question
+// id; single-select is a number, multi-select a number[] of option indices.
+export function writeIntake(
+  uid: string,
+  answers: Record<string, number | number[]>,
+): Promise<void> {
+  return update(ref(db, `intake/${uid}`), {
+    updated: Date.now(),
+    ...Object.fromEntries(
+      Object.entries(answers).map(([k, v]) => [`answers/${k}`, v]),
+    ),
+  });
+}
+
+// Light a step's lamp — a shared couple milestone, writable by either member.
+export function lightLamp(code: string, stepIndex: number): Promise<void> {
+  return update(ref(db, `sessions/${code}/pathLamps`), { [stepIndex]: true });
+}

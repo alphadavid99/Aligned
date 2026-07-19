@@ -226,17 +226,53 @@ export const ORDER: string[] = ${JSON.stringify(order, null, 2)};
 export const DECKS: Record<string, Deck> = ${JSON.stringify(decksLiteral, null, 2)};
 `;
 
+// --- render the compact bank for the Cloud Functions package ------------------
+// The Path generation function selects question ids server-side, so it needs
+// per-question metadata (deck/type/depth/guessable/complement). The functions
+// package can't import from src/, and only functions/ is uploaded at deploy, so
+// we vendor a compact map into functions/src. Same source of truth, kept in sync
+// by --check (below), so the two can never drift.
+const FN_OUT_PATH = path.join(ROOT, "functions", "src", "questionBank.generated.ts");
+const bank = {};
+for (const q of questions) {
+  const e = { deck: q.deck, type: q.type, depth: q.depth };
+  if (q.guessable === true) e.guessable = true;
+  if (q.complement === true) e.complement = true;
+  bank[q.id] = e;
+}
+const fnBody = `${header}
+// Compact question metadata for the Path generation Cloud Function.
+export type QuestionType = "scale" | "mc" | "rank" | "open";
+export interface BankEntry {
+  deck: string;
+  type: QuestionType;
+  depth: number;
+  guessable?: boolean;
+  complement?: boolean;
+}
+
+/** Every question's selection metadata, keyed by id. */
+export const BANK: Record<string, BankEntry> = ${JSON.stringify(bank, null, 2)};
+`;
+
+function checkFile(outPath, expected, label) {
+  if (!fs.existsSync(outPath)) {
+    fail(`${path.relative(ROOT, outPath)} is missing. Run: npm run build:questions`);
+  }
+  if (fs.readFileSync(outPath, "utf8") !== expected) {
+    fail(`${path.relative(ROOT, outPath)} is stale. Run: npm run build:questions`);
+  }
+  void label;
+}
+
 if (CHECK) {
-  if (!fs.existsSync(OUT_PATH)) {
-    fail(`${path.relative(ROOT, OUT_PATH)} is missing. Run: npm run build:questions`);
-  }
-  const current = fs.readFileSync(OUT_PATH, "utf8");
-  if (current !== body) {
-    fail(`${path.relative(ROOT, OUT_PATH)} is stale. Run: npm run build:questions`);
-  }
+  checkFile(OUT_PATH, body);
+  checkFile(FN_OUT_PATH, fnBody);
   console.log(`✓ question bank valid and up to date (${questions.length} questions, ${decks.length} decks).`);
 } else {
   fs.mkdirSync(path.dirname(OUT_PATH), { recursive: true });
   fs.writeFileSync(OUT_PATH, body);
-  console.log(`✓ wrote ${path.relative(ROOT, OUT_PATH)} (${questions.length} questions, ${decks.length} decks).`);
+  fs.mkdirSync(path.dirname(FN_OUT_PATH), { recursive: true });
+  fs.writeFileSync(FN_OUT_PATH, fnBody);
+  console.log(`✓ wrote ${path.relative(ROOT, OUT_PATH)} + ${path.relative(ROOT, FN_OUT_PATH)} (${questions.length} questions, ${decks.length} decks).`);
 }

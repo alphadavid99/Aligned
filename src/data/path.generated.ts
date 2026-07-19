@@ -1,0 +1,403 @@
+// AUTO-GENERATED — DO NOT EDIT BY HAND.
+// Source of truth: data/path.json. Regenerate with: npm run build:path
+
+export type IntakeType = "single" | "multi";
+export interface IntakeQuestion {
+  id: string;
+  q: string;
+  hint?: string;
+  type: IntakeType;
+  cap?: number;
+  excl?: string;
+  opts: string[];
+}
+
+export type StepMechanic = "guess" | "noguess" | "finale";
+export interface PathStepMeta {
+  key: string;
+  name: string;
+  theme: string;
+  glyph: string;
+  verse: string;
+  ref: string;
+  frame: string;
+  mechanic: StepMechanic;
+  atTable?: string;
+}
+
+export interface Verse {
+  v: string;
+  ref: string;
+}
+
+export const INTAKE: IntakeQuestion[] = [
+  {
+    "id": "stage",
+    "q": "Where are you two right now?",
+    "type": "single",
+    "opts": [
+      "Getting to know each other",
+      "Seriously dating",
+      "Engaged",
+      "Married"
+    ]
+  },
+  {
+    "id": "direction",
+    "q": "Where do you hope this is heading?",
+    "type": "single",
+    "opts": [
+      "Still finding out",
+      "Toward engagement",
+      "Toward marriage",
+      "Deepening our marriage"
+    ]
+  },
+  {
+    "id": "talk",
+    "q": "Which areas do you most want the two of you to talk through?",
+    "hint": "Pick up to four.",
+    "type": "multi",
+    "cap": 4,
+    "opts": [
+      "Faith & church life",
+      "Money",
+      "Family & children",
+      "Intimacy & affection",
+      "Conflict & communication",
+      "Roles in the home",
+      "Career & where we'll live",
+      "Past & healing",
+      "In-laws & wider family",
+      "Health & lifestyle"
+    ]
+  },
+  {
+    "id": "avoided",
+    "q": "Does anything feel avoided or unresolved between you?",
+    "hint": "Pick any that apply. Your partner will never see this.",
+    "type": "multi",
+    "excl": "Nothing comes to mind",
+    "opts": [
+      "Faith & church life",
+      "Money",
+      "Family & children",
+      "Intimacy & affection",
+      "Conflict & communication",
+      "Roles in the home",
+      "Career & where we'll live",
+      "Past & healing",
+      "In-laws & wider family",
+      "Health & lifestyle",
+      "Nothing comes to mind"
+    ]
+  },
+  {
+    "id": "depth",
+    "q": "How deep are you ready to go?",
+    "type": "single",
+    "opts": [
+      "Ease us in gently",
+      "A steady middle",
+      "Straight to the deep questions"
+    ]
+  },
+  {
+    "id": "realities",
+    "q": "Which of these are true for the two of you?",
+    "hint": "Pick any that apply.",
+    "type": "multi",
+    "excl": "None of these",
+    "opts": [
+      "We're long-distance",
+      "One or both of us has been married before",
+      "One or both of us has children",
+      "We're currently living together",
+      "We come from different church traditions",
+      "We're at different places in our faith",
+      "We come from different cultures or countries",
+      "There is a significant age gap between us",
+      "One of our families has reservations about us",
+      "One or both of us serves in ministry or church leadership",
+      "One of us lives with a long-term illness or disability",
+      "None of these"
+    ]
+  },
+  {
+    "id": "conflict",
+    "q": "When hard topics come up, what usually happens?",
+    "type": "single",
+    "opts": [
+      "We talk it through",
+      "One of us goes quiet",
+      "It turns into a fight",
+      "We avoid it altogether"
+    ]
+  },
+  {
+    "id": "hope",
+    "q": "What do you most hope the Path gives the two of you?",
+    "type": "single",
+    "opts": [
+      "Confidence we're right for each other",
+      "Honest conversations we haven't had",
+      "Preparation for marriage",
+      "A stronger walk with God together"
+    ]
+  }
+];
+
+export const PATH_STEPS: PathStepMeta[] = [
+  {
+    "key": "trailhead",
+    "name": "The Trailhead",
+    "theme": "Warm-up",
+    "glyph": "g-trailhead",
+    "verse": "Can two walk together, unless they are agreed?",
+    "ref": "Amos 3:3",
+    "frame": "A few gentle openers to find your footing before the road climbs.",
+    "mechanic": "guess",
+    "atTable": "What's one small thing you'd love more of in everyday life together?"
+  },
+  {
+    "key": "fork",
+    "name": "The Fork",
+    "theme": "Conflict & communication",
+    "glyph": "g-fork",
+    "verse": "A soft answer turns away wrath, but a harsh word stirs up anger.",
+    "ref": "Proverbs 15:1",
+    "frame": "Where the road splits, how do the two of you choose a way? This step leans on guessing — see how well you already read each other.",
+    "mechanic": "guess",
+    "atTable": "Name one thing that would help the two of you handle disagreements better."
+  },
+  {
+    "key": "storehouse",
+    "name": "The Storehouse",
+    "theme": "Money & provision",
+    "glyph": "g-storehouse",
+    "verse": "Honour the Lord with your wealth.",
+    "ref": "Proverbs 3:9",
+    "frame": "What you keep, what you give, and who decides.",
+    "mechanic": "guess",
+    "atTable": "What's one hope or worry about money you want to put on the table?"
+  },
+  {
+    "key": "table",
+    "name": "The Table",
+    "theme": "Family, children & in-laws",
+    "glyph": "g-table",
+    "verse": "Your children will be like olive shoots around your table.",
+    "ref": "Psalm 128:3",
+    "frame": "The family you came from, and the one you may build.",
+    "mechanic": "guess",
+    "atTable": "What's one thing about family — the one you came from or the one you might build — you want to talk through?"
+  },
+  {
+    "key": "garden",
+    "name": "The Garden",
+    "theme": "Intimacy & affection",
+    "glyph": "g-garden",
+    "verse": "A garden enclosed is my sister, my bride.",
+    "ref": "Song of Solomon 4:12",
+    "frame": "Tenderness, desire, and what each of you needs to feel loved.",
+    "mechanic": "guess",
+    "atTable": "What's one thing that helps you feel close that you'd like more of?"
+  },
+  {
+    "key": "valley",
+    "name": "The Valley",
+    "theme": "Past & healing",
+    "glyph": "g-valley",
+    "verse": "Though I walk through the valley of the shadow of death, I will fear no evil, for you are with me.",
+    "ref": "Psalm 23:4",
+    "frame": "What each of you carries in, and how you will carry it together.",
+    "mechanic": "guess",
+    "atTable": "Is there something from the past you'd like the two of you to understand together?"
+  },
+  {
+    "key": "hilltop",
+    "name": "The Hilltop",
+    "theme": "Faith & church life",
+    "glyph": "g-hilltop",
+    "verse": "I will lift up my eyes to the hills. Where does my help come from?",
+    "ref": "Psalm 121:1",
+    "frame": "Your walk with God — alone, and side by side.",
+    "mechanic": "guess",
+    "atTable": "What's one thing about your walk with God you'd love to share more of together?"
+  },
+  {
+    "key": "horizon",
+    "name": "The Horizon",
+    "theme": "Dreams & future",
+    "glyph": "g-horizon",
+    "verse": "For I know the plans I have for you, says the Lord.",
+    "ref": "Jeremiah 29:11",
+    "frame": "Where you each hope the road leads from here.",
+    "mechanic": "guess",
+    "atTable": "What's one dream for the future you want to make sure you've said out loud?"
+  },
+  {
+    "key": "summit",
+    "name": "The Summit",
+    "theme": "Deepest convictions",
+    "glyph": "g-summit",
+    "verse": "A wise man built his house on the rock.",
+    "ref": "Matthew 7:24",
+    "frame": "The hardest questions, kept for last. No guessing up here — just honest answers, then the reveal.",
+    "mechanic": "noguess",
+    "atTable": "What's one conviction you're holding that you want the other to really understand?"
+  },
+  {
+    "key": "lookout",
+    "name": "The Lookout",
+    "theme": "Journey's end",
+    "glyph": "g-lookout",
+    "verse": "Your word is a lamp to my feet, and a light to my path.",
+    "ref": "Psalm 119:105",
+    "frame": "Turn around. The whole road behind you is lit.",
+    "mechanic": "finale"
+  }
+];
+
+export const VERSES: Record<string, Verse[]> = {
+  "trailhead": [
+    {
+      "v": "A man's heart plans his way, but the Lord directs his steps.",
+      "ref": "Proverbs 16:9"
+    },
+    {
+      "v": "Two are better than one, because they have a good reward for their labour.",
+      "ref": "Ecclesiastes 4:9"
+    },
+    {
+      "v": "Commit your way to the Lord; trust also in him, and he will act.",
+      "ref": "Psalm 37:5"
+    }
+  ],
+  "fork": [
+    {
+      "v": "Let every man be swift to hear, slow to speak, slow to wrath.",
+      "ref": "James 1:19"
+    },
+    {
+      "v": "Let not the sun go down upon your wrath.",
+      "ref": "Ephesians 4:26"
+    },
+    {
+      "v": "There is one whose rash words are like sword thrusts, but the tongue of the wise brings healing.",
+      "ref": "Proverbs 12:18"
+    }
+  ],
+  "storehouse": [
+    {
+      "v": "For where your treasure is, there will your heart be also.",
+      "ref": "Matthew 6:21"
+    },
+    {
+      "v": "The plans of the diligent lead surely to abundance.",
+      "ref": "Proverbs 21:5"
+    },
+    {
+      "v": "Keep your life free from the love of money, and be content with what you have.",
+      "ref": "Hebrews 13:5"
+    }
+  ],
+  "table": [
+    {
+      "v": "Therefore shall a man leave his father and his mother, and shall cleave unto his wife: and they shall be one flesh.",
+      "ref": "Genesis 2:24"
+    },
+    {
+      "v": "Unless the Lord builds the house, they labour in vain who build it.",
+      "ref": "Psalm 127:1"
+    },
+    {
+      "v": "Train up a child in the way he should go, and when he is old he will not depart from it.",
+      "ref": "Proverbs 22:6"
+    }
+  ],
+  "garden": [
+    {
+      "v": "Many waters cannot quench love, neither can the floods drown it.",
+      "ref": "Song of Solomon 8:7"
+    },
+    {
+      "v": "Your body is a temple of the Holy Spirit. Therefore glorify God in your body.",
+      "ref": "1 Corinthians 6:19-20"
+    },
+    {
+      "v": "Love is patient and is kind. Love does not envy, does not boast, is not proud.",
+      "ref": "1 Corinthians 13:4"
+    }
+  ],
+  "valley": [
+    {
+      "v": "He heals the broken-hearted, and binds up their wounds.",
+      "ref": "Psalm 147:3"
+    },
+    {
+      "v": "Do not remember the former things. Behold, I am doing a new thing.",
+      "ref": "Isaiah 43:18-19"
+    },
+    {
+      "v": "If anyone is in Christ, he is a new creation. The old has passed away; behold, the new has come.",
+      "ref": "2 Corinthians 5:17"
+    }
+  ],
+  "hilltop": [
+    {
+      "v": "As for me and my house, we will serve the Lord.",
+      "ref": "Joshua 24:15"
+    },
+    {
+      "v": "Let us not give up meeting together, but encourage one another.",
+      "ref": "Hebrews 10:25"
+    },
+    {
+      "v": "Seek first the kingdom of God and his righteousness, and all these things shall be added to you.",
+      "ref": "Matthew 6:33"
+    }
+  ],
+  "horizon": [
+    {
+      "v": "Many are the plans in a man's heart, but the counsel of the Lord shall stand.",
+      "ref": "Proverbs 19:21"
+    },
+    {
+      "v": "Where there is no vision, the people perish.",
+      "ref": "Proverbs 29:18"
+    },
+    {
+      "v": "Forgetting the things which are behind, I press on toward the goal.",
+      "ref": "Philippians 3:13-14"
+    }
+  ],
+  "summit": [
+    {
+      "v": "Be strong and courageous. Do not be afraid, for the Lord your God is with you wherever you go.",
+      "ref": "Joshua 1:9"
+    },
+    {
+      "v": "Speaking the truth in love, we will grow up in all things into him.",
+      "ref": "Ephesians 4:15"
+    },
+    {
+      "v": "God gave us not a spirit of fear, but of power, and of love, and of self-control.",
+      "ref": "2 Timothy 1:7"
+    }
+  ],
+  "lookout": [
+    {
+      "v": "Encourage one another and build each other up.",
+      "ref": "1 Thessalonians 5:11"
+    },
+    {
+      "v": "A threefold cord is not quickly broken.",
+      "ref": "Ecclesiastes 4:12"
+    },
+    {
+      "v": "He who began a good work in you will complete it.",
+      "ref": "Philippians 1:6"
+    }
+  ]
+};

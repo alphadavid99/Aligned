@@ -14,6 +14,13 @@
       }
     },
 
+    "intake": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
     "sessions": {
       "$code": {
         ".read": "auth != null && data.child('uids').child(auth.uid).exists()",
@@ -25,6 +32,17 @@
 
         "meetAt": {
           ".write": "auth != null && root.child('sessions/'+$code+'/uids/'+auth.uid).exists()"
+        },
+
+        "path": {
+          ".write": false
+        },
+
+        "pathLamps": {
+          "$step": {
+            ".write": "auth != null && root.child('sessions/'+$code+'/uids/'+auth.uid).exists()",
+            ".validate": "newData.isBoolean()"
+          }
         },
 
         "decks": {

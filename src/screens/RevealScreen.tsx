@@ -68,6 +68,7 @@ export default function RevealScreen({
   partnerName,
   questions,
   review = false,
+  title,
 }: {
   slug: string;
   level: number;
@@ -80,6 +81,9 @@ export default function RevealScreen({
   // reopened to see the full per-question breakdown (what each of you answered).
   questions?: Question[];
   review?: boolean;
+  // The Path reuses this screen with a custom question list that spans decks, so
+  // it passes an explicit eyebrow title instead of a single deck name.
+  title?: string;
 }) {
   const t = useT();
   const lang = useLang();
@@ -88,7 +92,9 @@ export default function RevealScreen({
   const pct = overall(qs, data, role);
   const know = knowScore(qs, data, role);
   const joint = jointQuestions(qs, data);
-  const multi = nLevels(slug) > 1;
+  // A custom question list (review or Path) is single-part, so never touch the
+  // deck-leveling helpers with a slug that may not be a real deck.
+  const multi = questions ? false : nLevels(slug) > 1;
   // Reflection-only decks have nothing to score — show the answers, not a 0% ring.
   const hasScore = joint.some((q) => q.type !== "open");
   // "Before you walk on" — the flagged questions worth a closer look (§4/§5).
@@ -134,7 +140,7 @@ export default function RevealScreen({
 
   const eyebrow = (
     <div className="eyebrow center" style={{ marginTop: 10 }}>
-      {deckName(slug, lang).toUpperCase()}
+      {(title ?? deckName(slug, lang)).toUpperCase()}
       {review
         ? t(" · REVIEW", " · RÉCAP")
         : multi

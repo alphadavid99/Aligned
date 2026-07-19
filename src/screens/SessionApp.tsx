@@ -12,14 +12,16 @@ import ProfileScreen from "./ProfileScreen";
 import PlayScreen from "./PlayScreen";
 import PartPicker from "./PartPicker";
 import RevealScreen from "./RevealScreen";
+import PathScreen, { PathFlow } from "./PathScreen";
 import { TopBar } from "../components/TopBar";
 import { Mark } from "../brand/Mark";
 import { Wordmark } from "../brand/Wordmark";
 import { PillNav } from "../components/PillNav";
 import { IconHome, IconDecks, IconResults, IconProfile } from "../components/icons";
+import { Route } from "lucide-react";
 import { useT } from "../lib/i18n";
 
-type Tab = "home" | "decks" | "results" | "profile";
+type Tab = "home" | "decks" | "path" | "results" | "profile";
 type Flow = null | "picker" | "play" | "review" | "reviewDeck";
 
 const TABS: {
@@ -30,9 +32,23 @@ const TABS: {
 }[] = [
   { key: "home", en: "Home", fr: "Accueil", Icon: IconHome },
   { key: "decks", en: "Talk", fr: "Parler", Icon: IconDecks },
-  { key: "results", en: "Us", fr: "Nous", Icon: IconResults },
+  // The Path ships behind a flag (VITE_PATH_ENABLED) — it needs the generatePath
+  // Cloud Function deployed, and touches live users, so it stays dark by default.
+  ...(import.meta.env.VITE_PATH_ENABLED === "true"
+    ? [
+        {
+          key: "path" as Tab,
+          en: "Path",
+          fr: "Chemin",
+          Icon: ({ size }: { size?: number }) => <Route size={size} strokeWidth={2} />,
+        },
+      ]
+    : []),
+  { key: "results", en: "Together", fr: "Ensemble", Icon: IconResults },
   { key: "profile", en: "You", fr: "Vous", Icon: IconProfile },
 ];
+
+const PATH_ENABLED = import.meta.env.VITE_PATH_ENABLED === "true";
 
 export default function SessionApp({
   code,
@@ -51,6 +67,8 @@ export default function SessionApp({
   const [flow, setFlow] = useState<Flow>(null);
   // Which tab the play/reveal flow was entered from, so × returns there.
   const [flowReturn, setFlowReturn] = useState<Tab>("home");
+  // The Path step being walked (full-screen, no bottom nav), or null on the map.
+  const [pathStep, setPathStep] = useState<number | null>(null);
 
   if (loading) {
     return (
@@ -133,6 +151,20 @@ export default function SessionApp({
   };
 
   // ---- In-flow screens (bottom nav hidden) ----
+  if (pathStep != null) {
+    return (
+      <PathFlow
+        code={code}
+        role={role}
+        session={session}
+        index={pathStep}
+        myName={myName}
+        partnerName={partnerName}
+        onExit={() => setPathStep(null)}
+      />
+    );
+  }
+
   if (flow === "picker") {
     return (
       <PartPicker
@@ -238,7 +270,7 @@ export default function SessionApp({
       <div className="tabwrap">
         {/* Home wears its own header (avatar chip + settings); other tabs keep
             the brand mark up top. */}
-        {tab !== "home" && (
+        {tab !== "home" && tab !== "path" && (
           <div className="brandhead" style={{ padding: "2px 0 10px" }}>
             {tab === "profile" ? (
               <Wordmark size={24} />
@@ -263,6 +295,16 @@ export default function SessionApp({
           )}
           {tab === "decks" && (
             <DecksScreen session={session} role={role} onPlay={openDeck} />
+          )}
+          {PATH_ENABLED && tab === "path" && (
+            <PathScreen
+              code={code}
+              session={session}
+              user={user}
+              partnerName={partnerName}
+              onBrowseDecks={() => setTab("decks")}
+              onOpenStep={setPathStep}
+            />
           )}
           {tab === "results" && (
             <ResultsScreen session={session} role={role} onOpen={openReview} />
