@@ -34,8 +34,8 @@ const MESSAGES: Record<string, { en: string; fr: string }> = {
     fr: "Trop de tentatives — patientez un instant et réessayez.",
   },
   "auth/popup-closed-by-user": {
-    en: "Google sign-in was closed before finishing.",
-    fr: "La connexion Google a été fermée avant la fin.",
+    en: "Sign-in was closed before finishing.",
+    fr: "La connexion a été fermée avant la fin.",
   },
   "auth/operation-not-allowed": {
     en: "That sign-in method isn’t enabled in your Firebase console yet.",

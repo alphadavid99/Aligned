@@ -4,6 +4,7 @@ import { auth } from "./firebase";
 import { useAuth } from "./hooks/useAuth";
 import { useProfile } from "./hooks/useProfile";
 import { getActiveCode, setActiveCode, clearActiveCode } from "./lib/local";
+import { currentInviteToken, onInviteToken } from "./lib/invite";
 import { redeemInvite } from "./lib/functions";
 import { prettyError } from "./lib/errors";
 import { getLang } from "./lib/i18n";
@@ -76,11 +77,7 @@ function NoSession({
   );
 }
 
-// An invite link is /?t=<token>. Grab it once at load so it survives the
-// sign-in / onboarding steps before we redeem it.
-const inviteToken = new URLSearchParams(window.location.search).get("t");
-
-function SignedIn({ user }: { user: User }) {
+function SignedIn({ user, inviteToken }: { user: User; inviteToken: string | null }) {
   const t = useT();
   const { profile, loading } = useProfile(user.uid);
   const [code, setCode] = useState<string | null>(() => getActiveCode(user.uid));
@@ -143,7 +140,7 @@ function SignedIn({ user }: { user: User }) {
     return () => {
       cancelled = true;
     };
-  }, [profile?.name, code, user.uid]);
+  }, [profile?.name, code, user.uid, inviteToken]);
 
   if (loading)
     return (
@@ -197,7 +194,7 @@ function SignedIn({ user }: { user: User }) {
 // flow and only hands back a code when it's finished — critically, it stays
 // mounted THROUGH the mid-flow account upgrade (linkWithCredential flips
 // isAnonymous, but this gate doesn't re-route on that).
-function OnboardingGate() {
+function OnboardingGate({ inviteToken }: { inviteToken: string | null }) {
   const [doneCode, setDoneCode] = useState<string | null>(null);
   const u = auth.currentUser;
   if (doneCode && u) {
@@ -229,6 +226,12 @@ function OnboardingGate() {
 export default function App() {
   const { user, loading } = useAuth();
   const t = useT();
+  // The invite token can arrive after mount on native (a universal link), so
+  // track it in state and re-render when the deep-link bridge delivers one.
+  const [inviteToken, setInviteTokenState] = useState<string | null>(
+    currentInviteToken,
+  );
+  useEffect(() => onInviteToken(setInviteTokenState), []);
   // Decide the entry mode ONCE, when auth first settles, and lock it. A
   // pre-existing real account goes to the app; everyone else (no user, or an
   // anonymous user) enters onboarding and stays there even after the account is
@@ -264,9 +267,9 @@ export default function App() {
           <Boot label={t("Checking your account…", "Vérification de votre compte…")} />
         </>
       ) : mode === "app" && user ? (
-        <SignedIn user={user} />
+        <SignedIn user={user} inviteToken={inviteToken} />
       ) : (
-        <OnboardingGate />
+        <OnboardingGate inviteToken={inviteToken} />
       )}
     </div>
   );

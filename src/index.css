@@ -221,13 +221,25 @@ textarea.input {
   margin-top: 16px;
   padding: 8px;
 }
-.google {
+.google,
+.apple {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
 }
 .google svg {
+  width: 18px;
+  height: 18px;
+}
+/* Sign in with Apple — Apple's HIG requires their own black/white treatment,
+   so this button is deliberately NOT tokenised to the brand palette. Solid
+   black + white mark is the App-Review-safe default. */
+.btn.out.apple {
+  background: #000;
+  color: #fff;
+}
+.apple svg {
   width: 18px;
   height: 18px;
 }
@@ -309,6 +321,17 @@ textarea.input {
   color: var(--mut);
   line-height: 1.6;
   word-break: break-all;
+}
+
+/* Build stamp — deliberately faint; there to be read on purpose, not noticed. */
+.buildstamp {
+  margin-top: 10px;
+  text-align: center;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: var(--mut);
+  opacity: 0.55;
 }
 
 .spin {

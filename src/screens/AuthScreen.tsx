@@ -2,10 +2,14 @@ import { useState } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signInWithPopup,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
+import { auth } from "../firebase";
+import {
+  signInWithGoogleSmart,
+  signInWithAppleSmart,
+  appleAuthAvailable,
+} from "../lib/device/auth";
 import { prettyError } from "../lib/errors";
 import { hasReturned } from "../lib/local";
 import { useT } from "../lib/i18n";
@@ -68,7 +72,10 @@ export default function AuthScreen() {
     }
   };
 
-  const google = async () => {
+  // Guard the consent gate on sign-up, then run whichever OAuth flow the
+  // platform supports (native sheet on iOS, popup on web). onAuthStateChanged
+  // swaps the view on success.
+  const oauth = async (run: () => Promise<unknown>) => {
     clear();
     if (isSignup && !agreed) {
       setErr(
@@ -80,11 +87,14 @@ export default function AuthScreen() {
       return;
     }
     try {
-      await signInWithPopup(auth, googleProvider);
+      await run();
     } catch (e2) {
       setErr(prettyError(e2));
     }
   };
+
+  const google = () => oauth(() => signInWithGoogleSmart(auth));
+  const apple = () => oauth(() => signInWithAppleSmart(auth));
 
   const resetPw = async () => {
     clear();
@@ -183,6 +193,26 @@ export default function AuthScreen() {
         </svg>
         {t("Continue with Google", "Continuer avec Google")}
       </button>
+
+      {/* Sign in with Apple — native iOS only. Mandatory (App Review 4.8)
+          whenever Google is offered. The native plugin runs the OS sheet; the
+          returned credential is bridged into the same Firebase session. */}
+      {appleAuthAvailable() && (
+        <button
+          className="btn out apple"
+          type="button"
+          onClick={apple}
+          style={{ marginTop: 12 }}
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M16.36 12.86c-.02-2.16 1.76-3.2 1.84-3.25-1-1.47-2.56-1.67-3.12-1.69-1.33-.13-2.59.78-3.26.78-.67 0-1.71-.76-2.81-.74-1.45.02-2.79.84-3.53 2.14-1.5 2.61-.38 6.47 1.08 8.59.71 1.04 1.56 2.2 2.68 2.16 1.07-.04 1.48-.69 2.78-.69 1.29 0 1.66.69 2.79.67 1.15-.02 1.88-1.06 2.59-2.1.81-1.21 1.15-2.38 1.17-2.44-.03-.01-2.24-.86-2.26-3.41zM14.2 6.6c.59-.72.99-1.71.88-2.7-.85.03-1.88.57-2.49 1.28-.55.63-1.03 1.64-.9 2.61.95.07 1.92-.48 2.51-1.19z"
+            />
+          </svg>
+          {t("Continue with Apple", "Continuer avec Apple")}
+        </button>
+      )}
 
       <div className="authdiv">{t("or use email", "ou par e-mail")}</div>
 

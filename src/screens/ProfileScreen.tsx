@@ -6,6 +6,7 @@ import { fileToAvatarDataUrl } from "../lib/device/photo";
 import { prettyError } from "../lib/errors";
 import { exportMyData, deleteMyAccount } from "../lib/functions";
 import { useT, useLang, setLang, LANGS } from "../lib/i18n";
+import BuildStamp from "../components/BuildStamp";
 import type { Profile } from "../types";
 
 export default function ProfileScreen({
@@ -308,6 +309,7 @@ export default function ProfileScreen({
         {t("Signed in as", "Connecté en tant que")}{" "}
         {user.email || t("your Google account", "votre compte Google")}
       </div>
+      <BuildStamp />
     </section>
   );
 }

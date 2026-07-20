@@ -22,6 +22,19 @@ dist-ssr
 # Claude Code — local machine settings (launch.json is committed, this isn't)
 .claude/settings.local.json
 
+# Capacitor / iOS native shell — commit the ios/App source, ignore build
+# artefacts and generated copies. Capacitor 8 uses Swift Package Manager, so
+# there are no CocoaPods here. The ios/.gitignore the CLI generated covers most
+# of this; these root entries make the intent explicit from the repo root.
+ios/App/App/public/
+ios/App/build/
+ios/DerivedData/
+*.xcuserstate
+xcuserdata/
+# Regenerated on every `cap copy` from capacitor.config.ts — never hand-edit.
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+
 # Firebase
 .firebase/
 firebase-debug.log

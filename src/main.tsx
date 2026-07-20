@@ -14,6 +14,10 @@ import '@fontsource/fraunces/500.css'
 import '@fontsource/fraunces/600.css'
 import './index.css'
 import App from './App.tsx'
+import { initNative } from './lib/device/native'
+
+// Wire up native-shell behaviour (status bar, deep links). No-op on web.
+initNative()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

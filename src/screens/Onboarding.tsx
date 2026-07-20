@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import {
   signInAnonymously,
   linkWithCredential,
-  linkWithPopup,
   EmailAuthProvider,
 } from "firebase/auth";
 import { get, ref } from "firebase/database";
-import { auth, db, googleProvider } from "../firebase";
+import { auth, db } from "../firebase";
+import {
+  linkWithGoogleSmart,
+  linkWithAppleSmart,
+  appleAuthAvailable,
+} from "../lib/device/auth";
 import {
   createSession,
   writeAnswer,
@@ -780,20 +784,26 @@ function ProfileStep({
     }
   };
 
-  const withGoogle = async () => {
+  // Link the anonymous onboarding user onto an OAuth provider — Google, or
+  // Apple on native iOS. Same graft either way: the anonymous uid is kept, so
+  // the session seat and consent already written under it stay valid.
+  const withProvider = async (link: (u: import("firebase/auth").User) => Promise<import("firebase/auth").UserCredential>) => {
     if (busy) return;
     setBusy(true);
     setErr("");
     try {
       const u = auth.currentUser;
       if (!u) return onFallback();
-      const res = await linkWithPopup(u, googleProvider);
+      const res = await link(u);
       await finish(res.user.email ?? undefined);
     } catch (e) {
       setErr(prettyError(e));
       setBusy(false);
     }
   };
+
+  const withGoogle = () => withProvider(linkWithGoogleSmart);
+  const withApple = () => withProvider(linkWithAppleSmart);
 
   const onPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -834,6 +844,18 @@ function ProfileStep({
       <button className="btn out google" type="button" onClick={withGoogle} disabled={busy} style={{ marginTop: 14 }}>
         {t("Continue with Google", "Continuer avec Google")}
       </button>
+      {/* Apple linking — native iOS only (App Review 4.8 when Google is shown). */}
+      {appleAuthAvailable() && (
+        <button className="btn out apple" type="button" onClick={withApple} disabled={busy} style={{ marginTop: 12 }}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M16.36 12.86c-.02-2.16 1.76-3.2 1.84-3.25-1-1.47-2.56-1.67-3.12-1.69-1.33-.13-2.59.78-3.26.78-.67 0-1.71-.76-2.81-.74-1.45.02-2.79.84-3.53 2.14-1.5 2.61-.38 6.47 1.08 8.59.71 1.04 1.56 2.2 2.68 2.16 1.07-.04 1.48-.69 2.78-.69 1.29 0 1.66.69 2.79.67 1.15-.02 1.88-1.06 2.59-2.1.81-1.21 1.15-2.38 1.17-2.44-.03-.01-2.24-.86-2.26-3.41zM14.2 6.6c.59-.72.99-1.71.88-2.7-.85.03-1.88.57-2.49 1.28-.55.63-1.03 1.64-.9 2.61.95.07 1.92-.48 2.51-1.19z"
+            />
+          </svg>
+          {t("Continue with Apple", "Continuer avec Apple")}
+        </button>
+      )}
       <div className="authdiv">{t("or use email", "ou par e-mail")}</div>
 
       <label htmlFor="oe">{t("Email", "E-mail")}</label>

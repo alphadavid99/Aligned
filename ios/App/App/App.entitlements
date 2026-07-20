@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Sign in with Apple — mandatory (App Review 4.8) because Google is offered.
+	     Bridged into Firebase via @capacitor-firebase/authentication. -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
+	<!-- Universal Links — the partner-invite link (https://twoagree.app/?t=…) and
+	     auth callbacks resolve INTO the app when installed, falling back to the web
+	     otherwise. Must match the Associated Domains capability in the Apple
+	     Developer portal for App ID app.twoagree. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:twoagree.app</string>
+	</array>
+</dict>
+</plist>
