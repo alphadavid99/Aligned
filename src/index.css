@@ -2919,72 +2919,59 @@ textarea.input {
 }
 
 /* ---- The Path — intro screen -------------------------------------------------
-   A claret hero (this is the app's centrepiece) over a quiet, ascending trail
-   whose three waypoints answer: what it is, what makes it theirs, and — at the
-   marked destination — the alignment they walk away with. */
+   Airy, light layout: no claret block. A calm title + verse, then a quiet
+   ascending trail whose three waypoints answer what it is, what makes it
+   theirs, and — at the marked destination — the alignment they walk away with.
+   Sized to the viewport (min-height fills the tab area, CTA pinned bottom via
+   margin-top:auto) so "Begin" is visible without scrolling. */
 .path-intro {
   display: flex;
   flex-direction: column;
+  /* Fill the visible tab area exactly: 100svh less the phone frame's vertical
+     padding (top 28 + bottom 36) and the bottom-nav reserve (.tabwrap
+     padding-bottom 104) = 168, plus a little slack. svh keeps the CTA in view
+     even with a mobile browser bar showing. */
+  min-height: calc(100svh - env(safe-area-inset-top, 0px) - 176px);
 }
-/* Full-bleed the hero: cancel the .phone frame's 22px sides + top padding so
-   the claret panel reaches the screen edges, then re-pad inside. */
-.pi-hero {
-  margin-inline: -22px;
-  margin-top: calc(-1 * (env(safe-area-inset-top, 0px) + 28px));
-  padding: calc(env(safe-area-inset-top, 0px) + 34px) 26px 30px;
-  background: radial-gradient(
-    135% 105% at 50% -10%,
-    var(--berry2) 0%,
-    var(--berry) 60%,
-    var(--ta-claret-deep) 100%
-  );
-  border-radius: 0 0 30px 30px;
+.pi-head {
+  display: flex;
+  justify-content: center;
+  padding: 2px 0 0;
+}
+.pi-top {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 9px;
-}
-.pi-eyebrow {
-  margin: 6px 0 0;
-  font-family: var(--font-ui);
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--ta-honey-raised);
+  gap: 8px;
+  margin: clamp(20px, 3.2vh, 36px) 0 clamp(16px, 2.2vh, 28px);
 }
 .pi-title {
-  margin: 2px 0 0;
+  margin: 0;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 36px;
-  line-height: 1.02;
-  color: #fff;
+  font-size: 30px;
+  line-height: 1.04;
+  color: var(--ink);
 }
 .pi-verse {
-  margin: 4px 0 0;
+  margin: 0;
   max-width: 15rem;
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 400;
   font-size: 15px;
-  line-height: 1.42;
-  color: var(--ta-honey-raised);
+  line-height: 1.44;
+  color: var(--berry);
 }
 .pi-vref {
-  margin: 2px 0 0;
+  margin: 0;
   font-family: var(--font-ui);
-  font-size: 11.5px;
-  letter-spacing: 0.04em;
-  color: rgba(220, 178, 101, 0.66);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--sub);
 }
 
-.pi-body {
-  padding: 26px 4px 0;
-  display: flex;
-  flex-direction: column;
-}
 .pi-trail {
   position: relative;
   list-style: none;
@@ -2992,7 +2979,7 @@ textarea.input {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: clamp(11px, 1.5vh, 16px);
 }
 /* the ascending dotted trail behind the nodes */
 .pi-trail::before {
@@ -3031,8 +3018,8 @@ textarea.input {
 }
 .pi-txt i {
   font-style: normal;
-  font-size: 12.5px;
-  line-height: 1.46;
+  font-size: 12px;
+  line-height: 1.4;
   color: var(--sub);
 }
 .pi-end .pi-txt b {
@@ -3044,7 +3031,7 @@ textarea.input {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  margin: 22px 8px 0;
+  margin: clamp(10px, 1.5vh, 16px) 8px 0;
   text-align: center;
   font-size: 11px;
   line-height: 1.4;
@@ -3055,9 +3042,19 @@ textarea.input {
   color: var(--app-amber);
 }
 
+/* Pin the CTA to the bottom of the filled section so it's always in view;
+   extra vertical space collects above it (keeping the top calm and airy). */
 .pi-cta {
-  margin-top: 26px;
+  margin-top: auto;
+  padding-top: clamp(10px, 1.6vh, 18px);
+  padding-bottom: 4px;
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+/* The shared .btn/.btn.ghost carry their own margin-top for stacked layouts;
+   here the flex column owns the spacing, so neutralise it (this was pushing
+   "Begin" below the fold). */
+.pi-cta .btn {
+  margin-top: 0;
 }
