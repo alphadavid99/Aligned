@@ -14,7 +14,6 @@ import {
   markLevelDone,
   recordConsent,
   writeProfile,
-  writeMeetAt,
 } from "../lib/session";
 import { redeemInvite, createInvite } from "../lib/functions";
 import { prettyError } from "../lib/errors";
@@ -54,7 +53,6 @@ type AStep =
   | "questions"
   | "profile"
   | "invite"
-  | "intention"
   | "menu";
 type BStep =
   | "arrive"
@@ -424,13 +422,9 @@ export default function Onboarding({
         partner={partner}
         myName={myName.trim()}
         t={t}
-        onContinue={() => setStepA("intention")}
+        onContinue={() => setStepA("menu")}
       />
     );
-  }
-
-  if (stepA === "intention") {
-    return <IntentionStep code={code} t={t} onNext={() => setStepA("menu")} />;
   }
 
   // A7 — "where would you like to start?" (spec §A7 / decision #3: reuse this as
@@ -870,8 +864,8 @@ function InviteStep({
 }) {
   const [msg, setMsg] = useState(
     t(
-      `Hey ${partner} — I started something on TwoAgree and it needs you. It takes 5 minutes. `,
-      `Coucou ${partner} — j'ai commencé quelque chose sur TwoAgree et j'ai besoin de toi. Ça prend 5 minutes. `,
+      `${partner}, I've started something for the two of us on TwoAgree. We each answer the same questions honestly and on our own, then see where we land together. It only works with you in it — about five minutes: `,
+      `${partner}, j'ai commencé quelque chose pour nous deux sur TwoAgree. On répond chacun aux mêmes questions, honnêtement et de notre côté, puis on voit où on se retrouve. Ça ne marche qu'avec toi — environ cinq minutes : `,
     ),
   );
   const [busy, setBusy] = useState(false);
@@ -924,38 +918,3 @@ function InviteStep({
   );
 }
 
-// ---- Implementation intention (spec v2 §A6) -------------------------------
-function IntentionStep({ code, onNext, t }: { code: string; onNext: () => void; t: T }) {
-  const [when, setWhen] = useState("");
-  const [busy, setBusy] = useState(false);
-  const save = async () => {
-    if (busy) return;
-    setBusy(true);
-    if (when) {
-      const ms = Date.parse(when);
-      if (!Number.isNaN(ms)) await writeMeetAt(code, ms);
-    }
-    setBusy(false);
-    onNext();
-  };
-  return (
-    <section className="screen-enter">
-      <div className="brandhead brand-enter">
-        <Mark height={30} title="TwoAgree" colour="var(--berry)" />
-      </div>
-      <h1 className="h1 center" style={{ marginTop: 20 }}>
-        {t("When will you two sit down for this together?", "Quand vous poserez-vous ensemble pour cela ?")}
-      </h1>
-      <p className="sub center" style={{ margin: "8px 24px 14px" }}>
-        {t(
-          "Couples who pick a moment actually have the conversation. No reminders, no nagging.",
-          "Les couples qui choisissent un moment ont vraiment la conversation. Aucun rappel, aucune relance.",
-        )}
-      </p>
-      <input className="input" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
-      <button className="btn pill" type="button" disabled={busy} onClick={save}>
-        {when ? t("Set it →", "C'est noté →") : t("Skip for now →", "Passer pour l'instant →")}
-      </button>
-    </section>
-  );
-}

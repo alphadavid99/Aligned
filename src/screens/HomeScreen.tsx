@@ -96,8 +96,8 @@ export default function HomeScreen({
 
   const share = () => {
     const txt = t(
-      `Join me on TwoAgree — our code is ${code}`,
-      `Rejoignez-moi sur TwoAgree — notre code est ${code}`,
+      `Come do this with me on TwoAgree — we each answer the same questions, then see where the two of us land. Our code is ${code}`,
+      `Fais-le avec moi sur TwoAgree — on répond chacun aux mêmes questions, puis on voit où on se retrouve tous les deux. Notre code est ${code}`,
     );
     if (navigator.share) navigator.share({ text: txt }).catch(() => {});
     else if (navigator.clipboard) {
@@ -115,8 +115,8 @@ export default function HomeScreen({
       const res = await createInvite({ code });
       const link = `${window.location.origin}/?t=${res.data.token}`;
       const txt = t(
-        `Join me on TwoAgree — ${link}`,
-        `Rejoignez-moi sur TwoAgree — ${link}`,
+        `Come do this with me on TwoAgree — we each answer the same questions, then see where the two of us land: ${link}`,
+        `Fais-le avec moi sur TwoAgree — on répond chacun aux mêmes questions, puis on voit où on se retrouve tous les deux : ${link}`,
       );
       if (navigator.share) await navigator.share({ text: txt }).catch(() => {});
       else if (navigator.clipboard) await navigator.clipboard.writeText(link);

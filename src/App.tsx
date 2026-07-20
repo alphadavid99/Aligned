@@ -6,6 +6,7 @@ import { useProfile } from "./hooks/useProfile";
 import { getActiveCode, setActiveCode, clearActiveCode } from "./lib/local";
 import { redeemInvite } from "./lib/functions";
 import { prettyError } from "./lib/errors";
+import { getLang } from "./lib/i18n";
 import ProfileScreen from "./screens/ProfileScreen";
 import StartScreen from "./screens/StartScreen";
 import SessionApp from "./screens/SessionApp";
@@ -85,13 +86,49 @@ function SignedIn({ user }: { user: User }) {
   const [code, setCode] = useState<string | null>(() => getActiveCode(user.uid));
   const [redeeming, setRedeeming] = useState(!!inviteToken);
   const [inviteErr, setInviteErr] = useState("");
+  // Attempt the redeem exactly once, so a state change can never re-trigger it
+  // and no branch can leave us stuck on the "Joining…" spinner.
+  const redeemed = useRef(false);
 
   // Redeem an invite link once the user is signed in and has a name.
   useEffect(() => {
-    if (!inviteToken || code || !profile?.name) return;
+    if (!inviteToken || redeemed.current) return;
+
+    // Already seated in a session (e.g. the host opened the link they sent, or
+    // a stale token from a previous visit): don't try to redeem into it — that
+    // used to hang on "Joining…" forever. Drop the token and stay put.
+    if (code) {
+      redeemed.current = true;
+      setRedeeming(false);
+      window.history.replaceState({}, "", window.location.pathname);
+      return;
+    }
+
+    // Wait until the profile is loaded (need a name for the guest slot); keep
+    // showing the spinner in the meantime.
+    if (!profile?.name) return;
+
+    redeemed.current = true;
     let cancelled = false;
     setRedeeming(true);
-    redeemInvite({ token: inviteToken })
+    // Backstop a slow/hung callable so we surface an error instead of spinning.
+    const withTimeout = Promise.race([
+      redeemInvite({ token: inviteToken }),
+      new Promise<never>((_, rej) =>
+        setTimeout(
+          () =>
+            rej(
+              new Error(
+                getLang() === "fr"
+                  ? "Cela a pris trop de temps — vérifiez votre connexion et rouvrez le lien."
+                  : "That took too long — check your connection and open the link again.",
+              ),
+            ),
+          20000,
+        ),
+      ),
+    ]);
+    withTimeout
       .then((res) => {
         if (cancelled) return;
         setActiveCode(user.uid, res.data.code);
@@ -164,9 +201,29 @@ function OnboardingGate() {
   const [doneCode, setDoneCode] = useState<string | null>(null);
   const u = auth.currentUser;
   if (doneCode && u) {
-    return <SessionApp code={doneCode} user={u} onLeave={() => setDoneCode(null)} />;
+    return (
+      <SessionApp
+        code={doneCode}
+        user={u}
+        onLeave={() => {
+          clearActiveCode(u.uid);
+          setDoneCode(null);
+        }}
+      />
+    );
   }
-  return <Onboarding inviteToken={inviteToken} onDone={(c) => setDoneCode(c)} />;
+  return (
+    <Onboarding
+      inviteToken={inviteToken}
+      onDone={(c) => {
+        // Persist the session so returning to the app (a fresh load, now a real
+        // signed-in account) reopens it instead of dropping to "Start a session".
+        const cu = auth.currentUser;
+        if (cu) setActiveCode(cu.uid, c);
+        setDoneCode(c);
+      }}
+    />
+  );
 }
 
 export default function App() {
