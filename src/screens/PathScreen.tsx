@@ -202,7 +202,7 @@ export function PathIntro({
     // bottom via margin-top:auto).
     <section className="screen-enter path-intro">
       <div className="pi-head">
-        <Mark height={34} title="TwoAgree" colour="var(--berry)" />
+        <Mark height={30} title="TwoAgree" colour="var(--berry)" />
       </div>
 
       <div className="pi-top">
