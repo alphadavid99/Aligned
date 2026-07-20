@@ -197,10 +197,15 @@ export function PathIntro({
   ];
 
   return (
+    // Airy layout, sized to the viewport so the "Begin" button is in view
+    // without scrolling (min-height fills the tab area; the CTA sits at the
+    // bottom via margin-top:auto).
     <section className="screen-enter path-intro">
-      <div className="pi-hero">
-        <Wordmark size={22} tone="onClaret" />
-        <p className="pi-eyebrow">{t("A new way to begin", "Une nouvelle façon de commencer")}</p>
+      <div className="pi-head">
+        <Wordmark size={24} />
+      </div>
+
+      <div className="pi-top">
         <h1 className="pi-title">{t("The Path", "Le Chemin")}</h1>
         <p className="pi-verse">
           {t("“Can two walk together, unless they are agreed?”", "« Deux marchent-ils ensemble sans s'être accordés ? »")}
@@ -208,38 +213,36 @@ export function PathIntro({
         <p className="pi-vref">Amos 3:3</p>
       </div>
 
-      <div className="pi-body">
-        <ol className="pi-trail">
-          {steps.map((st, i) => (
-            <li key={i} className={`pi-step${st.end ? " pi-end" : ""}`}>
-              <span className="pi-node">{st.node}</span>
-              <span className="pi-txt">
-                <b>{st.h}</b>
-                <i>{st.s}</i>
-              </span>
-            </li>
-          ))}
-        </ol>
+      <ol className="pi-trail">
+        {steps.map((st, i) => (
+          <li key={i} className={`pi-step${st.end ? " pi-end" : ""}`}>
+            <span className="pi-node">{st.node}</span>
+            <span className="pi-txt">
+              <b>{st.h}</b>
+              <i>{st.s}</i>
+            </span>
+          </li>
+        ))}
+      </ol>
 
-        <p className="pi-privacy">
-          <svg viewBox="0 0 24 24" width={13} height={13} aria-hidden="true">
-            <rect x={5} y={10.5} width={14} height={9} rx={2} fill="none" stroke="currentColor" strokeWidth={1.7} />
-            <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" strokeWidth={1.7} />
-          </svg>
-          {t(
-            `You each answer on your own — neither of you sees the other's until you land.`,
-            `Vous répondez chacun de votre côté — aucun ne voit les réponses de l'autre avant l'arrivée.`,
-          )}
-        </p>
+      <p className="pi-privacy">
+        <svg viewBox="0 0 24 24" width={13} height={13} aria-hidden="true">
+          <rect x={5} y={10.5} width={14} height={9} rx={2} fill="none" stroke="currentColor" strokeWidth={1.7} />
+          <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" strokeWidth={1.7} />
+        </svg>
+        {t(
+          `You each answer on your own — neither of you sees the other's until you land.`,
+          `Vous répondez chacun de votre côté — aucun ne voit les réponses de l'autre avant l'arrivée.`,
+        )}
+      </p>
 
-        <div className="pi-cta">
-          <button className="btn pill" type="button" onClick={onBegin}>
-            {t("Begin — just me", "Commencer — juste moi")}
-          </button>
-          <button className="btn ghost" type="button" onClick={onBrowseDecks}>
-            {t("Browse the decks instead", "Parcourir les jeux plutôt")}
-          </button>
-        </div>
+      <div className="pi-cta">
+        <button className="btn pill" type="button" onClick={onBegin}>
+          {t("Begin — just me", "Commencer — juste moi")}
+        </button>
+        <button className="btn ghost" type="button" onClick={onBrowseDecks}>
+          {t("Browse the decks instead", "Parcourir les jeux plutôt")}
+        </button>
       </div>
     </section>
   );
